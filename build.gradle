@@ -1,0 +1,31 @@
+apply plugin: "java"
+
+group "de.vorb"
+description "platon"
+version "0.0.1-SNAPSHOT"
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // commons
+    compile "com.google.guava:guava:18.0"
+    compile "org.apache.commons:commons-lang3:3.4"
+
+    // spring boot
+    compile "org.springframework.boot:spring-boot-starter-web:$springBootVersion"
+    compile "org.springframework.boot:spring-boot-starter-jersey:$springBootVersion"
+    compile "org.springframework.boot:spring-boot-starter-undertow:$springBootVersion"
+    compile "org.springframework.boot:spring-boot-starter-data-jpa:$springBootVersion"
+    compile "org.springframework.boot:spring-boot-starter-mail:$springBootVersion"
+
+    // db
+    compile "com.h2database:h2:1.4.190"
+
+    // testing
+    testCompile "org.springframework.boot:spring-boot-starter-test:$springBootVersion"
+}
