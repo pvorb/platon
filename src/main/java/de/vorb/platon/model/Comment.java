@@ -1,9 +1,15 @@
 package de.vorb.platon.model;
 
 
+import de.vorb.platon.web.rest.json.ByteArraySerializer;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.common.base.MoreObjects;
+import com.google.common.base.Preconditions;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -14,8 +20,14 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.time.Instant;
+import java.util.Arrays;
 import java.util.Objects;
 
 
@@ -23,14 +35,15 @@ import java.util.Objects;
 @Table(name = "COMMENTS")
 public class Comment {
 
+    private static final Logger logger = LoggerFactory.getLogger(Comment.class);
+
     private static final int LIMIT_AUTHOR = 128;
-    private static final int LIMIT_EMAIL = 128;
     private static final int LIMIT_URL = 256;
 
     @Id
     @Column(name = "ID")
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "comments_seq")
-    @SequenceGenerator(name = "comments_seq", sequenceName = "SEQ_COMMENTS")
+    @SequenceGenerator(name = "comments_seq", sequenceName = "SEQ_COMMENTS", allocationSize = 0)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -38,25 +51,38 @@ public class Comment {
     @JsonIgnore
     private CommentThread thread;
 
-    @Column(name = "TEXT")
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "PARENT_ID", nullable = true)
+    @JsonIgnore
+    private Comment parent;
+
+    @Column(name = "CREATION_DATE", nullable = false)
+    private Instant creationDate;
+
+    @Column(name = "MODIFICATION_DATE", nullable = false)
+    private Instant modificationDate;
+
+    @Column(name = "TEXT", nullable = false)
     @Lob
     private String text;
 
-    @Column(name = "AUTHOR", length = LIMIT_AUTHOR)
+    @Column(name = "AUTHOR", length = LIMIT_AUTHOR, nullable = true)
     private String author;
 
-    @Column(name = "EMAIL", length = LIMIT_EMAIL)
-    private String email;
+    @Column(name = "EMAIL_HASH", columnDefinition = "BINARY(16) NULL")
+    @JsonSerialize(using = ByteArraySerializer.class)
+    private byte[] emailHash;
 
-    @Column(name = "URL", length = LIMIT_URL)
+    @Column(name = "URL", length = LIMIT_URL, nullable = true)
     private String url;
 
 
     protected Comment() {
     }
 
-    public Comment(CommentThread thread, String text, String author, String email, String url) {
+    public Comment(CommentThread thread, Comment parent, String text, String author, String email, String url) {
         setThread(thread);
+        setParent(parent);
         setText(text);
         setAuthor(author);
         setEmail(email);
@@ -80,11 +106,47 @@ public class Comment {
         this.thread = thread;
     }
 
+    public Comment getParent() {
+        return parent;
+    }
+
+    public void setParent(Comment parent) {
+        this.parent = parent;
+    }
+
+    public Long getParentId() {
+        return parent != null ? parent.getId() : null;
+    }
+
+    public void setParentId(Long parentId) {
+        if (parentId != null) {
+            parent = new Comment();
+            parent.setId(parentId);
+        }
+    }
+
+    public Instant getCreationDate() {
+        return creationDate;
+    }
+
+    public void setCreationDate(Instant creationDate) {
+        this.creationDate = creationDate;
+    }
+
+    public Instant getModificationDate() {
+        return modificationDate;
+    }
+
+    public void setModificationDate(Instant modificationDate) {
+        this.modificationDate = modificationDate;
+    }
+
     public String getText() {
         return text;
     }
 
     public void setText(String text) {
+        Preconditions.checkNotNull(text);
         this.text = text;
     }
 
@@ -96,12 +158,27 @@ public class Comment {
         this.author = StringUtils.left(author, LIMIT_AUTHOR);
     }
 
-    public String getEmail() {
-        return email;
+    public byte[] getEmailHash() {
+        return emailHash;
+    }
+
+    public void setEmailHash(byte[] emailHash) {
+        Preconditions.checkArgument(emailHash.length == 16, "emailHash has invalid length");
+        this.emailHash = emailHash;
     }
 
     public void setEmail(String email) {
-        this.email = email;
+        if (email == null) {
+            this.emailHash = null;
+            return;
+        }
+
+        final byte[] stringBytes = email.getBytes(StandardCharsets.UTF_8);
+        try {
+            emailHash = MessageDigest.getInstance("MD5").digest(stringBytes);
+        } catch (NoSuchAlgorithmException e) {
+            logger.error("No implementation of MessageDigest algorithm MD5 available on this platform");
+        }
     }
 
     public String getUrl() {
@@ -121,13 +198,13 @@ public class Comment {
                 Objects.equals(thread, comment.thread) &&
                 Objects.equals(text, comment.text) &&
                 Objects.equals(author, comment.author) &&
-                Objects.equals(email, comment.email) &&
+                Arrays.equals(emailHash, comment.emailHash) &&
                 Objects.equals(url, comment.url);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, thread, text, author, email, url);
+        return Objects.hash(id, thread, text, author, emailHash, url);
     }
 
     @Override
@@ -137,7 +214,7 @@ public class Comment {
                 .add("id", id)
                 .add("text", text)
                 .add("author", author)
-                .add("email", email)
+                .add("emailHash", emailHash)
                 .add("url", url)
                 .toString();
     }

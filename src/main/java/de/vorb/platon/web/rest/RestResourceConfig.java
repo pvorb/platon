@@ -13,8 +13,10 @@ public class RestResourceConfig extends ResourceConfig {
 
     public RestResourceConfig() {
         register(RequestContextFilter.class);
-        register(CommentsResource.class);
+        register(PoweredByResponseFilter.class);
+        register(CommentResource.class);
         register(LoggingFilter.class);
+        register(ObjectMapperContextResolver.class);
     }
 
 }

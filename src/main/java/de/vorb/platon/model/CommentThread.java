@@ -1,6 +1,7 @@
 package de.vorb.platon.model;
 
 import com.google.common.base.MoreObjects;
+import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.persistence.Column;
@@ -46,6 +47,7 @@ public class CommentThread {
     public CommentThread(String url, String title) {
         setUrl(url);
         setTitle(title);
+        comments = Lists.newArrayList();
     }
 
     public Long getId() {
@@ -82,6 +84,12 @@ public class CommentThread {
                 Objects.equals(title, that.title);
     }
 
+    public boolean equalsById(CommentThread commentThread) {
+        if (this == commentThread) return true;
+        if (commentThread == null || commentThread.id == null || id == null) return false;
+        return Objects.equals(id, commentThread.id);
+    }
+
     @Override
     public int hashCode() {
         return Objects.hash(id, url, title);
@@ -93,7 +101,6 @@ public class CommentThread {
                 .omitNullValues()
                 .add("id", id)
                 .add("url", url)
-                .add("title", title)
                 .toString();
     }
 
