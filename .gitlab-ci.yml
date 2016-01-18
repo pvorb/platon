@@ -1,0 +1,23 @@
+image: java:openjdk-8-jdk
+
+before_script:
+  - export GRADLE_USER_HOME=`pwd`/.gradle
+
+cache:
+  paths:
+    - .gradle/wrapper
+    - .gradle/caches
+
+build:
+  stage: build
+  script:
+    - ./gradlew assemble
+
+test:
+  stage: test
+  script:
+    - ./gradlew check
+    - ./gradlew jacocoTestReport
+    - curl -s https://bootstrap.pypa.io/get-pip.py | python
+    - pip install codecov
+    - codecov -t $codecov_upload_token -f build/reports/jacoco/test/jacocoTestReport.xml | grep -v 'token='
