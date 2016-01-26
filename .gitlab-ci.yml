@@ -2,6 +2,8 @@ image: java:openjdk-8-jdk
 
 before_script:
   - export GRADLE_USER_HOME=`pwd`/.gradle
+  - echo 'sonatypeUsername=' >> gradle.properties
+  - echo 'sonatypePassword=' >> gradle.properties
 
 cache:
   paths:
