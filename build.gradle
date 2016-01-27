@@ -48,7 +48,7 @@ artifacts {
     archives javadocJar, sourcesJar
 }
 
-ext.signRelease = !("$System.env.TRAVIS" == "true")
+ext.signRelease = !("$System.env.GITLAB_CI" == "true")
 
 signing {
     required {
