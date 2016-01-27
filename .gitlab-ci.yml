@@ -1,25 +1,15 @@
-image: java:openjdk-8-jdk
-
-before_script:
-  - export GRADLE_USER_HOME=`pwd`/.gradle
-  - echo 'sonatypeUsername=' >> gradle.properties
-  - echo 'sonatypePassword=' >> gradle.properties
+image: maven:3-jdk-8
 
 cache:
   paths:
-    - .gradle/wrapper
-    - .gradle/caches
+    - .m2/wrapper
 
 build:
   stage: build
   script:
-    - ./gradlew assemble
+    - mvn compile
 
 test:
   stage: test
   script:
-    - ./gradlew check
-    - ./gradlew jacocoTestReport
-    - curl -s https://bootstrap.pypa.io/get-pip.py | python
-    - pip install codecov
-    - codecov -t $codecov_upload_token -f build/reports/jacoco/test/jacocoTestReport.xml | grep -v 'token='
+    - mvn test
