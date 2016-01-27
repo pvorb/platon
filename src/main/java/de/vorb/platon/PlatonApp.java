@@ -28,7 +28,7 @@ public class PlatonApp {
     private final SecretKey secretKey;
 
     public PlatonApp() throws NoSuchAlgorithmException {
-        secretKey = KeyGenerator.getInstance(HmacRequestVerifier.MAC_ALGORITHM).generateKey();
+        secretKey = KeyGenerator.getInstance(HmacRequestVerifier.HMAC_ALGORITHM.toString()).generateKey();
 
         logger.info("Secret key: {}", Base64.getEncoder().encodeToString(secretKey.getEncoded()));
     }

@@ -20,15 +20,17 @@ public class HmacRequestVerifierTest {
     @Mock
     private SecretKeyProvider secretKeyProvider;
 
-    @InjectMocks
     private HmacRequestVerifier requestVerifier;
 
     @Before
     public void setUp() throws Exception {
 
         // generate a secret key once and always return that secret key
-        final SecretKey secretKey = KeyGenerator.getInstance(HmacRequestVerifier.MAC_ALGORITHM).generateKey();
+        final SecretKey secretKey = KeyGenerator.getInstance(
+                HmacRequestVerifier.HMAC_ALGORITHM.toString()).generateKey();
         Mockito.when(secretKeyProvider.getSecretKey()).thenReturn(secretKey);
+
+        requestVerifier = new HmacRequestVerifier(secretKeyProvider);
 
     }
 
@@ -44,5 +46,4 @@ public class HmacRequestVerifierTest {
 
         Truth.assertThat(firstSignatureToken).isEqualTo(secondSignatureToken);
     }
-
 }

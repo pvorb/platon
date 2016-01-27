@@ -1,5 +1,6 @@
 package de.vorb.platon.security;
 
+import org.apache.commons.codec.digest.HmacAlgorithms;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -18,7 +19,7 @@ public class HmacRequestVerifier implements RequestVerifier {
 
     private static final Logger logger = LoggerFactory.getLogger(HmacRequestVerifier.class);
 
-    public static final String MAC_ALGORITHM = "HmacSHA256";
+    public static final HmacAlgorithms HMAC_ALGORITHM = HmacAlgorithms.HMAC_SHA_256;
 
     private Mac mac;
 
@@ -27,12 +28,13 @@ public class HmacRequestVerifier implements RequestVerifier {
         final SecretKey key = keyProvider.getSecretKey();
 
         try {
-            mac = Mac.getInstance(MAC_ALGORITHM);
+            mac = Mac.getInstance(HMAC_ALGORITHM.toString());
             mac.init(key);
         } catch (NoSuchAlgorithmException e) {
-            logger.error(String.format("Could not find an implementation of the %s algorithm", MAC_ALGORITHM));
+            throw new SecurityException(
+                    String.format("Could not find an implementation of the %s algorithm", HMAC_ALGORITHM), e);
         } catch (InvalidKeyException e) {
-            logger.error("The supplied key provider returned an invalid key", e);
+            throw new SecurityException("The supplied key provider returned an invalid key", e);
         }
     }
 

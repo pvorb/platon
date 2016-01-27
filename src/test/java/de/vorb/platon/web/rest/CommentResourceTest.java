@@ -4,8 +4,6 @@ import de.vorb.platon.model.Comment;
 import de.vorb.platon.model.CommentThread;
 import de.vorb.platon.persistence.CommentRepository;
 import de.vorb.platon.persistence.CommentThreadRepository;
-import de.vorb.platon.security.RequestVerifier;
-import de.vorb.platon.security.mock.InsecureRequestVerifier;
 
 import com.google.common.truth.Truth;
 import org.junit.Before;
@@ -15,7 +13,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.ws.rs.BadRequestException;
@@ -37,9 +34,6 @@ public class CommentResourceTest {
         comment.setId(4711L);
         nonEmptyThread.getComments().add(comment);
     }
-
-    @Spy
-    private RequestVerifier requestVerifier = new InsecureRequestVerifier();
 
     @Mock
     private CommentRepository commentRepository;
