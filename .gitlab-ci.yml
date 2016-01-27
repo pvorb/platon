@@ -4,12 +4,7 @@ cache:
   paths:
     - .m2/wrapper
 
-build:
-  stage: build
-  script:
-    - mvn compile
-
 test:
   stage: test
   script:
-    - mvn test
+    - mvn -B test
