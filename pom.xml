@@ -46,6 +46,7 @@
         <encoder.version>1.2</encoder.version>
         <h2.version>1.4.190</h2.version>
         <junit.version>4.12</junit.version>
+        <truth.version>0.28</truth.version>
     </properties>
 
     <parent>
@@ -129,8 +130,14 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>com.google.truth</groupId>
+            <artifactId>truth</artifactId>
+            <version>${truth.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
