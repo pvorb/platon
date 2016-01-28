@@ -1,10 +1,22 @@
 image: maven:3-jdk-8
 
-cache:
-  paths:
-    - .m2/wrapper
+before_script:
+  - export MAVEN_OPTS="-Xms256m -Xmx512m -Dmaven.repo.local=.m2/repository"
 
-test:
+cache:
+  key: "$CI_BUILD_NAME"
+  untracked: true
+
+stages:
+  - build
+  - test
+
+compile:
+  stage: build
+  script:
+    - mvn -B compile
+
+tests:
   stage: test
   script:
     - mvn -B test
