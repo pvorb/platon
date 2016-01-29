@@ -2,6 +2,7 @@ package de.vorb.platon;
 
 import de.vorb.platon.security.HmacRequestVerifier;
 import de.vorb.platon.security.SecretKeyProvider;
+import de.vorb.platon.util.CurrentTimeProvider;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,6 +15,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import java.security.NoSuchAlgorithmException;
+import java.time.Instant;
 import java.util.Base64;
 
 @SpringBootApplication
@@ -46,6 +48,11 @@ public class PlatonApp {
     @Bean
     public SecretKeyProvider secretKeyProvider() {
         return () -> secretKey;
+    }
+
+    @Bean
+    public CurrentTimeProvider timeProvider() {
+        return () -> Instant.now();
     }
 
 }
