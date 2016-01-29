@@ -77,8 +77,7 @@ public class Comment {
     private String url;
 
 
-    protected Comment() {
-    }
+    protected Comment() {}
 
     public Comment(CommentThread thread, Comment parent, String text, String author, String email, String url) {
         setThread(thread);
@@ -122,6 +121,8 @@ public class Comment {
         if (parentId != null) {
             parent = new Comment();
             parent.setId(parentId);
+        } else if (parent != null) {
+            parent = null;
         }
     }
 
