@@ -1,10 +1,11 @@
 package de.vorb.platon.security;
 
+import de.vorb.platon.util.TimeProvider;
+
 import com.google.common.truth.Truth;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -20,6 +21,9 @@ public class HmacRequestVerifierTest {
     @Mock
     private SecretKeyProvider secretKeyProvider;
 
+    @Mock
+    private TimeProvider timeProvider;
+
     private HmacRequestVerifier requestVerifier;
 
     @Before
@@ -30,12 +34,12 @@ public class HmacRequestVerifierTest {
                 HmacRequestVerifier.HMAC_ALGORITHM.toString()).generateKey();
         Mockito.when(secretKeyProvider.getSecretKey()).thenReturn(secretKey);
 
-        requestVerifier = new HmacRequestVerifier(secretKeyProvider);
+        requestVerifier = new HmacRequestVerifier(secretKeyProvider, timeProvider);
 
     }
 
     @Test
-    @Repeat(1)
+    @Repeat(10)
     public void testGetSignatureTokenIsRepeatable() throws Exception {
 
         final String identifier = "comment/1";
@@ -45,5 +49,44 @@ public class HmacRequestVerifierTest {
         final byte[] secondSignatureToken = requestVerifier.getSignatureToken(identifier, expirationDate);
 
         Truth.assertThat(firstSignatureToken).isEqualTo(secondSignatureToken);
+
     }
+
+    @Test
+    public void testTokenExpiration() throws Exception {
+
+        final String identifier = "comment/1";
+
+        final Instant currentTime = Instant.now();
+        Mockito.when(timeProvider.getCurrentTime()).thenReturn(currentTime);
+
+        final Instant expirationDate = currentTime.minusMillis(1); // token expired 1ms ago
+        final byte[] signatureToken = requestVerifier.getSignatureToken(identifier, expirationDate);
+
+        final boolean validity = requestVerifier.isRequestValid(identifier, expirationDate, signatureToken);
+
+        Truth.assertThat(validity).isFalse();
+
+    }
+
+    @Test
+    public void testCannotFakeExpirationDate() throws Exception {
+
+        final String identifier = "comment/1";
+
+        final Instant currentTime = Instant.now();
+        Mockito.when(timeProvider.getCurrentTime()).thenReturn(currentTime);
+
+        final Instant expirationDate = currentTime.minusMillis(1);
+        final byte[] signatureToken = requestVerifier.getSignatureToken(identifier, expirationDate);
+
+        // a user attempts to set the expiration date manually (without changing the token)
+        final Instant fakedExpirationDate = currentTime;
+
+        final boolean validity = requestVerifier.isRequestValid(identifier, fakedExpirationDate, signatureToken);
+
+        Truth.assertThat(validity).isFalse();
+
+    }
+
 }
