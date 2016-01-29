@@ -4,6 +4,7 @@ import de.vorb.platon.model.Comment;
 import de.vorb.platon.model.CommentThread;
 import de.vorb.platon.persistence.CommentRepository;
 import de.vorb.platon.persistence.CommentThreadRepository;
+import de.vorb.platon.security.RequestVerifier;
 
 import com.google.common.truth.Truth;
 import org.junit.Before;
@@ -41,11 +42,15 @@ public class CommentResourceTest {
     @Mock
     private CommentThreadRepository threadRepository;
 
+    @Mock
+    private RequestVerifier requestVerifier;
+
     @InjectMocks
     private CommentResource commentResource;
 
     @Before
     public void setUp() throws Exception {
+
         Mockito.when(threadRepository.getByUrl(Mockito.eq(null))).thenReturn(null);
 
         Mockito.when(threadRepository.getByUrl(Mockito.eq(emptyThread.getUrl()))).thenReturn(emptyThread);
@@ -60,6 +65,9 @@ public class CommentResourceTest {
         });
 
         Mockito.when(commentRepository.findByThread(nonEmptyThread)).thenReturn(nonEmptyThread.getComments());
+
+        Mockito.when(requestVerifier.getSignatureToken(Mockito.any(), Mockito.any())).thenReturn(new byte[0]);
+        Mockito.when(requestVerifier.isRequestValid(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(true);
     }
 
     @Test(expected = NotFoundException.class)
