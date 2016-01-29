@@ -1,6 +1,6 @@
 package de.vorb.platon.security;
 
-import de.vorb.platon.util.TimeProvider;
+import de.vorb.platon.util.CurrentTimeProvider;
 
 import com.google.common.truth.Truth;
 import org.junit.Before;
@@ -22,7 +22,7 @@ public class HmacRequestVerifierTest {
     private SecretKeyProvider secretKeyProvider;
 
     @Mock
-    private TimeProvider timeProvider;
+    private CurrentTimeProvider currentTimeProvider;
 
     private HmacRequestVerifier requestVerifier;
 
@@ -34,7 +34,7 @@ public class HmacRequestVerifierTest {
                 HmacRequestVerifier.HMAC_ALGORITHM.toString()).generateKey();
         Mockito.when(secretKeyProvider.getSecretKey()).thenReturn(secretKey);
 
-        requestVerifier = new HmacRequestVerifier(secretKeyProvider, timeProvider);
+        requestVerifier = new HmacRequestVerifier(secretKeyProvider, currentTimeProvider);
 
     }
 
@@ -58,7 +58,7 @@ public class HmacRequestVerifierTest {
         final String identifier = "comment/1";
 
         final Instant currentTime = Instant.now();
-        Mockito.when(timeProvider.getCurrentTime()).thenReturn(currentTime);
+        Mockito.when(currentTimeProvider.get()).thenReturn(currentTime);
 
         final Instant expirationDate = currentTime.minusMillis(1); // token expired 1ms ago
         final byte[] signatureToken = requestVerifier.getSignatureToken(identifier, expirationDate);
@@ -75,7 +75,7 @@ public class HmacRequestVerifierTest {
         final String identifier = "comment/1";
 
         final Instant currentTime = Instant.now();
-        Mockito.when(timeProvider.getCurrentTime()).thenReturn(currentTime);
+        Mockito.when(currentTimeProvider.get()).thenReturn(currentTime);
 
         final Instant expirationDate = currentTime.minusMillis(1);
         final byte[] signatureToken = requestVerifier.getSignatureToken(identifier, expirationDate);

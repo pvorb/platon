@@ -1,6 +1,6 @@
 package de.vorb.platon.security;
 
-import de.vorb.platon.util.TimeProvider;
+import de.vorb.platon.util.CurrentTimeProvider;
 
 import org.apache.commons.codec.digest.HmacAlgorithms;
 import org.springframework.stereotype.Service;
@@ -19,14 +19,14 @@ public class HmacRequestVerifier implements RequestVerifier {
 
     public static final HmacAlgorithms HMAC_ALGORITHM = HmacAlgorithms.HMAC_SHA_256;
 
-    private final TimeProvider timeProvider;
+    private final CurrentTimeProvider currentTimeProvider;
 
     private final Mac mac;
 
     @Inject
-    public HmacRequestVerifier(SecretKeyProvider keyProvider, TimeProvider timeProvider) {
+    public HmacRequestVerifier(SecretKeyProvider keyProvider, CurrentTimeProvider currentTimeProvider) {
 
-        this.timeProvider = timeProvider;
+        this.currentTimeProvider = currentTimeProvider;
 
         final SecretKey key = keyProvider.getSecretKey();
 
@@ -54,7 +54,7 @@ public class HmacRequestVerifier implements RequestVerifier {
 
     @Override
     public boolean isRequestValid(String identifier, Instant expirationDate, byte[] signatureToken) {
-        if (timeProvider.getCurrentTime().isAfter(expirationDate)) {
+        if (currentTimeProvider.get().isAfter(expirationDate)) {
             return false;
         }
 
