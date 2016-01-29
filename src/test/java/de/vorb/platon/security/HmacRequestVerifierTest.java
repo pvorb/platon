@@ -38,6 +38,15 @@ public class HmacRequestVerifierTest {
 
     }
 
+    @Test(expected = SecurityException.class)
+    public void testInvalidKey() throws Exception {
+
+        Mockito.when(secretKeyProvider.getSecretKey()).thenReturn(null);
+
+        new HmacRequestVerifier(secretKeyProvider, currentTimeProvider);
+
+    }
+
     @Test
     @Repeat(10)
     public void testGetSignatureTokenIsRepeatable() throws Exception {
