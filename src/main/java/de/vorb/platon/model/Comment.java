@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
+import org.apache.commons.codec.digest.MessageDigestAlgorithms;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -176,7 +177,7 @@ public class Comment {
 
         final byte[] stringBytes = email.getBytes(StandardCharsets.UTF_8);
         try {
-            emailHash = MessageDigest.getInstance("MD5").digest(stringBytes);
+            emailHash = MessageDigest.getInstance(MessageDigestAlgorithms.MD5).digest(stringBytes);
         } catch (NoSuchAlgorithmException e) {
             logger.error("No implementation of MessageDigest algorithm MD5 available on this platform");
         }
@@ -197,6 +198,7 @@ public class Comment {
         Comment comment = (Comment) o;
         return Objects.equals(id, comment.id) &&
                 Objects.equals(thread, comment.thread) &&
+                Objects.equals(parent, comment.parent) &&
                 Objects.equals(text, comment.text) &&
                 Objects.equals(author, comment.author) &&
                 Arrays.equals(emailHash, comment.emailHash) &&
@@ -205,7 +207,7 @@ public class Comment {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, thread, text, author, emailHash, url);
+        return Objects.hash(id, thread, parent, text, author, url) * 31 + Arrays.hashCode(emailHash);
     }
 
     @Override
