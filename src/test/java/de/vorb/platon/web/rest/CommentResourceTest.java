@@ -87,6 +87,24 @@ public class CommentResourceTest {
     }
 
     @Test
+    public void testGetCommentById() throws Exception {
+
+        final Comment comment = Mockito.mock(Comment.class);
+        Mockito.when(commentRepository.findOne(Mockito.eq(4711L))).thenReturn(comment);
+
+        Truth.assertThat(commentResource.getComment(4711L)).isSameAs(comment);
+
+    }
+
+    @Test(expected = NotFoundException.class)
+    public void testGetCommentIdNotFound() throws Exception {
+
+        Mockito.when(commentRepository.findOne(Mockito.anyLong())).thenReturn(null);
+        commentResource.getComment(4711L);
+
+    }
+
+    @Test
     public void testPostCommentToExistingThread() throws Exception {
         final Comment newComment = Mockito.spy(new Comment(nonEmptyThread, null, "Text", "Author", null, null));
 
@@ -121,4 +139,5 @@ public class CommentResourceTest {
 
         Mockito.verifyZeroInteractions(threadRepository, commentRepository);
     }
+
 }
