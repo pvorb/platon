@@ -167,7 +167,11 @@ public class CommentResource {
 
         if (parentComment == null) {
             throw new BadRequestException("Parent comment does not exist");
-        } else if (!comment.getThread().equalsById(parentComment.getThread())) {
+        }
+
+        final boolean parentBelongsToSameThread = comment.getThread().equalsById(parentComment.getThread());
+
+        if (!parentBelongsToSameThread) {
             throw new BadRequestException("Parent comment does not belong to same thread");
         }
 
