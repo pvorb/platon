@@ -54,6 +54,10 @@ public class CommentThread {
         return id;
     }
 
+    protected void setId(Long id) {
+        this.id = id;
+    }
+
     public String getUrl() {
         return url;
     }
