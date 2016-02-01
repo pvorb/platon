@@ -48,8 +48,12 @@ public class CommentResourceTest {
     @InjectMocks
     private CommentResource commentResource;
 
+    public final Comment updateComment = new Comment(null, null, "Text", null, null, null);
+
     @Before
     public void setUp() throws Exception {
+
+        updateComment.setId(42L);
 
         Mockito.when(threadRepository.getByUrl(Mockito.eq(null))).thenReturn(null);
 
@@ -130,14 +134,29 @@ public class CommentResourceTest {
         Mockito.verify(commentRepository).save(Mockito.same(newComment));
     }
 
-    @Test(expected = BadRequestException.class)
-    public void testUpdateNonExistingComment() throws Exception {
-        final Comment newComment = new Comment(null, null, "Text", "Author", null, null);
-        newComment.setId(42L);
+    @Test
+    public void testUpdateComment() throws Exception {
 
-        commentResource.updateComment(newComment.getId(), newComment);
+        Mockito.when(commentRepository.exists(Mockito.eq(updateComment.getId()))).thenReturn(true);
 
-        Mockito.verifyZeroInteractions(threadRepository, commentRepository);
+        commentResource.updateComment(updateComment.getId(), updateComment);
+
+        Mockito.verify(commentRepository).save(updateComment);
+
     }
 
+    @Test(expected = BadRequestException.class)
+    public void testUpdateCommentWithMismatchingId() throws Exception {
+
+        commentResource.updateComment(updateComment.getId() + 1, updateComment);
+
+    }
+
+    @Test(expected = BadRequestException.class)
+    public void testUpdateNonExistingComment() throws Exception {
+
+        Mockito.when(commentRepository.exists(Mockito.eq(updateComment.getId()))).thenReturn(false);
+        commentResource.updateComment(updateComment.getId(), updateComment);
+
+    }
 }
