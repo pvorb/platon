@@ -18,6 +18,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.NotFoundException;
+import java.time.Instant;
+import java.util.Base64;
 import java.util.List;
 import java.util.Random;
 
@@ -157,6 +159,66 @@ public class CommentResourceTest {
 
         Mockito.when(commentRepository.exists(Mockito.eq(updateComment.getId()))).thenReturn(false);
         commentResource.updateComment(updateComment.getId(), updateComment);
+
+    }
+
+    @Test
+    public void testDeleteCommentWithValidRequest() throws Exception {
+
+        final String identifier = "comment/42";
+        final Instant expirationDate = Instant.now();
+        final byte[] signatureToken = Base64.getEncoder().encode("token".getBytes());
+
+        final String signature = String.format("%s|%s|%s", identifier, expirationDate,
+                Base64.getEncoder().encodeToString(signatureToken));
+
+        Mockito.when(requestVerifier.isRequestValid(Mockito.eq(identifier), Mockito.eq(expirationDate), Mockito.any()))
+                .thenReturn(true);
+
+        commentResource.deleteComment(signature, 42L);
+
+        Mockito.verify(commentRepository).delete(Mockito.eq(42L));
+
+    }
+
+    @Test(expected = BadRequestException.class)
+    public void testDeleteCommentWithInvalidRequest() throws Exception {
+
+        final String identifier = "comment/42";
+        final Instant expirationDate = Instant.now();
+        final byte[] signatureToken = Base64.getEncoder().encode("token".getBytes());
+
+        final String signature = String.format("%s|%s|%s", identifier, expirationDate,
+                Base64.getEncoder().encodeToString(signatureToken));
+
+        Mockito.when(requestVerifier.isRequestValid(Mockito.eq(identifier), Mockito.eq(expirationDate), Mockito.any()))
+                .thenReturn(false);
+
+        commentResource.deleteComment(signature, 42L);
+
+    }
+
+    @Test(expected = BadRequestException.class)
+    public void testDeleteCommentWithInvalidNumberOfComponentsInSignature() throws Exception {
+
+        final String signatureWithInvalidNumberOfComponents = "comment/42";
+        commentResource.deleteComment(signatureWithInvalidNumberOfComponents, 42L);
+
+    }
+
+    @Test(expected = BadRequestException.class)
+    public void testDeleteCommentWithInvalidBase64EncodedToken() throws Exception {
+
+        final String signatureWithBadBase64Encoding = "comment/42|2016-01-01T00:00:00.000Z|SGVsbG8gV29ybGQ==";
+        commentResource.deleteComment(signatureWithBadBase64Encoding, 42L);
+
+    }
+
+    @Test(expected = BadRequestException.class)
+    public void testDeleteCommentWithNonParseableDateInSignature() throws Exception {
+
+        final String signatureWithNonParseableDate = "comment/42|2016-01-01 00:00:00|SGVsbG8gV29ybGQ=";
+        commentResource.deleteComment(signatureWithNonParseableDate, 42L);
 
     }
 }
