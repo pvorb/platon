@@ -165,7 +165,7 @@ public class CommentResourceTest {
     @Test
     public void testDeleteCommentWithValidRequest() throws Exception {
 
-        final String identifier = "comment/42";
+        final String identifier = "comments/42";
         final Instant expirationDate = Instant.now();
         final byte[] signatureToken = Base64.getEncoder().encode("token".getBytes());
 
@@ -184,7 +184,7 @@ public class CommentResourceTest {
     @Test(expected = BadRequestException.class)
     public void testDeleteCommentWithInvalidRequest() throws Exception {
 
-        final String identifier = "comment/42";
+        final String identifier = "comments/42";
         final Instant expirationDate = Instant.now();
         final byte[] signatureToken = Base64.getEncoder().encode("token".getBytes());
 
@@ -201,7 +201,7 @@ public class CommentResourceTest {
     @Test(expected = BadRequestException.class)
     public void testDeleteCommentWithInvalidNumberOfComponentsInSignature() throws Exception {
 
-        final String signatureWithInvalidNumberOfComponents = "comment/42";
+        final String signatureWithInvalidNumberOfComponents = "comments/42";
         commentResource.deleteComment(signatureWithInvalidNumberOfComponents, 42L);
 
     }
@@ -209,7 +209,7 @@ public class CommentResourceTest {
     @Test(expected = BadRequestException.class)
     public void testDeleteCommentWithInvalidBase64EncodedToken() throws Exception {
 
-        final String signatureWithBadBase64Encoding = "comment/42|2016-01-01T00:00:00.000Z|SGVsbG8gV29ybGQ==";
+        final String signatureWithBadBase64Encoding = "comments/42|2016-01-01T00:00:00.000Z|SGVsbG8gV29ybGQ==";
         commentResource.deleteComment(signatureWithBadBase64Encoding, 42L);
 
     }
@@ -217,8 +217,18 @@ public class CommentResourceTest {
     @Test(expected = BadRequestException.class)
     public void testDeleteCommentWithNonParseableDateInSignature() throws Exception {
 
-        final String signatureWithNonParseableDate = "comment/42|2016-01-01 00:00:00|SGVsbG8gV29ybGQ=";
+        final String signatureWithNonParseableDate = "comments/42|2016-01-01 00:00:00|SGVsbG8gV29ybGQ=";
         commentResource.deleteComment(signatureWithNonParseableDate, 42L);
+
+    }
+
+    @Test(expected = BadRequestException.class)
+    public void testDeleteCommentWithMismatchingIds() throws Exception {
+
+        final long commentId = 42;
+        final String signatureWithMismatchingId = "comments/43|2016-01-01T00:00:00.000Z|SGVsbG8gV29ybGQ=";
+
+        commentResource.deleteComment(signatureWithMismatchingId, commentId);
 
     }
 }

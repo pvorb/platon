@@ -142,7 +142,7 @@ public class CommentResource {
 
         logger.info("Posted new comment to {}", thread);
 
-        final URI commentUri = UriBuilder.fromResource(this.getClass()).segment("{id}").build(comment.getId());
+        final URI commentUri = getUriFromId(comment.getId());
 
         final String identifier = commentUri.toString();
         final Instant expirationDate = comment.getCreationDate().plus(2, ChronoUnit.HOURS);
@@ -226,6 +226,10 @@ public class CommentResource {
             Preconditions.checkArgument(signatureComponents.length == 3);
 
             final String identifier = signatureComponents[0];
+            final String referenceIdentifier = getUriFromId(commentId).toString();
+
+            Preconditions.checkArgument(identifier.equals(referenceIdentifier));
+
             final Instant expirationDate = Instant.parse(signatureComponents[1]);
             final byte[] signatureToken =
                     Base64.getDecoder().decode(signatureComponents[2].getBytes(StandardCharsets.UTF_8));
@@ -240,6 +244,10 @@ public class CommentResource {
         } catch (IllegalArgumentException | DateTimeParseException e) {
             throw new BadRequestException("Illegal authentication signature provided");
         }
+    }
+
+    private URI getUriFromId(long commentId) {
+        return UriBuilder.fromResource(getClass()).segment("{id}").build(commentId);
     }
 
 }
