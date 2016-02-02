@@ -50,7 +50,8 @@ public class CommentResourceTest {
     @InjectMocks
     private CommentResource commentResource;
 
-    public final Comment updateComment = new Comment(null, null, "Text", null, null, null);
+    private final Comment updateComment = new Comment(null, null, "Text", null, null, null);
+    private final String defaultRequestSignature = getSignature("comments/42", Instant.now());
 
     @Before
     public void setUp() throws Exception {
@@ -141,7 +142,7 @@ public class CommentResourceTest {
 
         Mockito.when(commentRepository.exists(Mockito.eq(updateComment.getId()))).thenReturn(true);
 
-        commentResource.updateComment(updateComment.getId(), updateComment);
+        commentResource.updateComment(defaultRequestSignature, updateComment.getId(), updateComment);
 
         Mockito.verify(commentRepository).save(updateComment);
 
@@ -150,7 +151,7 @@ public class CommentResourceTest {
     @Test(expected = BadRequestException.class)
     public void testUpdateCommentWithMismatchingId() throws Exception {
 
-        commentResource.updateComment(updateComment.getId() + 1, updateComment);
+        commentResource.updateComment(defaultRequestSignature, updateComment.getId() + 1, updateComment);
 
     }
 
@@ -158,24 +159,17 @@ public class CommentResourceTest {
     public void testUpdateNonExistingComment() throws Exception {
 
         Mockito.when(commentRepository.exists(Mockito.eq(updateComment.getId()))).thenReturn(false);
-        commentResource.updateComment(updateComment.getId(), updateComment);
+
+        commentResource.updateComment(defaultRequestSignature, updateComment.getId(), updateComment);
 
     }
 
     @Test
     public void testDeleteCommentWithValidRequest() throws Exception {
 
-        final String identifier = "comments/42";
-        final Instant expirationDate = Instant.now();
-
-        final String signature = getSignature(identifier, expirationDate);
-
-        Mockito.when(requestVerifier.isRequestValid(Mockito.eq(identifier), Mockito.eq(expirationDate), Mockito.any()))
-                .thenReturn(true);
-
         Mockito.when(commentRepository.exists(42L)).thenReturn(true);
 
-        commentResource.deleteComment(signature, 42L);
+        commentResource.deleteComment(defaultRequestSignature, 42L);
 
         Mockito.verify(commentRepository).delete(Mockito.eq(42L));
 
@@ -184,17 +178,9 @@ public class CommentResourceTest {
     @Test(expected = BadRequestException.class)
     public void testDeleteNonExistingComment() throws Exception {
 
-        final String identifier = "comments/42";
-        final Instant expirationDate = Instant.now();
-
-        final String signature = getSignature(identifier, expirationDate);
-
-        Mockito.when(requestVerifier.isRequestValid(Mockito.eq(identifier), Mockito.eq(expirationDate), Mockito.any()))
-                .thenReturn(true);
-
         Mockito.when(commentRepository.exists(42L)).thenReturn(false);
 
-        commentResource.deleteComment(signature, 42L);
+        commentResource.deleteComment(defaultRequestSignature, 42L);
 
     }
 

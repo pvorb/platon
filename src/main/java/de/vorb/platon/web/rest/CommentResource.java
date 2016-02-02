@@ -40,6 +40,7 @@ import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoUnit;
 import java.util.Base64;
 import java.util.List;
+import java.util.Objects;
 
 @Component
 @Path("comments")
@@ -183,13 +184,16 @@ public class CommentResource {
     @Path("{id}")
     @Transactional(noRollbackFor = BadRequestException.class)
     public void updateComment(
-            @PathParam("id") Long commentId,
-            Comment comment) {
+            @NotNull @HeaderParam(SIGNATURE_HEADER) String signature,
+            @NotNull @PathParam("id") Long commentId,
+            @NotNull Comment comment) {
 
-        if (comment.getId() != null && !comment.getId().equals(commentId)) {
-            throw new BadRequestException(String.format(
-                    "Comment id does not match comment id in the URL (%d != %d)", comment.getId(), commentId));
+        if (!commentId.equals(comment.getId())) {
+            throw new BadRequestException(
+                    String.format("Comment ids do not match (%d != %d)", comment.getId(), commentId));
         }
+
+        verifyValidRequest(signature, commentId);
 
         if (commentRepository.exists(commentId)) {
 
@@ -220,6 +224,21 @@ public class CommentResource {
             @NotNull @HeaderParam(SIGNATURE_HEADER) String signature,
             @NotNull @PathParam("id") Long commentId) {
 
+        verifyValidRequest(signature, commentId);
+
+        if (commentRepository.exists(commentId)) {
+
+            commentRepository.delete(commentId);
+            logger.info("Deleted comment with id = {}", commentId);
+
+        } else {
+            throw new BadRequestException(String.format("Comment with id = %d does not exist", commentId));
+        }
+
+    }
+
+    private void verifyValidRequest(String signature, Long commentId) {
+
         final String[] signatureComponents = signature.split("\\|");
 
         try {
@@ -235,15 +254,7 @@ public class CommentResource {
             final byte[] signatureToken =
                     Base64.getDecoder().decode(signatureComponents[2].getBytes(StandardCharsets.UTF_8));
 
-            if (requestVerifier.isRequestValid(identifier, expirationDate, signatureToken)) {
-
-                if (commentRepository.exists(commentId)) {
-                    commentRepository.delete(commentId);
-                    logger.info("Deleted comment with id = {}", commentId);
-                } else {
-                    throw new BadRequestException(String.format("Comment with id = %d does not exist", commentId));
-                }
-            } else {
+            if (!requestVerifier.isRequestValid(identifier, expirationDate, signatureToken)) {
                 throw new BadRequestException("Authentication signature is invalid or has expired");
             }
 
