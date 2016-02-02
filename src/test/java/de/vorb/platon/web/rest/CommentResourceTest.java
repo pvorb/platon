@@ -5,6 +5,7 @@ import de.vorb.platon.model.CommentThread;
 import de.vorb.platon.persistence.CommentRepository;
 import de.vorb.platon.persistence.CommentThreadRepository;
 import de.vorb.platon.security.RequestVerifier;
+import de.vorb.platon.util.InputSanitizer;
 
 import com.google.common.truth.Truth;
 import org.junit.Before;
@@ -14,6 +15,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.ws.rs.BadRequestException;
@@ -47,7 +49,8 @@ public class CommentResourceTest {
     @Mock
     private RequestVerifier requestVerifier;
 
-    @InjectMocks
+    private final InputSanitizer htmlInputSanitizer = String::trim;
+
     private CommentResource commentResource;
 
     private final Comment updateComment = new Comment(null, null, "Text", null, null, null);
@@ -75,6 +78,8 @@ public class CommentResourceTest {
 
         Mockito.when(requestVerifier.getSignatureToken(Mockito.any(), Mockito.any())).thenReturn(new byte[0]);
         Mockito.when(requestVerifier.isRequestValid(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(true);
+
+        commentResource = new CommentResource(threadRepository, commentRepository, requestVerifier, htmlInputSanitizer);
     }
 
     @Test(expected = NotFoundException.class)

@@ -5,6 +5,7 @@ import de.vorb.platon.model.CommentThread;
 import de.vorb.platon.persistence.CommentRepository;
 import de.vorb.platon.persistence.CommentThreadRepository;
 import de.vorb.platon.security.RequestVerifier;
+import de.vorb.platon.util.InputSanitizer;
 
 import com.google.common.truth.Truth;
 import org.junit.Before;
@@ -30,7 +31,8 @@ public class CommentResourcePostWithParentTest {
     @Mock
     private RequestVerifier requestVerifier;
 
-    @InjectMocks
+    private final InputSanitizer htmlInputSanitizer = String::trim;
+
     private CommentResource commentResource;
 
 
@@ -85,6 +87,7 @@ public class CommentResourcePostWithParentTest {
         Mockito.when(commentRepository.findOne(Mockito.eq(existingParentFromOtherThreadId)))
                 .thenReturn(existingParentFromOtherThread);
 
+        commentResource = new CommentResource(threadRepository, commentRepository, requestVerifier, htmlInputSanitizer);
     }
 
     @Test

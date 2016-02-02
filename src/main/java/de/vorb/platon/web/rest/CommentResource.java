@@ -5,6 +5,7 @@ import de.vorb.platon.model.CommentThread;
 import de.vorb.platon.persistence.CommentRepository;
 import de.vorb.platon.persistence.CommentThreadRepository;
 import de.vorb.platon.security.RequestVerifier;
+import de.vorb.platon.util.InputSanitizer;
 
 import com.google.common.base.Preconditions;
 import org.owasp.encoder.Encode;
@@ -12,7 +13,6 @@ import org.owasp.html.HtmlPolicyBuilder;
 import org.owasp.html.PolicyFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,7 +40,6 @@ import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoUnit;
 import java.util.Base64;
 import java.util.List;
-import java.util.Objects;
 
 @Component
 @Path("comments")
@@ -54,36 +53,23 @@ public class CommentResource {
 
     private static final PolicyFactory NO_HTML_POLICY = new HtmlPolicyBuilder().toFactory();
 
-    private static final PolicyFactory CONTENT_POLICY = new HtmlPolicyBuilder()
-            .allowElements(
-                    "h1", "h2", "h3", "h4", "h5", "h6",
-                    "br", "p", "hr",
-                    "div", "span",
-                    "a", "img",
-                    "em", "strong",
-                    "ol", "ul", "li",
-                    "blockquote",
-                    "code", "pre")
-            .allowUrlProtocols("http", "https", "mailto")
-            .allowAttributes("href").onElements("a")
-            .allowAttributes("src", "width", "height", "alt").onElements("img")
-            .allowAttributes("class").onElements("div", "span")
-            .toFactory();
 
     private final CommentThreadRepository threadRepository;
     private final CommentRepository commentRepository;
 
     private final RequestVerifier requestVerifier;
+    private final InputSanitizer inputSanitizer;
 
 
     @Inject
     public CommentResource(CommentThreadRepository threadRepository, CommentRepository commentRepository,
-            RequestVerifier requestVerifier) {
+            RequestVerifier requestVerifier, InputSanitizer inputSanitizer) {
 
         this.threadRepository = threadRepository;
         this.commentRepository = commentRepository;
 
         this.requestVerifier = requestVerifier;
+        this.inputSanitizer = inputSanitizer;
     }
 
 
@@ -212,7 +198,7 @@ public class CommentResource {
         comment.setUrl(Encode.forHtmlAttribute(comment.getUrl()));
 
         final String requestText = comment.getText();
-        final String sanitizedText = CONTENT_POLICY.sanitize(requestText);
+        final String sanitizedText = inputSanitizer.sanitize(requestText);
         comment.setText(sanitizedText);
     }
 

@@ -3,7 +3,10 @@ package de.vorb.platon;
 import de.vorb.platon.security.HmacRequestVerifier;
 import de.vorb.platon.security.SecretKeyProvider;
 import de.vorb.platon.util.CurrentTimeProvider;
+import de.vorb.platon.util.InputSanitizer;
 
+import org.owasp.html.HtmlPolicyBuilder;
+import org.owasp.html.PolicyFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
@@ -53,6 +56,27 @@ public class PlatonApp {
     @Bean
     public CurrentTimeProvider timeProvider() {
         return () -> Instant.now();
+    }
+
+    private static final PolicyFactory HTML_CONTENT_POLICY = new HtmlPolicyBuilder()
+            .allowElements(
+                    "h1", "h2", "h3", "h4", "h5", "h6",
+                    "br", "p", "hr",
+                    "div", "span",
+                    "a", "img",
+                    "em", "strong",
+                    "ol", "ul", "li",
+                    "blockquote",
+                    "code", "pre")
+            .allowUrlProtocols("http", "https", "mailto")
+            .allowAttributes("href").onElements("a")
+            .allowAttributes("src", "width", "height", "alt").onElements("img")
+            .allowAttributes("class").onElements("div", "span")
+            .toFactory();
+
+    @Bean
+    public InputSanitizer htmlInputSanitizer() {
+        return HTML_CONTENT_POLICY::sanitize;
     }
 
 }
