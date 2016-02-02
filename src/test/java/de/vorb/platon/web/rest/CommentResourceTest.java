@@ -167,13 +167,13 @@ public class CommentResourceTest {
 
         final String identifier = "comments/42";
         final Instant expirationDate = Instant.now();
-        final byte[] signatureToken = Base64.getEncoder().encode("token".getBytes());
 
-        final String signature = String.format("%s|%s|%s", identifier, expirationDate,
-                Base64.getEncoder().encodeToString(signatureToken));
+        final String signature = getSignature(identifier, expirationDate);
 
         Mockito.when(requestVerifier.isRequestValid(Mockito.eq(identifier), Mockito.eq(expirationDate), Mockito.any()))
                 .thenReturn(true);
+
+        Mockito.when(commentRepository.exists(42L)).thenReturn(true);
 
         commentResource.deleteComment(signature, 42L);
 
@@ -182,20 +182,40 @@ public class CommentResourceTest {
     }
 
     @Test(expected = BadRequestException.class)
+    public void testDeleteNonExistingComment() throws Exception {
+
+        final String identifier = "comments/42";
+        final Instant expirationDate = Instant.now();
+
+        final String signature = getSignature(identifier, expirationDate);
+
+        Mockito.when(requestVerifier.isRequestValid(Mockito.eq(identifier), Mockito.eq(expirationDate), Mockito.any()))
+                .thenReturn(true);
+
+        Mockito.when(commentRepository.exists(42L)).thenReturn(false);
+
+        commentResource.deleteComment(signature, 42L);
+
+    }
+
+    @Test(expected = BadRequestException.class)
     public void testDeleteCommentWithInvalidRequest() throws Exception {
 
         final String identifier = "comments/42";
         final Instant expirationDate = Instant.now();
-        final byte[] signatureToken = Base64.getEncoder().encode("token".getBytes());
 
-        final String signature = String.format("%s|%s|%s", identifier, expirationDate,
-                Base64.getEncoder().encodeToString(signatureToken));
+        final String signature = getSignature(identifier, expirationDate);
 
         Mockito.when(requestVerifier.isRequestValid(Mockito.eq(identifier), Mockito.eq(expirationDate), Mockito.any()))
                 .thenReturn(false);
 
         commentResource.deleteComment(signature, 42L);
 
+    }
+
+    private String getSignature(String identifier, Instant expirationDate) {
+        return String.format("%s|%s|%s", identifier, expirationDate,
+                Base64.getEncoder().encodeToString("token".getBytes()));
     }
 
     @Test(expected = BadRequestException.class)

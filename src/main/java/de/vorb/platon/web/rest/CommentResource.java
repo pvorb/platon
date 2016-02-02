@@ -12,6 +12,7 @@ import org.owasp.html.HtmlPolicyBuilder;
 import org.owasp.html.PolicyFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -235,8 +236,13 @@ public class CommentResource {
                     Base64.getDecoder().decode(signatureComponents[2].getBytes(StandardCharsets.UTF_8));
 
             if (requestVerifier.isRequestValid(identifier, expirationDate, signatureToken)) {
-                commentRepository.delete(commentId);
-                logger.info("Deleted comment with id = {}", commentId);
+
+                if (commentRepository.exists(commentId)) {
+                    commentRepository.delete(commentId);
+                    logger.info("Deleted comment with id = {}", commentId);
+                } else {
+                    throw new BadRequestException(String.format("Comment with id = %d does not exist", commentId));
+                }
             } else {
                 throw new BadRequestException("Authentication signature is invalid or has expired");
             }
