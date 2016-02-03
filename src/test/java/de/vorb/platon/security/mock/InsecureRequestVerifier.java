@@ -2,15 +2,12 @@ package de.vorb.platon.security.mock;
 
 import de.vorb.platon.security.RequestVerifier;
 
-import org.springframework.stereotype.Service;
-
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
 import java.util.Arrays;
 
-@Service
 public class InsecureRequestVerifier implements RequestVerifier {
 
     @Override

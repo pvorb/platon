@@ -12,10 +12,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.ws.rs.BadRequestException;
@@ -35,8 +33,14 @@ public class CommentResourceTest {
             "An non-empty comment thread");
 
     static {
-        final Comment comment = new Comment(nonEmptyThread, null, "Text", "Author", null, null);
-        comment.setId(4711L);
+        final Comment comment =
+                Comment.builder()
+                        .id(4711L)
+                        .thread(nonEmptyThread)
+                        .text("Text")
+                        .author("Author")
+                        .build();
+
         nonEmptyThread.getComments().add(comment);
     }
 
@@ -53,13 +57,11 @@ public class CommentResourceTest {
 
     private CommentResource commentResource;
 
-    private final Comment updateComment = new Comment(null, null, "Text", null, null, null);
+    private final Comment updateComment = Comment.builder().id(42L).text("Text").build();
     private final String defaultRequestSignature = getSignature("comments/42", Instant.now());
 
     @Before
     public void setUp() throws Exception {
-
-        updateComment.setId(42L);
 
         Mockito.when(threadRepository.getByUrl(Mockito.eq(null))).thenReturn(null);
 
@@ -118,7 +120,12 @@ public class CommentResourceTest {
 
     @Test
     public void testPostCommentToExistingThread() throws Exception {
-        final Comment newComment = Mockito.spy(new Comment(nonEmptyThread, null, "Text", "Author", null, null));
+        final Comment newComment =
+                Mockito.spy(Comment.builder()
+                        .thread(nonEmptyThread)
+                        .text("Text")
+                        .author("Author")
+                        .build());
 
         commentResource.postComment(nonEmptyThread.getUrl(), nonEmptyThread.getTitle(), newComment);
 
@@ -129,7 +136,11 @@ public class CommentResourceTest {
     public void testPostCommentToNewThread() throws Exception {
         final String threadUrl = "http://example.com/new-article";
         final String threadTitle = "New article";
-        final Comment newComment = Mockito.spy(new Comment(null, null, "Text", "Author", null, null));
+        final Comment newComment =
+                Mockito.spy(Comment.builder()
+                        .text("Text")
+                        .author("Author")
+                        .build());
 
         commentResource.postComment(threadUrl, threadTitle, newComment);
 

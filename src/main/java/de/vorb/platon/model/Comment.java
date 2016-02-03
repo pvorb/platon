@@ -77,18 +77,7 @@ public class Comment {
     @Column(name = "URL", length = LIMIT_URL, nullable = true)
     private String url;
 
-
     protected Comment() {}
-
-    public Comment(CommentThread thread, Comment parent, String text, String author, String email, String url) {
-        setThread(thread);
-        setParent(parent);
-        setText(text);
-        setAuthor(author);
-        setEmail(email);
-        setUrl(url);
-    }
-
 
     public Long getId() {
         return id;
@@ -110,7 +99,7 @@ public class Comment {
         return parent;
     }
 
-    public void setParent(Comment parent) {
+    protected void setParent(Comment parent) {
         this.parent = parent;
     }
 
@@ -118,7 +107,7 @@ public class Comment {
         return parent != null ? parent.getId() : null;
     }
 
-    public void setParentId(Long parentId) {
+    protected void setParentId(Long parentId) {
         if (parentId != null) {
             parent = new Comment();
             parent.setId(parentId);
@@ -164,12 +153,12 @@ public class Comment {
         return emailHash;
     }
 
-    public void setEmailHash(byte[] emailHash) {
+    protected void setEmailHash(byte[] emailHash) {
         Preconditions.checkArgument(emailHash.length == 16, "emailHash has invalid length");
         this.emailHash = emailHash;
     }
 
-    public void setEmail(String email) {
+    protected void setEmail(String email) {
         if (email == null) {
             this.emailHash = null;
             return;
@@ -220,6 +209,77 @@ public class Comment {
                 .add("emailHash", emailHash)
                 .add("url", url)
                 .toString();
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static class Builder {
+
+        private final Comment comment = new Comment();
+
+        private Builder() {}
+
+        public Builder id(Long id) {
+            comment.setId(id);
+            return this;
+        }
+
+        public Builder thread(CommentThread thread) {
+            comment.setThread(thread);
+            return this;
+        }
+
+        public Builder parent(Comment parentComment) {
+            comment.setParent(parentComment);
+            return this;
+        }
+
+        public Builder parentId(Long parentId) {
+            comment.setParentId(parentId);
+            return this;
+        }
+
+        public Builder creationDate(Instant creationDate) {
+            comment.setCreationDate(creationDate);
+            return this;
+        }
+
+        public Builder modificationDate(Instant modificationDate) {
+            comment.setModificationDate(modificationDate);
+            return this;
+        }
+
+        public Builder text(String text) {
+            comment.setText(text);
+            return this;
+        }
+
+        public Builder author(String author) {
+            comment.setAuthor(author);
+            return this;
+        }
+
+        public Builder emailHash(byte[] emailHash) {
+            comment.setEmailHash(emailHash);
+            return this;
+        }
+
+        public Builder email(String email) {
+            comment.setEmail(email);
+            return this;
+        }
+
+        public Builder url(String url) {
+            comment.setUrl(url);
+            return this;
+        }
+
+        public Comment build() {
+            return comment;
+        }
+
     }
 
 }

@@ -11,7 +11,6 @@ import com.google.common.truth.Truth;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -61,14 +60,22 @@ public class CommentResourcePostWithParentTest {
 
 
         final long existingParentId = 4711;
-        existingParentComment = Mockito.spy(new Comment(thread, null, "Existing parent", null, null, null));
+        existingParentComment =
+                Mockito.spy(Comment.builder()
+                        .thread(thread)
+                        .text("Existing parent")
+                        .build());
         Mockito.when(existingParentComment.getId()).thenReturn(existingParentId);
 
         Mockito.when(commentRepository.findOne(Mockito.eq(existingParentId))).thenReturn(existingParentComment);
 
 
         final long nonExistingParentId = 4712;
-        nonExistingParentComment = Mockito.spy(new Comment(thread, null, "Non-existing parent", null, null, null));
+        nonExistingParentComment =
+                Mockito.spy(Comment.builder()
+                        .thread(thread)
+                        .text("Non-existing parent")
+                        .build());
         Mockito.when(nonExistingParentComment.getId()).thenReturn(nonExistingParentId);
 
         Mockito.when(commentRepository.findOne(Mockito.eq(nonExistingParentId))).thenReturn(null);
@@ -81,7 +88,10 @@ public class CommentResourcePostWithParentTest {
 
         final long existingParentFromOtherThreadId = 4713;
         existingParentFromOtherThread =
-                Mockito.spy(new Comment(otherThread, null, "Existing parent from other thread", null, null, null));
+                Mockito.spy(Comment.builder()
+                        .thread(otherThread)
+                        .text("Existing parent from other thread")
+                        .build());
         Mockito.when(existingParentFromOtherThread.getId()).thenReturn(existingParentFromOtherThreadId);
 
         Mockito.when(commentRepository.findOne(Mockito.eq(existingParentFromOtherThreadId)))
@@ -93,8 +103,12 @@ public class CommentResourcePostWithParentTest {
     @Test
     public void testWithExistingParent() throws Exception {
 
-        final Comment newChildComment = new Comment(null, existingParentComment, "Child", null, null, null);
-        newChildComment.setId(4714L);
+        final Comment newChildComment =
+                Comment.builder()
+                        .id(4714L)
+                        .parent(existingParentComment)
+                        .text("Child")
+                        .build();
 
         final Response response = commentResource.postComment(thread.getUrl(), thread.getTitle(), newChildComment);
 
@@ -105,7 +119,11 @@ public class CommentResourcePostWithParentTest {
     @Test(expected = BadRequestException.class)
     public void testWithNonExistingParent() throws Exception {
 
-        final Comment newChildComment = new Comment(null, nonExistingParentComment, "Child", null, null, null);
+        final Comment newChildComment =
+                Comment.builder()
+                        .parent(nonExistingParentComment)
+                        .text("Child")
+                        .build();
 
         commentResource.postComment(thread.getUrl(), thread.getTitle(), newChildComment);
 
@@ -114,7 +132,11 @@ public class CommentResourcePostWithParentTest {
     @Test(expected = BadRequestException.class)
     public void testWithParentFromOtherThread() throws Exception {
 
-        final Comment newChildComment = new Comment(null, existingParentFromOtherThread, "Child", null, null, null);
+        final Comment newChildComment =
+                Comment.builder()
+                        .parent(existingParentFromOtherThread)
+                        .text("Child")
+                        .build();
 
         commentResource.postComment(thread.getUrl(), thread.getTitle(), newChildComment);
 
