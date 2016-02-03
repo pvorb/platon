@@ -1,5 +1,6 @@
 /target/
 /.idea/
 /*.iml
+/*.db
 
 /src/main/resources/bower_components/
