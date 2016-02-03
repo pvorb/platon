@@ -58,7 +58,7 @@ public class CommentThread {
     }
 
     protected void setUrl(String url) {
-        this.url = url.substring(0, Math.min(LIMIT_URL, url.length()));
+        this.url = StringUtils.left(url, LIMIT_URL);
     }
 
     public String getTitle() {

@@ -113,10 +113,14 @@ public class CommentResourcePostWithParentTest {
 
         final Comment newChildComment =
                 Comment.builder()
-                        .id(4714L)
                         .parent(existingParentComment)
                         .text("Child")
                         .build();
+
+        Mockito.when(commentRepository.save(Mockito.eq(newChildComment))).then(invocation -> {
+            newChildComment.setId(4711L);
+            return newChildComment;
+        });
 
         final Response response = commentResource.postComment(thread.getUrl(), thread.getTitle(), newChildComment);
 
@@ -132,6 +136,11 @@ public class CommentResourcePostWithParentTest {
                         .parent(nonExistingParentComment)
                         .text("Child")
                         .build();
+
+        Mockito.when(commentRepository.save(Mockito.eq(newChildComment))).then(invocation -> {
+            newChildComment.setId(4711L);
+            return newChildComment;
+        });
 
         commentResource.postComment(thread.getUrl(), thread.getTitle(), newChildComment);
 

@@ -63,6 +63,9 @@ public class Comment {
     @Column(name = "MODIFICATION_DATE", nullable = false)
     private Instant modificationDate;
 
+    @Column(name = "DELETED", nullable = false)
+    private boolean deleted;
+
     @Column(name = "TEXT", nullable = false)
     @Lob
     private String text;
@@ -77,7 +80,9 @@ public class Comment {
     @Column(name = "URL", length = LIMIT_URL, nullable = true)
     private String url;
 
-    protected Comment() {}
+    protected Comment() {
+        deleted = false;
+    }
 
     public Long getId() {
         return id;
@@ -130,6 +135,14 @@ public class Comment {
 
     public void setModificationDate(Instant modificationDate) {
         this.modificationDate = modificationDate;
+    }
+
+    public boolean isDeleted() {
+        return deleted;
+    }
+
+    protected void setDeleted(boolean deleted) {
+        this.deleted = deleted;
     }
 
     public String getText() {

@@ -193,7 +193,7 @@ public class CommentResourceTest {
 
         commentResource.deleteComment(defaultRequestSignature, 42L);
 
-        Mockito.verify(commentRepository).delete(Mockito.eq(42L));
+        Mockito.verify(commentRepository).markAsDeleted(Mockito.eq(42L));
 
     }
 

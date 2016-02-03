@@ -81,7 +81,7 @@ public class CommentResource {
 
         final Comment comment = commentRepository.findOne(commentId);
 
-        if (comment == null) {
+        if (comment == null || comment.isDeleted()) {
             throw new NotFoundException(String.format("No comment found with id = %d", commentId));
         } else {
             return comment;
@@ -106,9 +106,13 @@ public class CommentResource {
     @POST
     @Transactional
     public Response postComment(
-            @QueryParam("threadUrl") String threadUrl,
-            @QueryParam("title") String title,
-            Comment comment) {
+            @NotNull @QueryParam("threadUrl") String threadUrl,
+            @NotNull @QueryParam("title") String title,
+            @NotNull Comment comment) {
+
+        if (comment.getId() != null) {
+            throw new BadRequestException("Comment id is not null");
+        }
 
         CommentThread thread = threadRepository.getByUrl(threadUrl);
         if (thread == null) {
@@ -220,7 +224,7 @@ public class CommentResource {
 
         if (commentRepository.exists(commentId)) {
 
-            commentRepository.delete(commentId);
+            commentRepository.markAsDeleted(commentId);
             logger.info("Deleted comment with id = {}", commentId);
 
         } else {
