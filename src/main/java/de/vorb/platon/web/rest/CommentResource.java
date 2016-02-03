@@ -112,7 +112,13 @@ public class CommentResource {
 
         CommentThread thread = threadRepository.getByUrl(threadUrl);
         if (thread == null) {
-            thread = new CommentThread(threadUrl, title);
+
+            thread =
+                    CommentThread.builder()
+                            .url(threadUrl)
+                            .title(title)
+                            .build();
+
             threadRepository.save(thread);
 
             logger.info("Created new {}", thread);

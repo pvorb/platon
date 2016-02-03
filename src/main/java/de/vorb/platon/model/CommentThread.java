@@ -44,11 +44,6 @@ public class CommentThread {
 
     protected CommentThread() {}
 
-    public CommentThread(String url, String title) {
-        setUrl(url);
-        setTitle(title);
-        comments = Lists.newArrayList();
-    }
 
     public Long getId() {
         return id;
@@ -62,7 +57,7 @@ public class CommentThread {
         return url;
     }
 
-    public void setUrl(String url) {
+    protected void setUrl(String url) {
         this.url = url.substring(0, Math.min(LIMIT_URL, url.length()));
     }
 
@@ -70,7 +65,7 @@ public class CommentThread {
         return title;
     }
 
-    public void setTitle(String title) {
+    protected void setTitle(String title) {
         this.title = StringUtils.left(title, LIMIT_TITLE);
     }
 
@@ -106,6 +101,39 @@ public class CommentThread {
                 .add("id", id)
                 .add("url", url)
                 .toString();
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static class Builder {
+
+        private final CommentThread commentThread = new CommentThread();
+
+        private Builder() {
+            commentThread.comments = Lists.newArrayList();
+        }
+
+        public Builder id(Long id) {
+            commentThread.setId(id);
+            return this;
+        }
+
+        public Builder url(String url) {
+            commentThread.setUrl(url);
+            return this;
+        }
+
+        public Builder title(String title) {
+            commentThread.setTitle(title);
+            return this;
+        }
+
+        public CommentThread build() {
+            return commentThread;
+        }
+
     }
 
 }

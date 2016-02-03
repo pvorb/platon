@@ -53,7 +53,12 @@ public class CommentResourcePostWithParentTest {
 
 
         final long threadId = 42;
-        thread = Mockito.spy(new CommentThread("http://example.com/article", "Article"));
+        thread =
+                Mockito.spy(CommentThread.builder()
+                        .url("http://example.com/article")
+                        .title("Article")
+                        .build());
+
         Mockito.when(thread.getId()).thenReturn(threadId);
 
         Mockito.when(threadRepository.getByUrl(Mockito.eq(thread.getUrl()))).thenReturn(thread);
@@ -83,7 +88,10 @@ public class CommentResourcePostWithParentTest {
 
         final long otherThreadId = 43;
         final CommentThread otherThread =
-                Mockito.spy(new CommentThread("http://example.com/other-article", "Other article"));
+                Mockito.spy(CommentThread.builder()
+                        .url("http://example.com/other-article")
+                        .title("Other article")
+                        .build());
         Mockito.when(otherThread.getId()).thenReturn(otherThreadId);
 
         final long existingParentFromOtherThreadId = 4713;

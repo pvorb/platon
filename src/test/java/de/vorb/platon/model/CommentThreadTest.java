@@ -8,19 +8,16 @@ public class CommentThreadTest {
     @Test
     public void testEqualsById() throws Exception {
 
-        final CommentThread thread1 = new CommentThread();
-        thread1.setId(1L);
+        final CommentThread thread1 = CommentThread.builder().id(1L).build();
 
         Truth.assertThat(thread1.equalsById(thread1)).isTrue();
 
-        final CommentThread thread1Copy = new CommentThread();
-        thread1Copy.setId(1L);
+        final CommentThread thread1Copy = CommentThread.builder().id(1L).build();
 
         Truth.assertThat(thread1.equalsById(thread1Copy)).isTrue();
         Truth.assertThat(thread1Copy.equalsById(thread1)).isTrue();
 
-        final CommentThread thread2 = new CommentThread();
-        thread2.setId(2L);
+        final CommentThread thread2 = CommentThread.builder().id(2L).build();
 
         Truth.assertThat(thread1.equalsById(thread2)).isFalse();
         Truth.assertThat(thread2.equalsById(thread1)).isFalse();
@@ -42,11 +39,19 @@ public class CommentThreadTest {
         final String articleUrl = "http://example.com/article";
         final String articleTitle = "Article";
 
-        final CommentThread thread1 = new CommentThread(articleUrl, articleTitle);
-        thread1.setId(42L);
+        final CommentThread thread1 =
+                CommentThread.builder()
+                        .id(42L)
+                        .url(articleUrl)
+                        .title(articleTitle)
+                        .build();
 
-        final CommentThread thread2 = new CommentThread(articleUrl, articleTitle);
-        thread2.setId(42L);
+        final CommentThread thread2 =
+                CommentThread.builder()
+                        .id(42L)
+                        .url(articleUrl)
+                        .title(articleTitle)
+                        .build();
 
         Truth.assertThat(thread1).isEqualTo(thread2);
         Truth.assertThat(thread1.hashCode()).isEqualTo(thread2.hashCode());

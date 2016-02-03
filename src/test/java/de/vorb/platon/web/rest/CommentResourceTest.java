@@ -26,11 +26,17 @@ import java.util.Random;
 @RunWith(MockitoJUnitRunner.class)
 public class CommentResourceTest {
 
-    private static final CommentThread emptyThread = new CommentThread("http://example.com/article",
-            "An empty comment thread");
+    private static final CommentThread emptyThread =
+            CommentThread.builder()
+                    .url("http://example.com/article")
+                    .title("An empty comment thread")
+                    .build();
 
-    private static final CommentThread nonEmptyThread = new CommentThread("http://example.com/article-with-comments",
-            "An non-empty comment thread");
+    private static final CommentThread nonEmptyThread =
+            CommentThread.builder()
+                    .url("http://example.com/article-with-comments")
+                    .title("A non-empty comment thread")
+                    .build();
 
     static {
         final Comment comment =
