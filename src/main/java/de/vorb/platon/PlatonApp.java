@@ -9,6 +9,7 @@ import org.owasp.html.HtmlPolicyBuilder;
 import org.owasp.html.PolicyFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
@@ -58,25 +59,24 @@ public class PlatonApp {
         return () -> Instant.now();
     }
 
-    private static final PolicyFactory HTML_CONTENT_POLICY = new HtmlPolicyBuilder()
-            .allowElements(
-                    "h1", "h2", "h3", "h4", "h5", "h6",
-                    "br", "p", "hr",
-                    "div", "span",
-                    "a", "img",
-                    "em", "strong",
-                    "ol", "ul", "li",
-                    "blockquote",
-                    "code", "pre")
+    private static final HtmlPolicyBuilder htmlContentPolicyBuilder = new HtmlPolicyBuilder()
             .allowUrlProtocols("http", "https", "mailto")
             .allowAttributes("href").onElements("a")
             .allowAttributes("src", "width", "height", "alt").onElements("img")
-            .allowAttributes("class").onElements("div", "span")
-            .toFactory();
+            .allowAttributes("class").onElements("div", "span");
+
+    @Value("${platon.input.html_elements}")
+    private String htmlElements;
 
     @Bean
     public InputSanitizer htmlInputSanitizer() {
-        return HTML_CONTENT_POLICY::sanitize;
+        final String[] htmlElementList = htmlElements.split("\\s*,\\s*");
+
+        htmlContentPolicyBuilder.allowElements(htmlElementList);
+
+        final PolicyFactory htmlContentPolicy = htmlContentPolicyBuilder.toFactory();
+
+        return htmlContentPolicy::sanitize;
     }
 
 }
