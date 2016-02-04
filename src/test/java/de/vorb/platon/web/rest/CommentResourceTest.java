@@ -110,9 +110,32 @@ public class CommentResourceTest {
     public void testGetCommentById() throws Exception {
 
         final Comment comment = Mockito.mock(Comment.class);
+        Mockito.when(comment.getStatus()).thenReturn(Comment.Status.PUBLIC);
         Mockito.when(commentRepository.findOne(Mockito.eq(4711L))).thenReturn(comment);
 
         Truth.assertThat(commentResource.getComment(4711L)).isSameAs(comment);
+
+    }
+
+    @Test(expected = NotFoundException.class)
+    public void testGetCommentAwaitingModerationById() throws Exception {
+
+        final Comment comment = Mockito.mock(Comment.class);
+        Mockito.when(comment.getStatus()).thenReturn(Comment.Status.AWAITING_MODERATION);
+        Mockito.when(commentRepository.findOne(Mockito.eq(4711L))).thenReturn(comment);
+
+        commentResource.getComment(4711L);
+
+    }
+
+    @Test(expected = NotFoundException.class)
+    public void testGetDeletedCommentById() throws Exception {
+
+        final Comment comment = Mockito.mock(Comment.class);
+        Mockito.when(comment.getStatus()).thenReturn(Comment.Status.DELETED);
+        Mockito.when(commentRepository.findOne(Mockito.eq(4711L))).thenReturn(comment);
+
+        commentResource.getComment(4711L);
 
     }
 
@@ -193,7 +216,7 @@ public class CommentResourceTest {
 
         commentResource.deleteComment(defaultRequestSignature, 42L);
 
-        Mockito.verify(commentRepository).markAsDeleted(Mockito.eq(42L));
+        Mockito.verify(commentRepository).setStatus(Mockito.eq(42L), Mockito.eq(Comment.Status.DELETED));
 
     }
 

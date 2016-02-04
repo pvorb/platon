@@ -81,7 +81,7 @@ public class CommentResource {
 
         final Comment comment = commentRepository.findOne(commentId);
 
-        if (comment == null || comment.isDeleted()) {
+        if (comment == null || comment.getStatus() != Comment.Status.PUBLIC) {
             throw new NotFoundException(String.format("No comment found with id = %d", commentId));
         } else {
             return comment;
@@ -130,7 +130,7 @@ public class CommentResource {
 
         comment.setThread(thread);
         comment.setCreationDate(Instant.now());
-        comment.setModificationDate(comment.getCreationDate());
+        comment.setLastModificationDate(comment.getCreationDate());
 
         assertParentBelongsToSameThread(comment);
 
@@ -224,7 +224,7 @@ public class CommentResource {
 
         if (commentRepository.exists(commentId)) {
 
-            commentRepository.markAsDeleted(commentId);
+            commentRepository.setStatus(commentId, Comment.Status.DELETED);
             logger.info("Deleted comment with id = {}", commentId);
 
         } else {

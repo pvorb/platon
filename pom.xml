@@ -45,6 +45,7 @@
         <owasp-java-html.version>1.1</owasp-java-html.version>
         <encoder.version>1.2</encoder.version>
         <h2.version>1.4.190</h2.version>
+        <flyway.version>3.2.1</flyway.version>
 
         <!-- Testing -->
         <junit.version>4.12</junit.version>
@@ -123,6 +124,11 @@
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
             <version>${h2.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
+            <version>${flyway.version}</version>
         </dependency>
 
         <dependency>
