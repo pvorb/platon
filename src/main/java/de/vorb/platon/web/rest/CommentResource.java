@@ -204,8 +204,13 @@ public class CommentResource {
 
 
     protected void sanitizeComment(Comment comment) {
-        comment.setAuthor(NO_HTML_POLICY.sanitize(comment.getAuthor()));
-        comment.setUrl(Encode.forHtmlAttribute(comment.getUrl()));
+        if (comment.getAuthor() != null) {
+            comment.setAuthor(NO_HTML_POLICY.sanitize(comment.getAuthor()));
+        }
+
+        if (comment.getUrl() != null) {
+            comment.setUrl(Encode.forHtmlAttribute(comment.getUrl()));
+        }
 
         final String requestText = comment.getText();
         final String sanitizedText = inputSanitizer.sanitize(requestText);
