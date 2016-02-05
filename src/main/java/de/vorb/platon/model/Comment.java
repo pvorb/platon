@@ -4,6 +4,7 @@ package de.vorb.platon.model;
 import de.vorb.platon.web.rest.json.ByteArraySerializer;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
@@ -11,6 +12,8 @@ import org.apache.commons.codec.digest.MessageDigestAlgorithms;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -43,8 +46,8 @@ public class Comment {
 
     @Id
     @Column(name = "ID")
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "comments_seq")
-    @SequenceGenerator(name = "comments_seq", sequenceName = "SEQ_COMMENTS", allocationSize = 0)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "comment_id_seq_gen")
+    @SequenceGenerator(name = "comment_id_seq_gen", sequenceName = "COMMENT_ID_SEQ", allocationSize = 1)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -58,13 +61,15 @@ public class Comment {
     private Comment parent;
 
     @Column(name = "CREATION_DATE", nullable = false)
+    @CreatedDate
     private Instant creationDate;
 
-    @Column(name = "MODIFICATION_DATE", nullable = false)
-    private Instant modificationDate;
+    @Column(name = "LAST_MODIFICATION_DATE", nullable = false)
+    @LastModifiedDate
+    private Instant lastModificationDate;
 
-    @Column(name = "DELETED", nullable = false)
-    private boolean deleted;
+    @Column(name = "STATUS", nullable = false)
+    private Status status = Status.PUBLIC;
 
     @Column(name = "TEXT", nullable = false)
     @Lob
@@ -80,9 +85,7 @@ public class Comment {
     @Column(name = "URL", length = LIMIT_URL, nullable = true)
     private String url;
 
-    protected Comment() {
-        deleted = false;
-    }
+    protected Comment() {}
 
     public Long getId() {
         return id;
@@ -129,20 +132,21 @@ public class Comment {
         this.creationDate = creationDate;
     }
 
-    public Instant getModificationDate() {
-        return modificationDate;
+    public Instant getLastModificationDate() {
+        return lastModificationDate;
     }
 
-    public void setModificationDate(Instant modificationDate) {
-        this.modificationDate = modificationDate;
+    public void setLastModificationDate(Instant lastModificationDate) {
+        this.lastModificationDate = lastModificationDate;
     }
 
-    public boolean isDeleted() {
-        return deleted;
+    public Status getStatus() {
+        return status;
     }
 
-    protected void setDeleted(boolean deleted) {
-        this.deleted = deleted;
+    protected void setStatus(Status status) {
+        Preconditions.checkNotNull(status);
+        this.status = status;
     }
 
     public String getText() {
@@ -201,6 +205,7 @@ public class Comment {
         return Objects.equals(id, comment.id) &&
                 Objects.equals(thread, comment.thread) &&
                 Objects.equals(parent, comment.parent) &&
+                Objects.equals(status, comment.status) &&
                 Objects.equals(text, comment.text) &&
                 Objects.equals(author, comment.author) &&
                 Arrays.equals(emailHash, comment.emailHash) &&
@@ -222,6 +227,33 @@ public class Comment {
                 .add("emailHash", emailHash)
                 .add("url", url)
                 .toString();
+    }
+
+    public enum Status {
+        DELETED(0),
+        PUBLIC(1),
+        AWAITING_MODERATION(2);
+
+        private final int value;
+
+        Status(int intValue) {
+            value = (byte) intValue;
+        }
+
+        @JsonValue
+        public int getValue() {
+            return value;
+        }
+
+        public static Status fromValue(int value) {
+            for (Status status : Status.values()) {
+                if (status.value == value) {
+                    return status;
+                }
+            }
+
+            throw new IllegalArgumentException("Unknown status");
+        }
     }
 
     public static Builder builder() {
@@ -260,7 +292,7 @@ public class Comment {
         }
 
         public Builder modificationDate(Instant modificationDate) {
-            comment.setModificationDate(modificationDate);
+            comment.setLastModificationDate(modificationDate);
             return this;
         }
 

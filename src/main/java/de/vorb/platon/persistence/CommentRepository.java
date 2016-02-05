@@ -14,11 +14,11 @@ import java.util.List;
 @Repository
 public interface CommentRepository extends PagingAndSortingRepository<Comment, Long> {
 
-    @Query("select c from Comment c where c.thread = :thread and c.deleted = false order by c.creationDate asc")
+    @Query("select c from Comment c where c.thread = :thread and c.status > 0 order by c.creationDate asc")
     List<Comment> findByThread(@Param("thread") CommentThread thread);
 
-    @Query("update Comment c set c.deleted = true where c.id = :commentId")
     @Modifying
-    void markAsDeleted(@Param("commentId") Long commentId);
+    @Query("update Comment c set c.status = :status where c.id = :commentId")
+    void setStatus(@Param("commentId") Long commentId, @Param("status") Comment.Status status);
 
 }

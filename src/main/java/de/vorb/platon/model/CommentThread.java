@@ -28,14 +28,14 @@ public class CommentThread {
 
     @Id
     @Column(name = "ID")
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "threads_seq")
-    @SequenceGenerator(name = "threads_seq", sequenceName = "SEQ_THREADS")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "thread_id_seq_gen")
+    @SequenceGenerator(name = "thread_id_seq_gen", sequenceName = "THREAD_ID_SEQ", allocationSize = 1)
     private Long id;
 
-    @Column(name = "URL", length = LIMIT_URL)
+    @Column(name = "URL", length = LIMIT_URL, nullable = false)
     private String url;
 
-    @Column(name = "TITLE", length = LIMIT_TITLE)
+    @Column(name = "TITLE", length = LIMIT_TITLE, nullable = true)
     private String title;
 
     @OneToMany(mappedBy = "thread", fetch = FetchType.LAZY)
