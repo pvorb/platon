@@ -182,6 +182,12 @@ public class CommentResourceTest {
         Mockito.verify(commentRepository).save(Mockito.same(newComment));
     }
 
+    @Test(expected = BadRequestException.class)
+    public void testPostCommentWithId() throws Exception {
+        final Comment comment = Comment.builder().id(1337L).build();
+        commentResource.postComment("http://example.com/article", "Article", comment);
+    }
+
     @Test
     public void testUpdateComment() throws Exception {
 
@@ -282,4 +288,34 @@ public class CommentResourceTest {
         commentResource.deleteComment(signatureWithMismatchingId, commentId);
 
     }
+
+    @Test
+    public void testSanitizeComment() throws Exception {
+
+        final InputSanitizer inputSanitizer = Mockito.mock(InputSanitizer.class);
+
+        final CommentResource commentResource = new CommentResource(
+                Mockito.mock(CommentThreadRepository.class),
+                Mockito.mock(CommentRepository.class),
+                Mockito.mock(RequestVerifier.class),
+                inputSanitizer
+        );
+
+        final Comment comment = Comment.builder()
+                .text("Some text")
+                .url("http://example.com/article?param1=foo&param2=bar")
+                .author("<a href=\"http://example.com/\">Sam</a>")
+                .build();
+
+        Mockito.when(inputSanitizer.sanitize(Mockito.eq(comment.getText()))).thenReturn(comment.getText());
+
+        commentResource.sanitizeComment(comment);
+
+        Mockito.verify(inputSanitizer).sanitize(Mockito.eq(comment.getText()));
+
+        Truth.assertThat(comment.getAuthor()).isEqualTo("Sam");
+        Truth.assertThat(comment.getUrl()).isEqualTo("http://example.com/article?param1=foo&amp;param2=bar");
+
+    }
+
 }
