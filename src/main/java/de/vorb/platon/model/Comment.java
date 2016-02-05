@@ -69,7 +69,7 @@ public class Comment {
     private Instant lastModificationDate;
 
     @Column(name = "STATUS", nullable = false)
-    private Status status = Status.AWAITING_MODERATION;
+    private Status status = Status.PUBLIC;
 
     @Column(name = "TEXT", nullable = false)
     @Lob
