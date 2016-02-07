@@ -171,7 +171,7 @@ public class Comment {
     }
 
     protected void setEmailHash(byte[] emailHash) {
-        Preconditions.checkArgument(emailHash.length == 16, "emailHash has invalid length");
+        Preconditions.checkArgument(emailHash == null || emailHash.length == 16, "emailHash has invalid length");
         this.emailHash = emailHash;
     }
 
@@ -222,10 +222,11 @@ public class Comment {
         return MoreObjects.toStringHelper(this)
                 .omitNullValues()
                 .add("id", id)
-                .add("text", text)
+                .add("thread", thread)
+                .add("text", text != null && text.length() > 1024
+                        ? StringUtils.left(text, 1021) + "..."
+                        : text)
                 .add("author", author)
-                .add("emailHash", emailHash)
-                .add("url", url)
                 .toString();
     }
 
