@@ -6,11 +6,12 @@ model.
 
 ## [Unreleased]
 ### Added
-- Change Log
+- CHANGELOG.md
+- CONTRIBUTING.md
 
 ## [0.1.0] - 2016-02-17
 ### Added
-- README with basic build, run and test instructions
+- README.md with basic build, run and test instructions
 - MIT license
 - Comments REST resource
 - HTML content sanitization
