@@ -18,4 +18,12 @@ This project follows the [GitFlow](http://nvie.com/posts/a-successful-git-branch
 - When you start working on a new feature, leave a comment on the issue with a link to the branch in your fork.
 - When you think your feature is ready to be merged, create a Merge Request with a list of the changes in your feature.
 
+## Coding conventions
+
+This project uses the [Google Java Style](https://google.github.io/styleguide/javaguide.html) and
+[Google JavaScript Style](http://google.github.io/styleguide/javascriptguide.xml) with the following exceptions:
+
+- Column limit: 120 characters
+- Blocks are indented by 4 spaces instead of 2
+
 Thanks!
