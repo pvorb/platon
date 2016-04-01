@@ -223,9 +223,10 @@ public class Comment {
                 .omitNullValues()
                 .add("id", id)
                 .add("thread", thread)
-                .add("text", text != null && text.length() > 1024
-                        ? StringUtils.left(text, 1021) + "..."
-                        : text)
+                .add("text",
+                        (text != null && text.length() > 1024)
+                                ? text.substring(0, 1020) + "..."
+                                : text)
                 .add("author", author)
                 .toString();
     }
