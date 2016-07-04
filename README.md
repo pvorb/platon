@@ -1,4 +1,4 @@
-# platon
+# platon [![Build Status](https://travis-ci.org/pvorb/platon.svg?branch=master)](https://travis-ci.org/pvorb/platon)
 
 A comment server similar to disqus and isso
 
