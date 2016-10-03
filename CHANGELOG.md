@@ -21,5 +21,5 @@ model.
 - Unit tests
 - Build automation via GitLab CI
 
-[Unreleased]: https://gitlab.com/pvorb/platon/compare/v0.1.0...HEAD
-[0.1.0]: https://gitlab.com/pvorb/platon/compare/5c5470ae...v0.1.0
+[Unreleased]: https://github.com/pvorb/platon/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/pvorb/platon/compare/5c5470ae...v0.1.0

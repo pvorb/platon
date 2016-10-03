@@ -2,14 +2,14 @@
 
 ## Filing bugs
 
-- **Ensure the bug was not already reported** by searching existing [issues](https://gitlab.com/pvorb/platon/issues).
+- **Ensure the bug was not already reported** by searching existing [issues](https://github.com/pvorb/platon/issues).
 - When reporting a new bug, be sure to add the version you are using.
 
 ## Contributing features
 
 This project follows the [GitFlow](http://nvie.com/posts/a-successful-git-branching-model/) branching model.
 
-- Please have a look at the list of [approved open issues](https://gitlab.com/pvorb/platon/issues?label_name=approved)
+- Please have a look at the list of [approved open issues](https://github.com/pvorb/platon/issues?label_name=approved)
   before starting development on a new feature.
 - If your feature is not in the list, please open a new issue first where the usefulness of a new feature can be
   discussed.

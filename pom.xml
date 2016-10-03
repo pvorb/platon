@@ -8,13 +8,13 @@
     <packaging>jar</packaging>
 
     <name>Platon</name>
-    <url>https://gitlab.com/pvorb/platon</url>
+    <url>https://github.com/pvorb/platon</url>
     <description>A comment server</description>
 
     <scm>
-        <connection>scm:git:git://gitlab.com/pvorb/platon.git</connection>
-        <developerConnection>scm:git:ssh://git@gitlab.com:pvorb/platon.git</developerConnection>
-        <url>https://gitlab.com/pvorb/platon.git</url>
+        <connection>scm:git:git://github.com/pvorb/platon.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com:pvorb/platon.git</developerConnection>
+        <url>https://github.com/pvorb/platon.git</url>
     </scm>
 
     <licenses>
