@@ -44,7 +44,7 @@ public class PlatonApp {
         return new WebMvcConfigurerAdapter() {
             @Override
             public void addResourceHandlers(ResourceHandlerRegistry registry) {
-                registry.addResourceHandler("classpath:/static");
+                registry.addResourceHandler("classpath:/public");
             }
         };
     }
