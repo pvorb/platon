@@ -3,4 +3,9 @@
 /*.iml
 /*.db
 
-/src/main/resources/bower_components/
+*.log
+
+/node/
+/node_modules/
+
+/src/main/webapp/js/
