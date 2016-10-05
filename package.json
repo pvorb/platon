@@ -1,0 +1,14 @@
+{
+  "private": true,
+  "scripts": {
+    "start": "webpack --debug --watch",
+    "build": "webpack -p"
+  },
+  "dependencies": {
+    "vue": "2.0.1"
+  },
+  "devDependencies": {
+    "vue-template-compiler-loader": "1.0.3",
+    "webpack": "1.13.2"
+  }
+}
