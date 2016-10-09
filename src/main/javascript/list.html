@@ -1,0 +1,5 @@
+<div class="platon-comments">
+    <div v-if="loading" class="platon-loading">Loading...</div>
+    <platon-comment v-if="!loading" v-for="comment in comments" :comment="comment"></platon-comment>
+    <platon-comment-form v-if="!loading" :comment="commentDraft"></platon-comment-form>
+</div>

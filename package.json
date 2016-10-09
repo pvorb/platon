@@ -5,7 +5,8 @@
     "build": "webpack -p"
   },
   "dependencies": {
-    "vue": "2.0.1"
+    "vue": "2.0.1",
+    "vue-resource": "1.0.3"
   },
   "devDependencies": {
     "vue-template-compiler-loader": "1.0.3",
