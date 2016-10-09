@@ -1,5 +1,5 @@
 <form class="platon-comment-form" v-on:submit.prevent="postComment()">
-    <textarea class="platon-text" v-model="comment.text" title="Comment text"></textarea><br>
+    <textarea class="platon-text" v-model="comment.text" placeholder="Comment text"></textarea><br>
     <label><input type="text" class="platon-author" v-model="comment.author"> Author</label><br>
     <label><input type="text" class="platon-email" v-model="comment.email"> Email</label><br>
     <label><input type="text" class="platon-url" v-model="comment.url"> Website</label><br>
