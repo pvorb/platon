@@ -1,5 +1,18 @@
 <div class="platon-comment" v-bind:id="'platon-comment-' + comment.id">
-    <div class="platon-text">
-        {{ comment.text }}
+    <div class="platon-avatar">
+        <img v-bind:src="'https://www.gravatar.com/avatar/' + comment.emailHash + '?size=48&default=identicon'">
     </div>
+    <div class="platon-meta">
+        <a class="platon-author" v-bind:href="comment.url">{{ comment.author }}</a>
+        ~
+        <span class="platon-creation-date" v-bind:title="comment.creationDate">{{ creationDate }}</span>
+    </div>
+    <div class="platon-text" v-html="comment.text"></div>
+    <div class="platon-actions">
+        <a href="" v-on:click.prevent="showReplyForm = !showReplyForm">{{ showReplyForm ? 'Close' : 'Reply' }}</a>
+    </div>
+    <platon-comment-form v-if="showReplyForm" :comment="commentDraft"></platon-comment-form>
+
+    <platon-comment v-for="reply in comment.replies" :comment="reply"></platon-comment>
+
 </div>
