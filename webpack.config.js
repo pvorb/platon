@@ -12,7 +12,8 @@ module.exports = {
     },
     module: {
         loaders: [
-            {test: /\.html$/, loader: 'vue-template-compiler'}
+            {test: /\.html$/, loader: 'vue-template-compiler'},
+            {test: /\.css$/, loader: 'style!css'}
         ]
     }
 };
