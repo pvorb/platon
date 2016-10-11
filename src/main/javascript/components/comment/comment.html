@@ -11,7 +11,7 @@
     <div class="platon-actions">
         <a href="" v-on:click.prevent="showReplyForm = !showReplyForm">{{ showReplyForm ? 'Close' : 'Reply' }}</a>
     </div>
-    <platon-comment-form v-if="showReplyForm" :comment="commentDraft"></platon-comment-form>
+    <platon-comment-form v-if="showReplyForm"></platon-comment-form>
 
     <platon-comment v-for="reply in comment.replies" :comment="reply"></platon-comment>
 

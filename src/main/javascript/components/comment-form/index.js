@@ -1,22 +1,29 @@
+var userInfoStore = require('./user-info-store.js');
+
 var template = require('./comment-form.html');
 
 module.exports = {
-    props: {
-        comment: {
-            type: Object,
-            required: true
-        }
-    },
     render: template.render,
     staticRenderFns: template.staticRenderFns,
     data: function () {
         return {
-            rememberUser: true
+            comment: userInfoStore.getUserInfo(),
+            rememberUser: userInfoStore.getRememberUser()
         };
     },
     methods: {
         postComment: function () {
-            console.log(JSON.stringify(this.comment), this.rememberUser);
+            if (this.rememberUser) {
+                userInfoStore.storeUserInfo({
+                    author: this.comment.author,
+                    email: this.comment.email,
+                    url: this.comment.url
+                });
+            } else {
+                userInfoStore.removeUserInfo();
+            }
+
+            // TODO post request
         }
     }
 };
