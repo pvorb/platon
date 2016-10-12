@@ -107,7 +107,7 @@ public class CommentResource {
     @Transactional
     public Response postComment(
             @NotNull @QueryParam("threadUrl") String threadUrl,
-            @NotNull @QueryParam("title") String title,
+            @NotNull @QueryParam("threadTitle") String threadTitle,
             @NotNull Comment comment) {
 
         if (comment.getId() != null) {
@@ -120,7 +120,7 @@ public class CommentResource {
             thread =
                     CommentThread.builder()
                             .url(threadUrl)
-                            .title(title)
+                            .title(threadTitle)
                             .build();
 
             threadRepository.save(thread);
