@@ -1,4 +1,5 @@
-var userInfoStore = require('./user-info-store.js');
+var UserInfoStore = require('./user-info-store.js');
+var CommentService = require('../../services/comment-service.js');
 
 var template = require('./comment-form.html');
 
@@ -13,24 +14,29 @@ module.exports = {
     staticRenderFns: template.staticRenderFns,
     data: function () {
         return {
-            comment: userInfoStore.getUserInfo(),
-            rememberUser: userInfoStore.getRememberUser()
+            comment: UserInfoStore.getUserInfo(),
+            rememberUser: UserInfoStore.getRememberUser()
         };
     },
     methods: {
         postComment: function () {
             if (this.rememberUser) {
-                userInfoStore.storeUserInfo({
+                UserInfoStore.storeUserInfo({
                     author: this.comment.author,
                     email: this.comment.email,
                     url: this.comment.url
                 });
             } else {
-                userInfoStore.removeUserInfo();
+                UserInfoStore.removeUserInfo();
             }
 
-            console.log(this.replyTo);
-            // TODO post request
+            CommentService.postComment(window.location.href, document.title, this.comment)
+                .then(function () {
+                    console.log('success', arguments);
+                })
+                .catch(function () {
+                    console.log('error', arguments);
+                });
         }
     }
 };

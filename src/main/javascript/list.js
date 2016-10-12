@@ -1,5 +1,7 @@
 var Vue = require('vue');
 
+var CommentService = require('./services/comment-service.js');
+
 var template = require('./list.html');
 
 new Vue({
@@ -9,8 +11,7 @@ new Vue({
 
     data: {
         loading: true,
-        comments: [],
-        commentDraft: {}
+        comments: []
     },
 
     components: {
@@ -19,23 +20,14 @@ new Vue({
     },
 
     created: function () {
-        this.$http.get('/api/comments', {
-            params: {
-                threadUrl: window.location.href
-            }
-        }).then(function handleSuccess(response) {
-            return response.json();
-        }, function handleError(response) {
-            if (response.status === 404) {
-                return Promise.resolve([]);
-            } else {
-                return Promise.reject('cannot_load');
-            }
-        }).then(function updateModel(comments) {
-            this.comments = comments;
-            this.loading = false;
-        }).catch(function displayError(reason) {
-            alert(reason);
-        });
+        var vm = this;
+        CommentService.getComments(window.location.href)
+            .then(function updateModel(comments) {
+                vm.comments = comments;
+                vm.loading = false;
+            })
+            .catch(function displayError(reason) {
+                alert(reason);
+            });
     }
 });

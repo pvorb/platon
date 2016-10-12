@@ -1,5 +1,6 @@
 var infoKey = 'platonUserInfo';
 var rememberUserKey = 'platonRememberUserKey';
+
 module.exports = {
     getUserInfo: function getUserInfo() {
         var userInfo = localStorage.getItem(infoKey);
