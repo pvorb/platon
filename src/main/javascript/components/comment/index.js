@@ -1,7 +1,5 @@
 var template = require('./comment.html');
 
-var dateToString = require('./date-to-string.js');
-
 module.exports = {
     name: 'platon-comment',
     props: {
@@ -20,7 +18,10 @@ module.exports = {
     },
     computed: {
         creationDate: function () {
-            return dateToString(new Date(this.comment.creationDate));
+            return new Date(this.comment.creationDate).toLocaleString();
+        },
+        longCreationDate: function () {
+            return new Date(this.comment.creationDate).toISOString();
         }
     },
     components: {

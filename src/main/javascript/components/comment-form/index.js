@@ -3,6 +3,12 @@ var userInfoStore = require('./user-info-store.js');
 var template = require('./comment-form.html');
 
 module.exports = {
+    props: {
+        replyTo: {
+            type: Number,
+            required: false
+        }
+    },
     render: template.render,
     staticRenderFns: template.staticRenderFns,
     data: function () {
@@ -23,6 +29,7 @@ module.exports = {
                 userInfoStore.removeUserInfo();
             }
 
+            console.log(this.replyTo);
             // TODO post request
         }
     }
