@@ -17,7 +17,7 @@
     height: 48px;
 }
 
-.platon-actions + .platon-comment, .platon-actions + .platon-form {
+.platon-comment + .platon-comment, .platon-actions + .platon-comment, .platon-actions + .platon-form {
     margin-top: 1rem;
 }
 
