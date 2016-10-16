@@ -6,6 +6,7 @@ import de.vorb.platon.persistence.CommentRepository;
 import de.vorb.platon.persistence.CommentThreadRepository;
 import de.vorb.platon.security.RequestVerifier;
 import de.vorb.platon.util.InputSanitizer;
+import de.vorb.platon.web.rest.json.CommentJson;
 
 import com.google.common.truth.Truth;
 import org.junit.Before;
@@ -63,7 +64,7 @@ public class CommentResourceTest {
 
     private CommentResource commentResource;
 
-    private final Comment updateComment = Comment.builder().id(42L).text("Text").build();
+    private final CommentJson updateComment = new CommentJson(Comment.builder().id(42L).text("Text").build());
     private final String defaultRequestSignature = getSignature("comments/42", Instant.now());
 
     @Before
@@ -78,7 +79,9 @@ public class CommentResourceTest {
         final Random rng = new Random();
         Mockito.when(commentRepository.save(Mockito.any(Comment.class))).then(invocation -> {
             final Comment comment = invocation.getArgumentAt(0, Comment.class);
-            comment.setId(rng.nextLong());
+            if (comment.getId() == null) {
+                comment.setId(rng.nextLong());
+            }
             return comment;
         });
 
@@ -102,7 +105,7 @@ public class CommentResourceTest {
 
     @Test
     public void testGetCommentsByThreadUrlNonEmptyThread() throws Exception {
-        final List<Comment> comments = commentResource.findCommentsByThreadUrl(nonEmptyThread.getUrl());
+        final List<CommentJson> comments = commentResource.findCommentsByThreadUrl(nonEmptyThread.getUrl());
         Truth.assertThat(comments).isNotEmpty();
     }
 
@@ -113,7 +116,7 @@ public class CommentResourceTest {
         Mockito.when(comment.getStatus()).thenReturn(Comment.Status.PUBLIC);
         Mockito.when(commentRepository.findOne(Mockito.eq(4711L))).thenReturn(comment);
 
-        Truth.assertThat(commentResource.getComment(4711L)).isSameAs(comment);
+        Truth.assertThat(commentResource.getComment(4711L)).isEqualTo(new CommentJson(comment));
 
     }
 
@@ -156,20 +159,24 @@ public class CommentResourceTest {
                         .author("Author")
                         .build());
 
-        commentResource.postComment(nonEmptyThread.getUrl(), nonEmptyThread.getTitle(), newComment);
+        commentResource.postComment(nonEmptyThread.getUrl(), nonEmptyThread.getTitle(), new CommentJson(newComment));
 
-        Mockito.verify(commentRepository).save(Mockito.same(newComment));
+        final ArgumentCaptor<Comment> commentCaptor = ArgumentCaptor.forClass(Comment.class);
+
+        Mockito.verify(commentRepository).save(commentCaptor.capture());
+
+        Truth.assertThat(commentCaptor.getValue().getThread().getUrl()).isEqualTo(nonEmptyThread.getUrl());
     }
 
     @Test
     public void testPostCommentToNewThread() throws Exception {
         final String threadUrl = "http://example.com/new-article";
         final String threadTitle = "New article";
-        final Comment newComment =
-                Mockito.spy(Comment.builder()
+        final CommentJson newComment =
+                Mockito.spy(new CommentJson(Comment.builder()
                         .text("Text")
                         .author("Author")
-                        .build());
+                        .build()));
 
         commentResource.postComment(threadUrl, threadTitle, newComment);
 
@@ -179,12 +186,16 @@ public class CommentResourceTest {
         Truth.assertThat(threadCaptor.getValue().getUrl()).isEqualTo(threadUrl);
         Truth.assertThat(threadCaptor.getValue().getTitle()).isEqualTo(threadTitle);
 
-        Mockito.verify(commentRepository).save(Mockito.same(newComment));
+        final ArgumentCaptor<Comment> commentCaptor = ArgumentCaptor.forClass(Comment.class);
+
+        Mockito.verify(commentRepository).save(commentCaptor.capture());
+
+        Truth.assertThat(commentCaptor.getValue().getThread().getUrl()).isEqualTo(threadUrl);
     }
 
     @Test(expected = BadRequestException.class)
     public void testPostCommentWithId() throws Exception {
-        final Comment comment = Comment.builder().id(1337L).build();
+        final CommentJson comment = new CommentJson(Comment.builder().id(1337L).build());
         commentResource.postComment("http://example.com/article", "Article", comment);
     }
 
@@ -195,7 +206,7 @@ public class CommentResourceTest {
 
         commentResource.updateComment(defaultRequestSignature, updateComment.getId(), updateComment);
 
-        Mockito.verify(commentRepository).save(updateComment);
+        Mockito.verify(commentRepository).save(Mockito.eq(updateComment.toComment()));
 
     }
 
