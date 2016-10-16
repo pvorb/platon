@@ -15,5 +15,6 @@ module.exports = {
             {test: /\.html$/, loader: 'vue-template-compiler'},
             {test: /\.css$/, loader: 'style!css'}
         ]
-    }
+    },
+    devtool: 'source-map'
 };

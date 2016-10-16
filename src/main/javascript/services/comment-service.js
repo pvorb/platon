@@ -23,9 +23,30 @@ module.exports = {
                 threadTitle: threadTitle
             }
         }).then(function handleSuccess(response) {
-            return response.json();
+            if (response.status === 201) {
+                var commentSignature = response.headers.get('X-Signature');
+                return response.json().then(function (newComment) {
+                    storeSignature(newComment, commentSignature);
+                    return Promise.resolve(newComment);
+                });
+            }
         }, function handleError(response) {
             return Promise.reject('cannot_post');
         });
+    },
+    canEditComment: function canEditComment(comment) {
+        return getSignature(comment);
     }
 };
+
+function storeSignature(comment, signature) {
+    localStorage.setItem(getSignatureKey(comment), signature);
+}
+
+function getSignature(comment) {
+    localStorage.getItem(getSignatureKey(comment));
+}
+
+function getSignatureKey(comment) {
+    return 'platon-comment-' + comment.id;
+}

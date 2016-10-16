@@ -1,38 +1,45 @@
-var UserInfoStore = require('./user-info-store.js');
+var UserInfoService = require('./../../services/user-info-service.js');
 var CommentService = require('../../services/comment-service.js');
 
 var template = require('./comment-form.html');
 
 module.exports = {
     props: {
-        replyTo: {
+        parentId: {
             type: Number,
             required: false
         }
     },
+
     render: template.render,
     staticRenderFns: template.staticRenderFns,
+
     data: function () {
         return {
-            comment: UserInfoStore.getUserInfo(),
-            rememberUser: UserInfoStore.getRememberUser()
+            comment: UserInfoService.getUserInfo(),
+            rememberUser: UserInfoService.getRememberUser()
         };
     },
+
     methods: {
         postComment: function () {
-            if (this.rememberUser) {
-                UserInfoStore.storeUserInfo({
-                    author: this.comment.author,
-                    email: this.comment.email,
-                    url: this.comment.url
+            var vm = this;
+
+            if (vm.rememberUser) {
+                UserInfoService.storeUserInfo({
+                    author: vm.comment.author,
+                    email: vm.comment.email,
+                    url: vm.comment.url
                 });
             } else {
-                UserInfoStore.removeUserInfo();
+                UserInfoService.removeUserInfo();
             }
 
-            CommentService.postComment(window.location.href, document.title, this.comment)
-                .then(function () {
-                    console.log('success', arguments);
+            vm.comment.parentId = vm.parentId;
+
+            CommentService.postComment(window.location.href, document.title, vm.comment)
+                .then(function (newComment) {
+                    vm.$emit('posted', newComment);
                 })
                 .catch(function () {
                     console.log('error', arguments);

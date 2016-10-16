@@ -26,5 +26,11 @@ module.exports = {
     },
     components: {
         'platon-comment-form': require('../comment-form')
+    },
+    methods: {
+        addReply: function (newComment) {
+            this.comment.replies.push(newComment);
+            this.showReplyForm = false;
+        }
     }
 };

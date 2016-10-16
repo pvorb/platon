@@ -1,5 +1,5 @@
-var infoKey = 'platonUserInfo';
-var rememberUserKey = 'platonRememberUserKey';
+var infoKey = 'platon-user-info';
+var rememberUserKey = 'platon-remember-user-key';
 
 module.exports = {
     getUserInfo: function getUserInfo() {

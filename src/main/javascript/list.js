@@ -19,6 +19,12 @@ new Vue({
         'platon-comment-form': require('./components/comment-form')
     },
 
+    methods: {
+        addComment: function(newComment) {
+            this.comments.push(newComment);
+        }
+    },
+
     created: function () {
         var vm = this;
         CommentService.getComments(window.location.href)
