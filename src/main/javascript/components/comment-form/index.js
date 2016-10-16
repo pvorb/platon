@@ -37,7 +37,7 @@ module.exports = {
 
             vm.comment.parentId = vm.parentId;
 
-            CommentService.postComment(window.location.href, document.title, vm.comment)
+            CommentService.postComment(window.location.pathname, document.title, vm.comment)
                 .then(function (newComment) {
                     vm.$emit('posted', newComment);
                 })
