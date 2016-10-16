@@ -27,7 +27,7 @@ new Vue({
 
     created: function () {
         var vm = this;
-        CommentService.getComments(window.location.href)
+        CommentService.getComments(window.location.pathname)
             .then(function updateModel(comments) {
                 vm.comments = comments;
                 vm.loading = false;
