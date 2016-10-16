@@ -6,6 +6,7 @@ import de.vorb.platon.persistence.CommentRepository;
 import de.vorb.platon.persistence.CommentThreadRepository;
 import de.vorb.platon.security.RequestVerifier;
 import de.vorb.platon.util.InputSanitizer;
+import de.vorb.platon.web.rest.json.CommentJson;
 
 import com.google.common.base.Preconditions;
 import org.owasp.encoder.Encode;
@@ -38,8 +39,12 @@ import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Component
 @Path("comments")
@@ -76,7 +81,7 @@ public class CommentResource {
     @GET
     @Path("{id}")
     @Transactional(readOnly = true)
-    public Comment getComment(
+    public CommentJson getComment(
             @NotNull @PathParam("id") Long commentId) {
 
         final Comment comment = commentRepository.findOne(commentId);
@@ -84,33 +89,53 @@ public class CommentResource {
         if (comment == null || comment.getStatus() != Comment.Status.PUBLIC) {
             throw new NotFoundException(String.format("No comment found with id = %d", commentId));
         } else {
-            return comment;
+            return new CommentJson(comment);
         }
     }
 
 
     @GET
     @Transactional(readOnly = true)
-    public List<Comment> findCommentsByThreadUrl(
+    public List<CommentJson> findCommentsByThreadUrl(
             @NotNull @QueryParam("threadUrl") String threadUrl) {
 
         final CommentThread thread = threadRepository.getByUrl(threadUrl);
         if (thread == null) {
             throw new NotFoundException(String.format("No thread found with url = '%s'", threadUrl));
         } else {
-            return commentRepository.findByThread(thread);
+            final List<Comment> comments = commentRepository.findByThread(thread);
+            return transformFlatCommentListToTree(comments);
         }
     }
 
+    private static List<CommentJson> transformFlatCommentListToTree(List<Comment> comments) {
+
+        final Map<Long, CommentJson> lookupMap = comments.stream()
+                .map(CommentJson::new)
+                .collect(Collectors.toMap(CommentJson::getId, Function.identity()));
+
+        final List<CommentJson> topLevelComments = new ArrayList<>();
+        comments.forEach(comment -> {
+            final List<CommentJson> commentList;
+            if (comment.getParentId() == null) {
+                commentList = topLevelComments;
+            } else {
+                commentList = lookupMap.get(comment.getParentId()).getReplies();
+            }
+            commentList.add(lookupMap.get(comment.getId()));
+        });
+
+        return topLevelComments;
+    }
 
     @POST
     @Transactional
     public Response postComment(
             @NotNull @QueryParam("threadUrl") String threadUrl,
-            @NotNull @QueryParam("title") String title,
-            @NotNull Comment comment) {
+            @NotNull @QueryParam("threadTitle") String threadTitle,
+            @NotNull CommentJson commentJson) {
 
-        if (comment.getId() != null) {
+        if (commentJson.getId() != null) {
             throw new BadRequestException("Comment id is not null");
         }
 
@@ -120,13 +145,15 @@ public class CommentResource {
             thread =
                     CommentThread.builder()
                             .url(threadUrl)
-                            .title(title)
+                            .title(threadTitle)
                             .build();
 
             threadRepository.save(thread);
 
             logger.info("Created new {}", thread);
         }
+
+        Comment comment = commentJson.toComment();
 
         comment.setThread(thread);
         comment.setCreationDate(Instant.now());
@@ -149,7 +176,7 @@ public class CommentResource {
         return Response.created(commentUri)
                 .header(SIGNATURE_HEADER, String.format("%s|%s|%s", identifier, expirationDate,
                         Base64.getEncoder().encodeToString(signature)))
-                .entity(comment)
+                .entity(new CommentJson(comment))
                 .build();
     }
 
@@ -182,16 +209,18 @@ public class CommentResource {
     public void updateComment(
             @NotNull @HeaderParam(SIGNATURE_HEADER) String signature,
             @NotNull @PathParam("id") Long commentId,
-            @NotNull Comment comment) {
+            @NotNull CommentJson commentJson) {
 
-        if (!commentId.equals(comment.getId())) {
+        if (!commentId.equals(commentJson.getId())) {
             throw new BadRequestException(
-                    String.format("Comment ids do not match (%d != %d)", comment.getId(), commentId));
+                    String.format("Comment ids do not match (%d != %d)", commentJson.getId(), commentId));
         }
 
         verifyValidRequest(signature, commentId);
 
         if (commentRepository.exists(commentId)) {
+
+            Comment comment = commentJson.toComment();
 
             sanitizeComment(comment);
 

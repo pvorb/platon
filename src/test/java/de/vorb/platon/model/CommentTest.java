@@ -23,25 +23,7 @@ public class CommentTest {
 
         comment.setParentId(null);
 
-        Truth.assertThat(comment.getParent()).isNull();
-
-    }
-
-    @Test
-    public void testSetEmail() throws Exception {
-
-        final Comment comment = new Comment();
-        comment.setEmail(null);
-
-        Truth.assertThat(comment.getEmailHash()).isNull();
-
-        final String emailAddress = "user@example.com";
-        comment.setEmail(emailAddress);
-
-        final byte[] referenceHash = MessageDigest.getInstance(MessageDigestAlgorithms.MD5)
-                .digest(emailAddress.getBytes(StandardCharsets.UTF_8));
-
-        Truth.assertThat(Arrays.equals(comment.getEmailHash(), referenceHash)).isTrue();
+        Truth.assertThat(comment.getParentId()).isNull();
 
     }
 
@@ -78,7 +60,6 @@ public class CommentTest {
         c.setThread(new CommentThread());
         c.setText("Comment text");
         c.setAuthor("User");
-        c.setEmail("user@example.com");
         c.setUrl("http://example.com");
         return c;
     };

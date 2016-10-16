@@ -1,0 +1,8 @@
+<form class="platon-form" v-on:submit.prevent="postComment()">
+    <textarea class="platon-form-text" v-model="comment.text" placeholder="Comment text"></textarea><br>
+    <label><input type="text" class="platon-form-author" v-model="comment.author"> Author</label><br>
+    <label><input type="text" class="platon-form-email" v-model="comment.email"> Email</label><br>
+    <label><input type="text" class="platon-form-url" v-model="comment.url"> Website</label><br>
+    <label><input type="checkbox" v-model="rememberUser"> Remember me</label><br>
+    <input type="submit" value="Submit">
+</form>

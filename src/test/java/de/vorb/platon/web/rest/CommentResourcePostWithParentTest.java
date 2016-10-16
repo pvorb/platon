@@ -6,6 +6,7 @@ import de.vorb.platon.persistence.CommentRepository;
 import de.vorb.platon.persistence.CommentThreadRepository;
 import de.vorb.platon.security.RequestVerifier;
 import de.vorb.platon.util.InputSanitizer;
+import de.vorb.platon.web.rest.json.CommentJson;
 
 import com.google.common.truth.Truth;
 import org.junit.Before;
@@ -113,16 +114,18 @@ public class CommentResourcePostWithParentTest {
 
         final Comment newChildComment =
                 Comment.builder()
-                        .parent(existingParentComment)
+                        .parentId(existingParentComment.getId())
                         .text("Child")
                         .build();
 
-        Mockito.when(commentRepository.save(Mockito.eq(newChildComment))).then(invocation -> {
-            newChildComment.setId(4711L);
-            return newChildComment;
+        Mockito.when(commentRepository.save(Mockito.any(Comment.class))).then(invocation -> {
+            Comment comment = invocation.getArgumentAt(0, Comment.class);
+            comment.setId(4711L);
+            return comment;
         });
 
-        final Response response = commentResource.postComment(thread.getUrl(), thread.getTitle(), newChildComment);
+        final Response response = commentResource.postComment(thread.getUrl(), thread.getTitle(),
+                new CommentJson(newChildComment));
 
         Truth.assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
 
@@ -133,7 +136,7 @@ public class CommentResourcePostWithParentTest {
 
         final Comment newChildComment =
                 Comment.builder()
-                        .parent(nonExistingParentComment)
+                        .parentId(nonExistingParentComment.getId())
                         .text("Child")
                         .build();
 
@@ -142,7 +145,7 @@ public class CommentResourcePostWithParentTest {
             return newChildComment;
         });
 
-        commentResource.postComment(thread.getUrl(), thread.getTitle(), newChildComment);
+        commentResource.postComment(thread.getUrl(), thread.getTitle(), new CommentJson(newChildComment));
 
     }
 
@@ -151,11 +154,11 @@ public class CommentResourcePostWithParentTest {
 
         final Comment newChildComment =
                 Comment.builder()
-                        .parent(existingParentFromOtherThread)
+                        .parentId(existingParentFromOtherThread.getId())
                         .text("Child")
                         .build();
 
-        commentResource.postComment(thread.getUrl(), thread.getTitle(), newChildComment);
+        commentResource.postComment(thread.getUrl(), thread.getTitle(), new CommentJson(newChildComment));
 
     }
 
