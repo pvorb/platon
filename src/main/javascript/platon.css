@@ -50,12 +50,29 @@
     clear: left;
 }
 
-.platon-form input, .platon-form textarea {
+.platon-form input {
     margin-bottom: 0.5rem;
 }
 
 .platon-form-text {
+    display: block;
     width: 100%;
+    max-width: 100%;
     min-height: 7.5rem;
     line-height: 1.5;
+}
+
+.platon-form-preview {
+    border: 1px solid #eee;
+    overflow-y: auto;
+    box-sizing: border-box;
+    padding: 5px;
+}
+
+.platon-form-preview > * {
+    margin-top: 0;
+}
+
+.platon-form-preview > *:last-child {
+    margin-bottom: 0;
 }
