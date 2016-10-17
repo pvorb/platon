@@ -5,6 +5,7 @@
     "build": "webpack -p"
   },
   "dependencies": {
+    "marked": "0.3.6",
     "vue": "2.0.1",
     "vue-resource": "1.0.3"
   },
