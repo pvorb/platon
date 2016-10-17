@@ -6,6 +6,7 @@ import de.vorb.platon.persistence.CommentRepository;
 import de.vorb.platon.persistence.CommentThreadRepository;
 import de.vorb.platon.security.RequestVerifier;
 import de.vorb.platon.web.rest.json.CommentJson;
+import de.vorb.platon.web.rest.json.CommentListResultJson;
 
 import com.google.common.truth.Truth;
 import org.junit.Before;
@@ -51,11 +52,14 @@ public class CommentResourceHierarchyTest {
         Mockito.when(commentRepository.findByThread(Mockito.any(CommentThread.class)))
                 .thenReturn(Arrays.asList(comment1, comment2));
 
-        List<CommentJson> comments = commentResource.findCommentsByThreadUrl(testThread.getUrl());
-        Truth.assertThat(comments).hasSize(1);
-        Truth.assertThat(comments.get(0).getId()).isEqualTo(comment1.getId());
+        CommentListResultJson commentListResult = commentResource.findCommentsByThreadUrl(testThread.getUrl());
 
-        List<CommentJson> replies = comments.get(0).getReplies();
+        Truth.assertThat(commentListResult.getTotalCommentCount()).isEqualTo(2);
+
+        Truth.assertThat(commentListResult.getComments()).hasSize(1);
+        Truth.assertThat(commentListResult.getComments().get(0).getId()).isEqualTo(comment1.getId());
+
+        List<CommentJson> replies = commentListResult.getComments().get(0).getReplies();
         Truth.assertThat(replies).hasSize(1);
         Truth.assertThat(replies.get(0).getId()).isEqualTo(comment2.getId());
     }

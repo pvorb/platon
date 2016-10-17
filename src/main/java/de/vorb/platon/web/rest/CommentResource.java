@@ -7,6 +7,7 @@ import de.vorb.platon.persistence.CommentThreadRepository;
 import de.vorb.platon.security.RequestVerifier;
 import de.vorb.platon.util.InputSanitizer;
 import de.vorb.platon.web.rest.json.CommentJson;
+import de.vorb.platon.web.rest.json.CommentListResultJson;
 
 import com.google.common.base.Preconditions;
 import org.owasp.encoder.Encode;
@@ -96,7 +97,7 @@ public class CommentResource {
 
     @GET
     @Transactional(readOnly = true)
-    public List<CommentJson> findCommentsByThreadUrl(
+    public CommentListResultJson findCommentsByThreadUrl(
             @NotNull @QueryParam("threadUrl") String threadUrl) {
 
         final CommentThread thread = threadRepository.getByUrl(threadUrl);
@@ -104,7 +105,9 @@ public class CommentResource {
             throw new NotFoundException(String.format("No thread found with url = '%s'", threadUrl));
         } else {
             final List<Comment> comments = commentRepository.findByThread(thread);
-            return transformFlatCommentListToTree(comments);
+            final long totalCommentCount = comments.size();
+            final List<CommentJson> topLevelComments = transformFlatCommentListToTree(comments);
+            return new CommentListResultJson(totalCommentCount, topLevelComments);
         }
     }
 

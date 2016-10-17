@@ -28,8 +28,9 @@ new Vue({
     created: function () {
         var vm = this;
         CommentService.getComments(window.location.pathname)
-            .then(function updateModel(comments) {
-                vm.comments = comments;
+            .then(function updateModel(commentsListResult) {
+                vm.comments = commentsListResult.comments;
+                vm.totalCommentCount = commentsListResult.totalCommentCount;
                 vm.loading = false;
             })
             .catch(function displayError(reason) {
