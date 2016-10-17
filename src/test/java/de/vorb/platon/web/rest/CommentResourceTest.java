@@ -7,6 +7,7 @@ import de.vorb.platon.persistence.CommentThreadRepository;
 import de.vorb.platon.security.RequestVerifier;
 import de.vorb.platon.util.InputSanitizer;
 import de.vorb.platon.web.rest.json.CommentJson;
+import de.vorb.platon.web.rest.json.CommentListResultJson;
 
 import com.google.common.truth.Truth;
 import org.junit.Before;
@@ -100,13 +101,16 @@ public class CommentResourceTest {
 
     @Test
     public void testGetCommentsByThreadUrlEmptyThread() throws Exception {
-        Truth.assertThat(commentResource.findCommentsByThreadUrl(emptyThread.getUrl())).isEmpty();
+        final CommentListResultJson comments = commentResource.findCommentsByThreadUrl(emptyThread.getUrl());
+        Truth.assertThat(comments.getTotalCommentCount()).isEqualTo(0);
+        Truth.assertThat(comments.getComments()).isEmpty();
     }
 
     @Test
     public void testGetCommentsByThreadUrlNonEmptyThread() throws Exception {
-        final List<CommentJson> comments = commentResource.findCommentsByThreadUrl(nonEmptyThread.getUrl());
-        Truth.assertThat(comments).isNotEmpty();
+        final CommentListResultJson comments = commentResource.findCommentsByThreadUrl(nonEmptyThread.getUrl());
+        Truth.assertThat(comments.getTotalCommentCount()).isGreaterThan(0L);
+        Truth.assertThat(comments.getComments()).isNotEmpty();
     }
 
     @Test

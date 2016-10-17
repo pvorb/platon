@@ -1,7 +1,9 @@
 var debounce = require('lodash.debounce');
 var marked = require('marked');
 marked.setOptions({
-    gfm: false,
+    gfm: true,
+    tables: false,
+    breaks: false,
     sanitize: true,
     smartLists: true,
     smartypants: true
