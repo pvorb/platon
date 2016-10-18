@@ -320,7 +320,7 @@ public class CommentResource {
     @GET
     @Path("counts")
     @Transactional(readOnly = true)
-    public CommentCountsJson getCommentCounts(@NotNull @QueryParam("threadUrl") List<String> threadUrls) {
+    public CommentCountsJson getCommentCounts(@NotNull @QueryParam("threadUrl[]") List<String> threadUrls) {
 
         final CommentCountsJson commentCounts = new CommentCountsJson();
 

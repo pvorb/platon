@@ -52,6 +52,11 @@ module.exports = {
     },
     canEditComment: function canEditComment(comment) {
         return getSignature(comment);
+    },
+    countComments: function countComments(threadUrls) {
+        Vue.http.get('/api/comments/counts', {params: {threadUrl: threadUrls}}).then(function() {
+            console.log(arguments);
+        })
     }
 };
 
