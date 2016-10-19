@@ -24,6 +24,7 @@ import de.vorb.platon.security.RequestVerifier;
 import de.vorb.platon.util.InputSanitizer;
 import de.vorb.platon.web.rest.json.CommentJson;
 import de.vorb.platon.web.rest.json.CommentListResultJson;
+import de.vorb.platon.web.rest.json.CommentCountsJson;
 
 import com.google.common.base.Preconditions;
 import org.owasp.encoder.Encode;
@@ -314,6 +315,22 @@ public class CommentResource {
 
     private URI getUriFromId(long commentId) {
         return UriBuilder.fromResource(getClass()).segment("{id}").build(commentId);
+    }
+
+    @GET
+    @Path("counts")
+    @Transactional(readOnly = true)
+    public CommentCountsJson getCommentCounts(@NotNull @QueryParam("threadUrl[]") List<String> threadUrls) {
+
+        final CommentCountsJson commentCounts = new CommentCountsJson();
+
+        threadUrls.forEach(threadUrl -> {
+            final CommentThread thread = threadRepository.getByUrl(threadUrl);
+            final Long threadCommentCount = commentRepository.countCommentsOfThread(thread);
+            commentCounts.setCommentCount(threadUrl, threadCommentCount);
+        });
+
+        return commentCounts;
     }
 
 }

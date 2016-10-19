@@ -37,4 +37,7 @@ public interface CommentRepository extends PagingAndSortingRepository<Comment, L
     @Query("update Comment c set c.status = :status where c.id = :commentId")
     void setStatus(@Param("commentId") Long commentId, @Param("status") Comment.Status status);
 
+    @Query("select count(c) from Comment c where c.thread = :thread and c.status > 0")
+    Long countCommentsOfThread(@Param("thread") CommentThread thread);
+
 }
