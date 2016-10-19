@@ -28,7 +28,7 @@ module.exports = {
             if (response.status === 404) {
                 return Promise.resolve([]);
             } else {
-                return Promise.reject('cannot_load');
+                return Promise.reject(response);
             }
         });
     },
@@ -46,17 +46,21 @@ module.exports = {
                     return Promise.resolve(newComment);
                 });
             }
-        }, function handleError(response) {
-            return Promise.reject('cannot_post');
         });
     },
     canEditComment: function canEditComment(comment) {
         return getSignature(comment);
     },
     countComments: function countComments(threadUrls) {
-        Vue.http.get('/api/comments/counts', {params: {threadUrl: threadUrls}}).then(function() {
-            console.log(arguments);
-        })
+        return Vue.http.get('/api/comments/counts', {
+            params: {
+                threadUrl: threadUrls
+            }
+        }).then(function handleSuccess(response) {
+            return response.json().then(function (json) {
+                return Promise.resolve(json.commentCounts);
+            });
+        });
     }
 };
 

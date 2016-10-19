@@ -16,19 +16,16 @@
 
 var CommentService = require('./services/comment-service.js');
 
-var threadIds = {};
+var findGroupedPlatonThreadUrlElements = require('./utils/find-thread-url-elements.js');
 
-var linksToCommentThreads = document.querySelectorAll('a[href$="#platon-comment-thread"]');
+var groupedThreadUrlElements = findGroupedPlatonThreadUrlElements();
+var threadUrls = Object.keys(groupedThreadUrlElements);
 
-linksToCommentThreads.forEach(function (linkElem) {
-    threadIds[linkElem.pathname] = true;
+CommentService.countComments(threadUrls).then(function(commentCounts) {
+    for (var threadUrl in commentCounts) {
+        groupedThreadUrlElements[threadUrl].forEach(function(element) {
+            var count = commentCounts[threadUrl];
+            element.textContent = count + (count === 1 ? ' Comment' : ' Comments');
+        });
+    }
 });
-
-
-var elemsWithThreadIds = document.querySelectorAll('*[data-platon-thread-url]');
-
-elemsWithThreadIds.forEach(function (elem) {
-    threadIds[elem.getAttribute('data-platon-thread-url')] = true;
-});
-
-CommentService.countComments(Object.keys(threadIds));
