@@ -36,7 +36,7 @@ new Vue({
     },
 
     methods: {
-        addComment: function(newComment) {
+        addComment: function (newComment) {
             this.comments.push(newComment);
         }
     },
@@ -48,9 +48,25 @@ new Vue({
                 vm.comments = commentsListResult.comments;
                 vm.totalCommentCount = commentsListResult.totalCommentCount;
                 vm.loading = false;
+
+                if (window.location.hash && window.location.hash.indexOf('#platon-comment-') >= 0) {
+                    Vue.nextTick(function () {
+                        var commentElem = document.querySelector(window.location.hash);
+                        if (commentElem != null && !userHasScrolled) {
+                            commentElem.scrollIntoView(true);
+                        }
+                    });
+                }
             })
             .catch(function displayError(reason) {
                 alert(reason);
             });
     }
 });
+
+var userHasScrolled = false;
+window.addEventListener('scroll', scrollListener);
+function scrollListener() {
+    userHasScrolled = true;
+    window.removeEventListener('scroll', scrollListener);
+}
