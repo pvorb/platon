@@ -63,10 +63,14 @@
 }
 
 .platon-form-preview {
-    border: 1px solid #eee;
+    border: 1px solid #ddd;
     overflow-y: auto;
     box-sizing: border-box;
     padding: 5px;
+}
+
+.platon-comment > div.platon-text {
+    padding-right: -1px;
 }
 
 .platon-form-preview > * {

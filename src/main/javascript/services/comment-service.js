@@ -48,8 +48,14 @@ module.exports = {
             }
         });
     },
+    deleteComment: function deleteComment(comment) {
+        return Vue.http.delete('/api/comments/' + comment.id);
+    },
     canEditComment: function canEditComment(comment) {
-        return getSignature(comment);
+        return !!getSignature(comment);
+    },
+    canDeleteComment: function canDeleteComment(comment) {
+        return !!getSignature(comment);
     },
     countComments: function countComments(threadUrls) {
         return Vue.http.get('/api/comments/counts', {
@@ -69,7 +75,7 @@ function storeSignature(comment, signature) {
 }
 
 function getSignature(comment) {
-    localStorage.getItem(getSignatureKey(comment));
+    return localStorage.getItem(getSignatureKey(comment));
 }
 
 function getSignatureKey(comment) {

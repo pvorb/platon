@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+var CommentService = require('../../services/comment-service.js');
+var TextService = require('../../services/text-service.js');
+
 var template = require('./comment.html');
 
 module.exports = {
@@ -24,29 +27,65 @@ module.exports = {
             required: true
         }
     },
+
     render: template.render,
     staticRenderFns: template.staticRenderFns,
+
     data: function () {
         return {
             showReplyForm: false,
-            commentDraft: {}
+            showEditForm: false,
+            showPreview: false,
+            markdown: '',
+            editedComment: {
+                text: ''
+            }
         }
     },
+
     computed: {
         creationDate: function () {
             return new Date(this.comment.creationDate).toLocaleString();
         },
         longCreationDate: function () {
             return new Date(this.comment.creationDate).toISOString();
+        },
+        canEdit: function () {
+            return CommentService.canEditComment(this.comment);
+        },
+        canDelete: function () {
+            return CommentService.canDeleteComment(this.comment);
         }
     },
+
     components: {
         'platon-comment-form': require('../comment-form')
     },
+
     methods: {
         addReply: function (newComment) {
             this.comment.replies.push(newComment);
             this.showReplyForm = false;
+        },
+        toggleEditPreview: function () {
+            this.showPreview = !this.showPreview;
+
+            if (this.showPreview) {
+                this.editedComment.text = TextService.markdownToHtml(this.markdown);
+            }
+        },
+        updateMarkdown: function () {
+            this.markdown = TextService.htmlToMarkdown(this.comment.text);
+        },
+        saveEdit: function () {
+
+        },
+        deleteComment: function () {
+            if (confirm('Do you really want to delete this comment?')) {
+                CommentService.deleteComment(this.comment).then(function () {
+
+                });
+            }
         }
     }
 };
