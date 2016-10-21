@@ -46,6 +46,7 @@
         <owasp-java-html.version>1.1</owasp-java-html.version>
         <encoder.version>1.2</encoder.version>
         <h2.version>1.4.190</h2.version>
+        <postgresql.version>9.4.1211</postgresql.version>
         <flyway.version>3.2.1</flyway.version>
 
         <!-- Testing -->
@@ -132,6 +133,11 @@
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
             <version>${h2.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>${postgresql.version}</version>
         </dependency>
         <dependency>
             <groupId>org.flywaydb</groupId>
