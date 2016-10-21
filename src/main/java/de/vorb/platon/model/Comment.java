@@ -17,6 +17,8 @@
 package de.vorb.platon.model;
 
 
+import de.vorb.platon.persistence.ByteArrayConverter;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
@@ -25,7 +27,10 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -69,6 +74,7 @@ public class Comment {
     private Instant lastModificationDate;
 
     @Column(name = "STATUS", nullable = false)
+    @Enumerated(EnumType.STRING)
     private Status status = Status.PUBLIC;
 
     @Column(name = "TEXT", nullable = false)
@@ -78,7 +84,8 @@ public class Comment {
     @Column(name = "AUTHOR", length = LIMIT_AUTHOR, nullable = true)
     private String author;
 
-    @Column(name = "EMAIL_HASH", columnDefinition = "BINARY(16) NULL")
+    @Column(name = "EMAIL_HASH", columnDefinition = "CHAR(32) NULL")
+    @Convert(converter = ByteArrayConverter.class)
     private byte[] emailHash;
 
     @Column(name = "URL", length = LIMIT_URL, nullable = true)
@@ -208,30 +215,9 @@ public class Comment {
     }
 
     public enum Status {
-        DELETED(0),
-        PUBLIC(1),
-        AWAITING_MODERATION(2);
-
-        private final int value;
-
-        Status(int intValue) {
-            value = (byte) intValue;
-        }
-
-        @JsonIgnore
-        public int getValue() {
-            return value;
-        }
-
-        public static Status fromValue(int value) {
-            for (Status status : Status.values()) {
-                if (status.value == value) {
-                    return status;
-                }
-            }
-
-            throw new IllegalArgumentException("Unknown status");
-        }
+        DELETED,
+        PUBLIC,
+        AWAITING_MODERATION
     }
 
     public static Builder builder() {

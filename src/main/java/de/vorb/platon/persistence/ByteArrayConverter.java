@@ -16,25 +16,28 @@
 
 package de.vorb.platon.persistence;
 
-import de.vorb.platon.model.Comment;
-
-import org.springframework.stereotype.Component;
-
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
+import javax.xml.bind.DatatypeConverter;
 
-@Component
 @Converter(autoApply = true)
-public class CommentStatusConverter implements AttributeConverter<Comment.Status, Integer> {
+public class ByteArrayConverter implements AttributeConverter<byte[], String> {
 
     @Override
-    public Integer convertToDatabaseColumn(Comment.Status attribute) {
-        return attribute.getValue();
+    public String convertToDatabaseColumn(byte[] attribute) {
+        return bytesToHexString(attribute);
     }
 
     @Override
-    public Comment.Status convertToEntityAttribute(Integer dbData) {
-        return Comment.Status.fromValue(dbData);
+    public byte[] convertToEntityAttribute(String dbData) {
+        return hexStringToBytes(dbData);
     }
 
+    public static String bytesToHexString(byte[] bytes) {
+        return DatatypeConverter.printHexBinary(bytes).toLowerCase();
+    }
+
+    public static byte[] hexStringToBytes(String hexString) {
+        return DatatypeConverter.parseHexBinary(hexString);
+    }
 }

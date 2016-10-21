@@ -30,14 +30,15 @@ import java.util.List;
 @Repository
 public interface CommentRepository extends PagingAndSortingRepository<Comment, Long> {
 
-    @Query("select c from Comment c where c.thread = :thread and c.status > 0 order by c.creationDate asc")
+    @Query("select c from Comment c where c.thread = :thread and c.status in ('DELETED', 'PUBLIC') "
+            + "order by c.creationDate asc")
     List<Comment> findByThread(@Param("thread") CommentThread thread);
 
     @Modifying
     @Query("update Comment c set c.status = :status where c.id = :commentId")
     void setStatus(@Param("commentId") Long commentId, @Param("status") Comment.Status status);
 
-    @Query("select count(c) from Comment c where c.thread = :thread and c.status > 0")
+    @Query("select count(c) from Comment c where c.thread = :thread and c.status = 'PUBLIC'")
     Long countCommentsOfThread(@Param("thread") CommentThread thread);
 
 }
