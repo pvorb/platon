@@ -21,6 +21,7 @@ import de.vorb.platon.model.CommentThread;
 import de.vorb.platon.persistence.CommentRepository;
 import de.vorb.platon.persistence.CommentThreadRepository;
 import de.vorb.platon.security.RequestVerifier;
+import de.vorb.platon.util.CommentFilters;
 import de.vorb.platon.util.InputSanitizer;
 import de.vorb.platon.web.rest.json.CommentJson;
 import de.vorb.platon.web.rest.json.CommentListResultJson;
@@ -82,17 +83,23 @@ public class CommentResource {
 
     private final RequestVerifier requestVerifier;
     private final InputSanitizer inputSanitizer;
+    private final CommentFilters commentFilters;
 
 
     @Inject
-    public CommentResource(CommentThreadRepository threadRepository, CommentRepository commentRepository,
-            RequestVerifier requestVerifier, InputSanitizer inputSanitizer) {
+    public CommentResource(
+            CommentThreadRepository threadRepository,
+            CommentRepository commentRepository,
+            RequestVerifier requestVerifier,
+            InputSanitizer inputSanitizer,
+            CommentFilters commentFilters) {
 
         this.threadRepository = threadRepository;
         this.commentRepository = commentRepository;
 
         this.requestVerifier = requestVerifier;
         this.inputSanitizer = inputSanitizer;
+        this.commentFilters = commentFilters;
     }
 
 
@@ -122,7 +129,7 @@ public class CommentResource {
             throw new NotFoundException(String.format("No thread found with url = '%s'", threadUrl));
         } else {
             final List<Comment> comments = commentRepository.findByThread(thread);
-            final long totalCommentCount = comments.size();
+            final long totalCommentCount = comments.stream().filter(commentFilters::doesCommentCount).count();
             final List<CommentJson> topLevelComments = transformFlatCommentListToTree(comments);
             return new CommentListResultJson(totalCommentCount, topLevelComments);
         }

@@ -21,6 +21,7 @@ import de.vorb.platon.model.CommentThread;
 import de.vorb.platon.persistence.CommentRepository;
 import de.vorb.platon.persistence.CommentThreadRepository;
 import de.vorb.platon.security.RequestVerifier;
+import de.vorb.platon.util.CommentFilters;
 import de.vorb.platon.util.InputSanitizer;
 import de.vorb.platon.web.rest.json.CommentJson;
 
@@ -122,7 +123,8 @@ public class CommentResourcePostWithParentTest {
         Mockito.when(commentRepository.findOne(Mockito.eq(existingParentFromOtherThreadId)))
                 .thenReturn(existingParentFromOtherThread);
 
-        commentResource = new CommentResource(threadRepository, commentRepository, requestVerifier, htmlInputSanitizer);
+        commentResource = new CommentResource(threadRepository, commentRepository, requestVerifier, htmlInputSanitizer,
+                new CommentFilters());
     }
 
     @Test

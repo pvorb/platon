@@ -21,6 +21,7 @@ import de.vorb.platon.model.CommentThread;
 import de.vorb.platon.persistence.CommentRepository;
 import de.vorb.platon.persistence.CommentThreadRepository;
 import de.vorb.platon.security.RequestVerifier;
+import de.vorb.platon.util.CommentFilters;
 import de.vorb.platon.util.InputSanitizer;
 import de.vorb.platon.web.rest.json.CommentJson;
 import de.vorb.platon.web.rest.json.CommentListResultJson;
@@ -107,7 +108,8 @@ public class CommentResourceTest {
         Mockito.when(requestVerifier.getSignatureToken(Mockito.any(), Mockito.any())).thenReturn(new byte[0]);
         Mockito.when(requestVerifier.isRequestValid(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(true);
 
-        commentResource = new CommentResource(threadRepository, commentRepository, requestVerifier, htmlInputSanitizer);
+        commentResource = new CommentResource(threadRepository, commentRepository, requestVerifier, htmlInputSanitizer,
+                new CommentFilters());
     }
 
     @Test(expected = NotFoundException.class)
@@ -329,7 +331,8 @@ public class CommentResourceTest {
                 Mockito.mock(CommentThreadRepository.class),
                 Mockito.mock(CommentRepository.class),
                 Mockito.mock(RequestVerifier.class),
-                inputSanitizer
+                inputSanitizer,
+                new CommentFilters()
         );
 
         final Comment comment = Comment.builder()
