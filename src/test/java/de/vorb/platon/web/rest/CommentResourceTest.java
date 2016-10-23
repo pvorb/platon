@@ -305,10 +305,10 @@ public class CommentResourceTest {
     }
 
     @Test(expected = BadRequestException.class)
-    public void testDeleteCommentWithNonParseableDateInSignature() throws Exception {
+    public void testDeleteCommentWithNonParsableDateInSignature() throws Exception {
 
-        final String signatureWithNonParseableDate = "comments/42|2016-01-01 00:00:00|SGVsbG8gV29ybGQ=";
-        commentResource.deleteComment(signatureWithNonParseableDate, 42L);
+        final String signatureWithNonParsableDate = "comments/42|2016-01-01 00:00:00|SGVsbG8gV29ybGQ=";
+        commentResource.deleteComment(signatureWithNonParsableDate, 42L);
 
     }
 

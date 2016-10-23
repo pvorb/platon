@@ -38,6 +38,20 @@ new Vue({
     methods: {
         addComment: function (newComment) {
             this.comments.push(newComment);
+        },
+        removeComment: function (commentToRemove) {
+
+            var commentIndex = false;
+
+            this.comments.forEach(function (comment, i) {
+                if (comment.id === commentToRemove) {
+                    commentIndex = i;
+                }
+            });
+
+            if (commentIndex !== false) {
+                this.comments.splice(commentIndex, 1);
+            }
         }
     },
 

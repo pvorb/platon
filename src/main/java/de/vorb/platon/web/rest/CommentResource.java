@@ -25,7 +25,6 @@ import de.vorb.platon.util.CommentFilters;
 import de.vorb.platon.util.InputSanitizer;
 import de.vorb.platon.web.rest.json.CommentJson;
 import de.vorb.platon.web.rest.json.CommentListResultJson;
-import de.vorb.platon.web.rest.json.CommentCountsJson;
 
 import com.google.common.base.Preconditions;
 import org.owasp.encoder.Encode;
@@ -197,7 +196,7 @@ public class CommentResource {
         final URI commentUri = getUriFromId(comment.getId());
 
         final String identifier = commentUri.toString();
-        final Instant expirationDate = comment.getCreationDate().plus(2, ChronoUnit.HOURS);
+        final Instant expirationDate = comment.getCreationDate().plus(24, ChronoUnit.HOURS);
         final byte[] signature = requestVerifier.getSignatureToken(identifier, expirationDate);
 
         return Response.created(commentUri)
@@ -208,7 +207,7 @@ public class CommentResource {
     }
 
     @Transactional(readOnly = true)
-    protected void assertParentBelongsToSameThread(Comment comment) {
+    private void assertParentBelongsToSameThread(Comment comment) {
 
         final Long parentId = comment.getParentId();
         if (parentId == null) {
@@ -245,9 +244,15 @@ public class CommentResource {
 
         verifyValidRequest(signature, commentId);
 
-        if (commentRepository.exists(commentId)) {
+        final Comment comment = commentRepository.findOne(commentId);
 
-            Comment comment = commentJson.toComment();
+        if (comment != null) {
+
+            comment.setText(commentJson.getText());
+            comment.setAuthor(comment.getAuthor());
+            comment.setUrl(comment.getUrl());
+
+            comment.setLastModificationDate(Instant.now());
 
             sanitizeComment(comment);
 
@@ -259,7 +264,7 @@ public class CommentResource {
     }
 
 
-    protected void sanitizeComment(Comment comment) {
+    void sanitizeComment(Comment comment) {
         if (comment.getAuthor() != null) {
             comment.setAuthor(NO_HTML_POLICY.sanitize(comment.getAuthor()));
         }
@@ -308,8 +313,7 @@ public class CommentResource {
             Preconditions.checkArgument(identifier.equals(referenceIdentifier));
 
             final Instant expirationDate = Instant.parse(signatureComponents[1]);
-            final byte[] signatureToken =
-                    Base64.getDecoder().decode(signatureComponents[2].getBytes(StandardCharsets.UTF_8));
+            final byte[] signatureToken = Base64.getDecoder().decode(signatureComponents[2]);
 
             if (!requestVerifier.isRequestValid(identifier, expirationDate, signatureToken)) {
                 throw new BadRequestException("Authentication signature is invalid or has expired");
@@ -322,22 +326,6 @@ public class CommentResource {
 
     private URI getUriFromId(long commentId) {
         return UriBuilder.fromResource(getClass()).segment("{id}").build(commentId);
-    }
-
-    @GET
-    @Path("counts")
-    @Transactional(readOnly = true)
-    public CommentCountsJson getCommentCounts(@NotNull @QueryParam("threadUrl[]") List<String> threadUrls) {
-
-        final CommentCountsJson commentCounts = new CommentCountsJson();
-
-        threadUrls.forEach(threadUrl -> {
-            final CommentThread thread = threadRepository.getByUrl(threadUrl);
-            final Long threadCommentCount = commentRepository.countCommentsOfThread(thread);
-            commentCounts.setCommentCount(threadUrl, threadCommentCount);
-        });
-
-        return commentCounts;
     }
 
 }

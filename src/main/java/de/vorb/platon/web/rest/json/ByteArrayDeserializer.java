@@ -18,17 +18,16 @@ package de.vorb.platon.web.rest.json;
 
 import de.vorb.platon.persistence.ByteArrayConverter;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonDeserializer;
 
 import java.io.IOException;
 
-class ByteArraySerializer extends JsonSerializer<byte[]> {
-
+class ByteArrayDeserializer extends JsonDeserializer<byte[]> {
     @Override
-    public void serialize(byte[] bytes, JsonGenerator gen, SerializerProvider serializers) throws IOException {
-        gen.writeString(ByteArrayConverter.bytesToHexString(bytes));
+    public byte[] deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+        return ByteArrayConverter.hexStringToBytes(p.getValueAsString());
     }
-
 }

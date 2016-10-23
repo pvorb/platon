@@ -78,12 +78,24 @@ module.exports = {
             this.markdown = TextService.htmlToMarkdown(this.comment.text);
         },
         saveEdit: function () {
+            var vm = this;
 
+            var comment = JSON.parse(JSON.stringify(vm.comment));
+            comment.text = vm.editedComment.text;
+
+            CommentService.updateComment(comment)
+                .then(function () {
+                    vm.comment = comment;
+                })
+                .catch(function () {
+                    console.error('error', arguments);
+                });
         },
         deleteComment: function () {
             if (confirm('Do you really want to delete this comment?')) {
-                CommentService.deleteComment(this.comment).then(function () {
-
+                var vm = this;
+                CommentService.deleteComment(vm.comment).then(function () {
+                    vm.$emit('deleted', vm.comment);
                 });
             }
         }

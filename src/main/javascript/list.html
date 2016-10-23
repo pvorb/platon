@@ -2,5 +2,6 @@
     <div v-if="loading" class="platon-loading">Loading...</div>
     <h3 v-if="!loading">{{ (totalCommentCount || 0) + (totalCommentCount == 1 ? ' Comment' : ' Comments') }}</h3>
     <platon-comment-form v-if="!loading" v-on:posted="addComment"></platon-comment-form>
-    <platon-comment v-if="!loading" v-for="comment in comments" :comment="comment"></platon-comment>
+    <platon-comment v-if="!loading" v-for="comment in comments" :comment="comment"
+                    v-on:deleted="removeComment"></platon-comment>
 </div>

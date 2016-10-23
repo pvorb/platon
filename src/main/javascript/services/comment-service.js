@@ -32,6 +32,7 @@ module.exports = {
             }
         });
     },
+
     postComment: function postComment(threadUrl, threadTitle, comment) {
         return Vue.http.post('/api/comments', comment, {
             params: {
@@ -48,17 +49,33 @@ module.exports = {
             }
         });
     },
+
+    updateComment: function getCommentSignature(comment) {
+        return Vue.http.put('/api/comments/' + comment.id, comment, {
+            headers: {
+                'X-Signature': getSignature(comment)
+            }
+        });
+    },
+
     deleteComment: function deleteComment(comment) {
-        return Vue.http.delete('/api/comments/' + comment.id);
+        return Vue.http.delete('/api/comments/' + comment.id, {
+            headers: {
+                'X-Signature': getSignature(comment)
+            }
+        });
     },
+
     canEditComment: function canEditComment(comment) {
-        return !!getSignature(comment);
+        return !hasSignatureExpired(getSignature(comment));
     },
+
     canDeleteComment: function canDeleteComment(comment) {
-        return !!getSignature(comment);
+        return !hasSignatureExpired(getSignature(comment));
     },
+
     countComments: function countComments(threadUrls) {
-        return Vue.http.get('/api/comments/counts', {
+        return Vue.http.get('/api/comment-count', {
             params: {
                 threadUrl: threadUrls
             }
@@ -80,4 +97,17 @@ function getSignature(comment) {
 
 function getSignatureKey(comment) {
     return 'platon-comment-' + comment.id;
+}
+
+function hasSignatureExpired(signature) {
+    var signatureComponents = signature.split('|');
+
+    if (signatureComponents.length == 3) {
+        var expirationDate = Date.parse(signatureComponents[1]);
+        var now = Date.now();
+
+        return now > expirationDate;
+    }
+
+    return true;
 }

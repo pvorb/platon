@@ -19,7 +19,6 @@ package de.vorb.platon.model;
 
 import de.vorb.platon.persistence.ByteArrayConverter;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 import org.apache.commons.lang3.StringUtils;

@@ -20,6 +20,7 @@ import de.vorb.platon.model.Comment;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.common.base.MoreObjects;
 import org.apache.commons.codec.digest.MessageDigestAlgorithms;
@@ -53,6 +54,7 @@ public class CommentJson {
     private String author;
 
     @JsonSerialize(using = ByteArraySerializer.class)
+    @JsonDeserialize(using = ByteArrayDeserializer.class)
     private byte[] emailHash;
 
     private String url;
@@ -68,10 +70,12 @@ public class CommentJson {
         creationDate = comment.getCreationDate();
         lastModificationDate = comment.getLastModificationDate();
         status = comment.getStatus();
-        text = comment.getText();
-        author = comment.getAuthor();
-        emailHash = comment.getEmailHash();
-        url = comment.getUrl();
+        if (status != Comment.Status.DELETED) {
+            text = comment.getText();
+            author = comment.getAuthor();
+            emailHash = comment.getEmailHash();
+            url = comment.getUrl();
+        }
         replies = new ArrayList<>();
     }
 
