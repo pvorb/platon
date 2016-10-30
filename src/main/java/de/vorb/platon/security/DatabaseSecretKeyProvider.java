@@ -16,7 +16,6 @@
 
 package de.vorb.platon.security;
 
-import de.vorb.platon.model.Property;
 import de.vorb.platon.persistence.PropertyRepository;
 
 import org.slf4j.Logger;
@@ -62,23 +61,22 @@ public class DatabaseSecretKeyProvider implements SecretKeyProvider {
 
     private void initSecretKey() throws NoSuchAlgorithmException {
 
-        Property secretKeyProperty = propertyRepository.findOne(SECRET_KEY);
+        final String secretKeyStringValue = propertyRepository.findValueByKey(SECRET_KEY);
 
-        if (secretKeyProperty == null) {
-            secretKeyProperty = new Property();
-            secretKeyProperty.setKey(SECRET_KEY);
+        if (secretKeyStringValue == null) {
 
             secretKey = KeyGenerator.getInstance(HmacRequestVerifier.HMAC_ALGORITHM.toString()).generateKey();
 
-            secretKeyProperty.setValue(Base64.getEncoder().encodeToString(secretKey.getEncoded()));
+            propertyRepository.insertValue(SECRET_KEY, Base64.getEncoder().encodeToString(secretKey.getEncoded()));
 
-            propertyRepository.save(secretKeyProperty);
         } else {
-            final byte[] secretKeyBytes = Base64.getDecoder().decode(secretKeyProperty.getValue());
+
+            final byte[] secretKeyBytes = Base64.getDecoder().decode(secretKeyStringValue);
 
             secretKey = new SecretKeySpec(secretKeyBytes, 0, secretKeyBytes.length,
                     HmacRequestVerifier.HMAC_ALGORITHM.toString());
-        }
 
+        }
     }
+
 }

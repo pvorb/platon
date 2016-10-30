@@ -16,10 +16,10 @@
 
 package de.vorb.platon.web.rest;
 
-import de.vorb.platon.model.Comment;
-import de.vorb.platon.model.CommentThread;
+import de.vorb.platon.jooq.tables.records.CommentsRecord;
+import de.vorb.platon.jooq.tables.records.ThreadsRecord;
 import de.vorb.platon.persistence.CommentRepository;
-import de.vorb.platon.persistence.CommentThreadRepository;
+import de.vorb.platon.persistence.ThreadRepository;
 import de.vorb.platon.security.RequestVerifier;
 import de.vorb.platon.util.CommentFilters;
 import de.vorb.platon.util.InputSanitizer;
@@ -40,7 +40,7 @@ import javax.ws.rs.core.Response;
 public class CommentResourcePostWithParentTest {
 
     @Mock
-    private CommentThreadRepository threadRepository;
+    private ThreadRepository threadRepository;
 
     @Mock
     private CommentRepository commentRepository;
@@ -53,14 +53,14 @@ public class CommentResourcePostWithParentTest {
     private CommentResource commentResource;
 
 
-    private CommentThread thread;
+    private ThreadsRecord thread;
 
 
-    private Comment existingParentComment;
+    private CommentsRecord existingParentComment;
 
-    private Comment nonExistingParentComment;
+    private CommentsRecord nonExistingParentComment;
 
-    private Comment existingParentFromOtherThread;
+    private CommentsRecord existingParentFromOtherThread;
 
 
     @Before
@@ -72,55 +72,45 @@ public class CommentResourcePostWithParentTest {
 
         final long threadId = 42;
         thread =
-                Mockito.spy(CommentThread.builder()
-                        .url("http://example.com/article")
-                        .title("Article")
-                        .build());
+                Mockito.spy(new ThreadsRecord()
+                        .setUrl("http://example.com/article")
+                        .setTitle("Article"));
 
         Mockito.when(thread.getId()).thenReturn(threadId);
 
-        Mockito.when(threadRepository.getByUrl(Mockito.eq(thread.getUrl()))).thenReturn(thread);
+        Mockito.when(threadRepository.findThreadIdForUrl(Mockito.eq(thread.getUrl()))).thenReturn(threadId);
 
 
         final long existingParentId = 4711;
         existingParentComment =
-                Mockito.spy(Comment.builder()
-                        .thread(thread)
-                        .text("Existing parent")
-                        .build());
+                Mockito.spy(new CommentsRecord()
+                        .setThreadId(thread.getId())
+                        .setText("Existing parent"));
         Mockito.when(existingParentComment.getId()).thenReturn(existingParentId);
 
-        Mockito.when(commentRepository.findOne(Mockito.eq(existingParentId))).thenReturn(existingParentComment);
+        Mockito.when(commentRepository.findById(Mockito.eq(existingParentId))).thenReturn(existingParentComment);
 
 
         final long nonExistingParentId = 4712;
         nonExistingParentComment =
-                Mockito.spy(Comment.builder()
-                        .thread(thread)
-                        .text("Non-existing parent")
-                        .build());
+                Mockito.spy(new CommentsRecord()
+                        .setThreadId(thread.getId())
+                        .setText("Non-existing parent"));
         Mockito.when(nonExistingParentComment.getId()).thenReturn(nonExistingParentId);
 
-        Mockito.when(commentRepository.findOne(Mockito.eq(nonExistingParentId))).thenReturn(null);
+        Mockito.when(commentRepository.findById(Mockito.eq(nonExistingParentId))).thenReturn(null);
 
 
         final long otherThreadId = 43;
-        final CommentThread otherThread =
-                Mockito.spy(CommentThread.builder()
-                        .url("http://example.com/other-article")
-                        .title("Other article")
-                        .build());
-        Mockito.when(otherThread.getId()).thenReturn(otherThreadId);
 
         final long existingParentFromOtherThreadId = 4713;
         existingParentFromOtherThread =
-                Mockito.spy(Comment.builder()
-                        .thread(otherThread)
-                        .text("Existing parent from other thread")
-                        .build());
+                Mockito.spy(new CommentsRecord()
+                        .setThreadId(otherThreadId)
+                        .setText("Existing parent from other thread"));
         Mockito.when(existingParentFromOtherThread.getId()).thenReturn(existingParentFromOtherThreadId);
 
-        Mockito.when(commentRepository.findOne(Mockito.eq(existingParentFromOtherThreadId)))
+        Mockito.when(commentRepository.findById(Mockito.eq(existingParentFromOtherThreadId)))
                 .thenReturn(existingParentFromOtherThread);
 
         commentResource = new CommentResource(threadRepository, commentRepository, requestVerifier, htmlInputSanitizer,
@@ -130,14 +120,13 @@ public class CommentResourcePostWithParentTest {
     @Test
     public void testWithExistingParent() throws Exception {
 
-        final Comment newChildComment =
-                Comment.builder()
-                        .parentId(existingParentComment.getId())
-                        .text("Child")
-                        .build();
+        final CommentsRecord newChildComment =
+                new CommentsRecord()
+                        .setParentId(existingParentComment.getId())
+                        .setText("Child");
 
-        Mockito.when(commentRepository.save(Mockito.any(Comment.class))).then(invocation -> {
-            Comment comment = invocation.getArgumentAt(0, Comment.class);
+        Mockito.when(commentRepository.insert(Mockito.any(CommentsRecord.class))).then(invocation -> {
+            CommentsRecord comment = invocation.getArgumentAt(0, CommentsRecord.class);
             comment.setId(4711L);
             return comment;
         });
@@ -146,38 +135,32 @@ public class CommentResourcePostWithParentTest {
                 new CommentJson(newChildComment));
 
         Truth.assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
-
     }
 
     @Test(expected = BadRequestException.class)
     public void testWithNonExistingParent() throws Exception {
 
-        final Comment newChildComment =
-                Comment.builder()
-                        .parentId(nonExistingParentComment.getId())
-                        .text("Child")
-                        .build();
+        final CommentsRecord newChildComment =
+                new CommentsRecord()
+                        .setParentId(nonExistingParentComment.getId())
+                        .setText("Child");
 
-        Mockito.when(commentRepository.save(Mockito.eq(newChildComment))).then(invocation -> {
+        Mockito.when(commentRepository.insert(Mockito.eq(newChildComment))).then(invocation -> {
             newChildComment.setId(4711L);
             return newChildComment;
         });
 
         commentResource.postComment(thread.getUrl(), thread.getTitle(), new CommentJson(newChildComment));
-
     }
 
     @Test(expected = BadRequestException.class)
     public void testWithParentFromOtherThread() throws Exception {
 
-        final Comment newChildComment =
-                Comment.builder()
-                        .parentId(existingParentFromOtherThread.getId())
-                        .text("Child")
-                        .build();
+        final CommentsRecord newChildComment =
+                new CommentsRecord()
+                        .setParentId(existingParentFromOtherThread.getId())
+                        .setText("Child");
 
         commentResource.postComment(thread.getUrl(), thread.getTitle(), new CommentJson(newChildComment));
-
     }
-
 }

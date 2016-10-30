@@ -14,23 +14,14 @@
  * limitations under the License.
  */
 
-package de.vorb.platon.util;
+package de.vorb.platon.persistence;
 
-import de.vorb.platon.jooq.tables.records.CommentsRecord;
-import de.vorb.platon.model.CommentStatus;
+import de.vorb.platon.jooq.tables.records.ThreadsRecord;
 
-import org.springframework.stereotype.Component;
+public interface ThreadRepository {
 
-import java.util.EnumSet;
-import java.util.Set;
+    Long findThreadIdForUrl(String threadUrl);
 
-@Component
-public class CommentFilters {
-
-    private static final Set<CommentStatus> countStatus = EnumSet.of(CommentStatus.PUBLIC);
-
-    public boolean doesCommentCount(CommentsRecord comment) {
-        return countStatus.contains(Enum.valueOf(CommentStatus.class, comment.getStatus()));
-    }
+    ThreadsRecord insert(ThreadsRecord thread);
 
 }

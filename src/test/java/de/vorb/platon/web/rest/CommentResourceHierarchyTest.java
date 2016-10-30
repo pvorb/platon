@@ -16,16 +16,16 @@
 
 package de.vorb.platon.web.rest;
 
-import de.vorb.platon.model.Comment;
-import de.vorb.platon.model.CommentThread;
+import de.vorb.platon.jooq.tables.records.CommentsRecord;
 import de.vorb.platon.persistence.CommentRepository;
-import de.vorb.platon.persistence.CommentThreadRepository;
+import de.vorb.platon.persistence.ThreadRepository;
 import de.vorb.platon.security.RequestVerifier;
+import de.vorb.platon.util.CommentFilters;
+import de.vorb.platon.util.InputSanitizer;
 import de.vorb.platon.web.rest.json.CommentJson;
 import de.vorb.platon.web.rest.json.CommentListResultJson;
 
 import com.google.common.truth.Truth;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -43,32 +43,33 @@ public class CommentResourceHierarchyTest {
     private CommentRepository commentRepository;
 
     @Mock
-    private CommentThreadRepository threadRepository;
+    private ThreadRepository threadRepository;
 
     @Mock
     private RequestVerifier requestVerifier;
 
+    @Mock
+    private InputSanitizer inputSanitizer;
+
+    @Mock
+    private CommentFilters commentFilters;
+
     @InjectMocks
     private CommentResource commentResource;
-
-    private CommentThread testThread;
-
-    @Before
-    public void setUp() throws Exception {
-        testThread = CommentThread.builder().id(1L).title("Test Thread").url("http://example.org/test").build();
-    }
 
     @Test
     public void testSimpleTree() throws Exception {
 
-        final Comment comment1 = Comment.builder().id(1L).text("1").build();
-        final Comment comment2 = Comment.builder().id(2L).parentId(1L).text("2").build();
+        final String testThreadUrl = "http://example.org/test";
+        final CommentsRecord comment1 = new CommentsRecord().setId(1L).setText("1");
+        final CommentsRecord comment2 = new CommentsRecord().setId(2L).setParentId(1L).setText("2");
 
-        Mockito.when(threadRepository.getByUrl(Mockito.eq(testThread.getUrl()))).thenReturn(testThread);
-        Mockito.when(commentRepository.findByThread(Mockito.any(CommentThread.class)))
+        Mockito.when(commentFilters.doesCommentCount(Mockito.any())).thenReturn(true);
+
+        Mockito.when(commentRepository.findByThreadUrl(Mockito.eq(testThreadUrl)))
                 .thenReturn(Arrays.asList(comment1, comment2));
 
-        CommentListResultJson commentListResult = commentResource.findCommentsByThreadUrl(testThread.getUrl());
+        CommentListResultJson commentListResult = commentResource.findCommentsByThreadUrl(testThreadUrl);
 
         Truth.assertThat(commentListResult.getTotalCommentCount()).isEqualTo(2);
 

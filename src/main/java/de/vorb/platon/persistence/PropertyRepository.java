@@ -16,10 +16,10 @@
 
 package de.vorb.platon.persistence;
 
-import de.vorb.platon.model.Property;
+public interface PropertyRepository {
 
-import org.springframework.data.repository.CrudRepository;
-import org.springframework.stereotype.Repository;
+    String findValueByKey(String key);
 
-@Repository
-public interface PropertyRepository extends CrudRepository<Property, String> {}
+    void insertValue(String key, String value);
+
+}

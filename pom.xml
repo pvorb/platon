@@ -33,6 +33,12 @@
         </developer>
     </developers>
 
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>1.4.1.RELEASE</version>
+    </parent>
+
     <properties>
         <!-- Java version -->
         <java.version>1.8</java.version>
@@ -53,12 +59,6 @@
         <junit.version>4.12</junit.version>
         <truth.version>0.28</truth.version>
     </properties>
-
-    <parent>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-parent</artifactId>
-        <version>1.3.8.RELEASE</version>
-    </parent>
 
     <dependencies>
         <dependency>
@@ -128,6 +128,11 @@
             <groupId>org.owasp.encoder</groupId>
             <artifactId>encoder</artifactId>
             <version>${encoder.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jooq</groupId>
+            <artifactId>jooq</artifactId>
         </dependency>
         <dependency>
             <groupId>com.h2database</groupId>
@@ -246,6 +251,68 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.jooq</groupId>
+                <artifactId>jooq-codegen-maven</artifactId>
+                <version>${jooq.version}</version>
+
+                <!-- The plugin should hook into the generate goal -->
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                    </execution>
+                </executions>
+
+                <dependencies>
+                    <dependency>
+                        <groupId>com.h2database</groupId>
+                        <artifactId>h2</artifactId>
+                        <version>${h2.version}</version>
+                    </dependency>
+                </dependencies>
+
+                <configuration>
+
+                    <jdbc>
+                        <driver>org.h2.Driver</driver>
+                        <url>jdbc:h2:file:./platon</url>
+                        <user>sa</user>
+                    </jdbc>
+
+                    <generator>
+                        <database>
+                            <name>org.jooq.util.h2.H2Database</name>
+                            <includes>.*</includes>
+                            <excludes>schema_version</excludes>
+                            <inputSchema>PUBLIC</inputSchema>
+                        </database>
+
+                        <target>
+                            <packageName>de.vorb.platon.jooq</packageName>
+                            <directory>target/generated-sources/jooq</directory>
+                        </target>
+
+                        <generate>
+                            <relations>true</relations>
+                            <deprecated>false</deprecated>
+                            <instanceFields>true</instanceFields>
+                            <generatedAnnotation>true</generatedAnnotation>
+                            <records>true</records>
+                            <pojos>false</pojos>
+                            <immutablePojos>false</immutablePojos>
+                            <interfaces>false</interfaces>
+                            <daos>false</daos>
+                            <jpaAnnotations>false</jpaAnnotations>
+                            <validationAnnotations>true</validationAnnotations>
+                            <springAnnotations>false</springAnnotations>
+                            <globalObjectReferences>true</globalObjectReferences>
+                            <fluentSetters>true</fluentSetters>
+                        </generate>
+                    </generator>
+                </configuration>
             </plugin>
         </plugins>
     </build>

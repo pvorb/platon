@@ -17,13 +17,10 @@
 package de.vorb.platon.web.rest;
 
 
-import de.vorb.platon.model.CommentThread;
 import de.vorb.platon.persistence.CommentRepository;
-import de.vorb.platon.persistence.CommentThreadRepository;
 import de.vorb.platon.web.rest.json.CommentCountsJson;
 
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
@@ -33,7 +30,8 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
-import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 
 @Component
@@ -42,30 +40,21 @@ import java.util.List;
 @Produces(MediaType.APPLICATION_JSON)
 public class CommentCountResource {
 
-
-    private final CommentThreadRepository threadRepository;
     private final CommentRepository commentRepository;
 
-
     @Inject
-    public CommentCountResource(CommentThreadRepository threadRepository,
-            CommentRepository commentRepository) {
-        this.threadRepository = threadRepository;
+    public CommentCountResource(CommentRepository commentRepository) {
         this.commentRepository = commentRepository;
     }
 
-
     @GET
-    @Transactional(readOnly = true)
-    public CommentCountsJson getCommentCounts(@NotNull @QueryParam("threadUrl[]") List<String> threadUrls) {
+    public CommentCountsJson getCommentCounts(@NotNull @QueryParam("threadUrl[]") Set<String> threadUrls) {
 
         final CommentCountsJson commentCounts = new CommentCountsJson();
 
-        threadUrls.forEach(threadUrl -> {
-            final CommentThread thread = threadRepository.getByUrl(threadUrl);
-            final Long threadCommentCount = commentRepository.countCommentsOfThread(thread);
-            commentCounts.setCommentCount(threadUrl, threadCommentCount);
-        });
+        Map<String, Long> counts = commentRepository.countByThreadUrls(threadUrls);
+
+        counts.forEach(commentCounts::setCommentCount);
 
         return commentCounts;
     }
