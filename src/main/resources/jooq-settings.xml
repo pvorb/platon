@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<settings>
+    <renderSchema>false</renderSchema>
+    <renderNameStyle>LOWER</renderNameStyle>
+    <renderKeywordStyle>UPPER</renderKeywordStyle>
+    <renderFormatted>true</renderFormatted>
+
+    <paramType>NAMED</paramType>
+</settings>
