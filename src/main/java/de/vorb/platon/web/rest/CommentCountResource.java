@@ -54,7 +54,8 @@ public class CommentCountResource {
 
         Map<String, Long> counts = commentRepository.countByThreadUrls(threadUrls);
 
-        counts.forEach(commentCounts::setCommentCount);
+        threadUrls.forEach(threadUrl ->
+                commentCounts.setCommentCount(threadUrl, counts.getOrDefault(threadUrl, 0L)));
 
         return commentCounts;
     }
