@@ -80,8 +80,8 @@ module.exports = {
         saveEdit: function () {
             var vm = this;
 
-            var comment = JSON.parse(JSON.stringify(vm.comment));
-            comment.text = vm.editedComment.text;
+            var comment = JSON.parse(JSON.stringify(this.comment));
+            comment.text = TextService.markdownToHtml(this.markdown);
 
             CommentService.updateComment(comment)
                 .then(function () {
