@@ -183,7 +183,7 @@ public class CommentResource {
 
         sanitizeComment(comment);
 
-        commentRepository.insert(comment);
+        comment = commentRepository.insert(comment);
 
         logger.info("Posted new comment to thread '{}'", threadUrl);
 
