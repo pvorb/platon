@@ -58,6 +58,10 @@
         <!-- Testing -->
         <junit.version>4.12</junit.version>
         <truth.version>0.30</truth.version>
+
+        <!-- Database -->
+        <db.url>jdbc:h2:file:./platon</db.url>
+        <db.username>sa</db.username>
     </properties>
 
     <dependencies>
@@ -253,6 +257,28 @@
                 </executions>
             </plugin>
             <plugin>
+                <groupId>org.flywaydb</groupId>
+                <artifactId>flyway-maven-plugin</artifactId>
+                <version>${flyway.version}</version>
+
+                <executions>
+                    <execution>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>migrate</goal>
+                        </goals>
+                    </execution>
+                </executions>
+
+                <configuration>
+                    <url>${db.url}</url>
+                    <user>${db.username}</user>
+                    <locations>
+                        <location>classpath:db.migration</location>
+                    </locations>
+                </configuration>
+            </plugin>
+            <plugin>
                 <groupId>org.jooq</groupId>
                 <artifactId>jooq-codegen-maven</artifactId>
                 <version>${jooq.version}</version>
@@ -278,8 +304,8 @@
 
                     <jdbc>
                         <driver>org.h2.Driver</driver>
-                        <url>jdbc:h2:file:./platon</url>
-                        <user>sa</user>
+                        <url>${db.url}</url>
+                        <user>${db.username}</user>
                     </jdbc>
 
                     <generator>
