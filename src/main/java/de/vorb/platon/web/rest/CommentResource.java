@@ -27,7 +27,6 @@ import de.vorb.platon.util.InputSanitizer;
 import de.vorb.platon.web.rest.json.CommentJson;
 import de.vorb.platon.web.rest.json.CommentListResultJson;
 
-import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 import org.jooq.exception.DataAccessException;
 import org.owasp.encoder.Encode;
@@ -36,7 +35,6 @@ import org.owasp.html.PolicyFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
@@ -108,7 +106,6 @@ public class CommentResource {
 
     @GET
     @Path("{id}")
-    @Transactional(readOnly = true)
     public CommentJson getComment(@NotNull @PathParam("id") long commentId) {
 
         final CommentsRecord comment = commentRepository.findById(commentId);
@@ -122,7 +119,6 @@ public class CommentResource {
 
 
     @GET
-    @Transactional(readOnly = true)
     public CommentListResultJson findCommentsByThreadUrl(@NotNull @QueryParam("threadUrl") String threadUrl) {
 
         final List<CommentsRecord> comments = commentRepository.findByThreadUrl(threadUrl);
@@ -156,7 +152,6 @@ public class CommentResource {
     }
 
     @POST
-    @Transactional
     public Response postComment(
             @NotNull @QueryParam("threadUrl") String threadUrl,
             @NotNull @QueryParam("threadTitle") String threadTitle,
@@ -205,7 +200,6 @@ public class CommentResource {
                 .build();
     }
 
-    @Transactional(readOnly = true)
     private void assertParentBelongsToSameThread(CommentsRecord comment) {
 
         final Long parentId = comment.getParentId();
@@ -228,7 +222,6 @@ public class CommentResource {
 
     @PUT
     @Path("{id}")
-    @Transactional(noRollbackFor = BadRequestException.class)
     public void updateComment(
             @NotNull @HeaderParam(SIGNATURE_HEADER) String signature,
             @NotNull @PathParam("id") Long commentId,

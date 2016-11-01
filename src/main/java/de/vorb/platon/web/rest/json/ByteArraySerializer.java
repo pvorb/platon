@@ -16,7 +16,7 @@
 
 package de.vorb.platon.web.rest.json;
 
-import de.vorb.platon.persistence.ByteArrayConverter;
+import de.vorb.platon.util.ByteArrayConverter;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;

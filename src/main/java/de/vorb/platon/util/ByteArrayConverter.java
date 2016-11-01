@@ -14,24 +14,11 @@
  * limitations under the License.
  */
 
-package de.vorb.platon.persistence;
+package de.vorb.platon.util;
 
-import javax.persistence.AttributeConverter;
-import javax.persistence.Converter;
 import javax.xml.bind.DatatypeConverter;
 
-@Converter(autoApply = true)
-public class ByteArrayConverter implements AttributeConverter<byte[], String> {
-
-    @Override
-    public String convertToDatabaseColumn(byte[] attribute) {
-        return bytesToHexString(attribute);
-    }
-
-    @Override
-    public byte[] convertToEntityAttribute(String dbData) {
-        return hexStringToBytes(dbData);
-    }
+public class ByteArrayConverter {
 
     public static String bytesToHexString(byte[] bytes) {
         return DatatypeConverter.printHexBinary(bytes).toLowerCase();
