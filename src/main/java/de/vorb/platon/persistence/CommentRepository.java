@@ -31,7 +31,7 @@ public interface CommentRepository {
 
     CommentsRecord insert(CommentsRecord comment);
 
-    Map<String, Long> countByThreadUrls(Set<String> threadUrls);
+    Map<String, Integer> countByThreadUrls(Set<String> threadUrls);
 
     void update(CommentsRecord comment);
 

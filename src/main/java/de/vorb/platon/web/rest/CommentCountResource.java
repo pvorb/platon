@@ -52,10 +52,10 @@ public class CommentCountResource {
 
         final CommentCountsJson commentCounts = new CommentCountsJson();
 
-        Map<String, Long> counts = commentRepository.countByThreadUrls(threadUrls);
+        Map<String, Integer> counts = commentRepository.countByThreadUrls(threadUrls);
 
         threadUrls.forEach(threadUrl ->
-                commentCounts.setCommentCount(threadUrl, counts.getOrDefault(threadUrl, 0L)));
+                commentCounts.setCommentCount(threadUrl, counts.getOrDefault(threadUrl, 0)));
 
         return commentCounts;
     }

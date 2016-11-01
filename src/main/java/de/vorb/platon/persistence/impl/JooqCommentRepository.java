@@ -69,13 +69,13 @@ public class JooqCommentRepository implements CommentRepository {
     }
 
     @Override
-    public Map<String, Long> countByThreadUrls(Set<String> threadUrls) {
+    public Map<String, Integer> countByThreadUrls(Set<String> threadUrls) {
+
         return dslContext.select(THREADS.URL, count())
                 .from(COMMENTS
                         .join(THREADS).on(COMMENTS.THREAD_ID.eq(THREADS.ID)))
                 .where(THREADS.URL.in(threadUrls))
-                .groupBy(THREADS.URL)
-                .fetchMap(String.class, Long.class);
+                .fetchMap(THREADS.URL, count());
     }
 
     @Override
