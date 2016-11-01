@@ -274,7 +274,7 @@
                     <url>${db.url}</url>
                     <user>${db.username}</user>
                     <locations>
-                        <location>classpath:db.migration</location>
+                        <location>filesystem:src/main/resources/db/migration</location>
                     </locations>
                 </configuration>
             </plugin>
