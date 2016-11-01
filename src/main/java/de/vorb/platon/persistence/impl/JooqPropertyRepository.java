@@ -40,7 +40,7 @@ public class JooqPropertyRepository implements PropertyRepository {
     public String findValueByKey(String key) {
         return dslContext.selectFrom(PROPERTIES)
                 .where(PROPERTIES.KEY.eq(key))
-                .fetchOne(PROPERTIES.KEY);
+                .fetchOne(PROPERTIES.VALUE);
     }
 
     @Override
