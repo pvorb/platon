@@ -1,17 +1,12 @@
--- sequences
-CREATE SEQUENCE thread_id_seq START WITH 1 INCREMENT BY 1 CACHE 1;
-
-CREATE SEQUENCE comment_id_seq START WITH 1 INCREMENT BY 1 CACHE 1;
-
 -- tables
 CREATE TABLE threads (
-  id    BIGINT PRIMARY KEY,
+  id    BIGINT PRIMARY KEY AUTO_INCREMENT,
   url   VARCHAR(256) NOT NULL,
   title VARCHAR(512) NULL
 );
 
 CREATE TABLE comments (
-  id                     BIGINT PRIMARY KEY,
+  id                     BIGINT PRIMARY KEY AUTO_INCREMENT,
   thread_id              BIGINT       NOT NULL,
   parent_id              BIGINT       NULL,
   creation_date          TIMESTAMP    NOT NULL,
