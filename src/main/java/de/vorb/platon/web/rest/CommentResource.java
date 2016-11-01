@@ -27,6 +27,7 @@ import de.vorb.platon.util.InputSanitizer;
 import de.vorb.platon.web.rest.json.CommentJson;
 import de.vorb.platon.web.rest.json.CommentListResultJson;
 
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 import org.jooq.exception.DataAccessException;
 import org.owasp.encoder.Encode;
@@ -174,7 +175,7 @@ public class CommentResource {
 
             threadId = threadRepository.insert(thread).getId();
 
-            logger.info("Created new {}", thread);
+            logger.info("Created new thread for url '{}'", threadUrl);
         }
 
         CommentsRecord comment = commentJson.toRecord();
