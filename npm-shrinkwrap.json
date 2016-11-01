@@ -337,6 +337,11 @@
       "from": "css-color-names@0.0.4",
       "resolved": "https://registry.npmjs.org/css-color-names/-/css-color-names-0.0.4.tgz"
     },
+    "css-loader": {
+      "version": "0.25.0",
+      "from": "css-loader@0.25.0",
+      "resolved": "https://registry.npmjs.org/css-loader/-/css-loader-0.25.0.tgz"
+    },
     "css-selector-tokenizer": {
       "version": "0.6.0",
       "from": "css-selector-tokenizer@>=0.6.0 <0.7.0",
@@ -1482,6 +1487,11 @@
       "from": "strip-ansi@>=3.0.0 <4.0.0",
       "resolved": "https://registry.npmjs.org/strip-ansi/-/strip-ansi-3.0.1.tgz"
     },
+    "style-loader": {
+      "version": "0.13.1",
+      "from": "style-loader@0.13.1",
+      "resolved": "https://registry.npmjs.org/style-loader/-/style-loader-0.13.1.tgz"
+    },
     "supports-color": {
       "version": "2.0.0",
       "from": "supports-color@>=2.0.0 <3.0.0",
@@ -1643,6 +1653,11 @@
       "from": "vue-template-compiler@>=2.0.0-rc.6 <3.0.0",
       "resolved": "https://registry.npmjs.org/vue-template-compiler/-/vue-template-compiler-2.0.3.tgz"
     },
+    "vue-template-compiler-loader": {
+      "version": "1.0.3",
+      "from": "vue-template-compiler-loader@1.0.3",
+      "resolved": "https://registry.npmjs.org/vue-template-compiler-loader/-/vue-template-compiler-loader-1.0.3.tgz"
+    },
     "watchpack": {
       "version": "0.2.9",
       "from": "watchpack@>=0.2.1 <0.3.0",
@@ -1659,6 +1674,23 @@
       "version": "3.0.1",
       "from": "webidl-conversions@>=3.0.1 <4.0.0",
       "resolved": "https://registry.npmjs.org/webidl-conversions/-/webidl-conversions-3.0.1.tgz"
+    },
+    "webpack": {
+      "version": "1.13.2",
+      "from": "webpack@1.13.2",
+      "resolved": "https://registry.npmjs.org/webpack/-/webpack-1.13.2.tgz",
+      "dependencies": {
+        "acorn": {
+          "version": "3.3.0",
+          "from": "acorn@>=3.0.0 <4.0.0",
+          "resolved": "https://registry.npmjs.org/acorn/-/acorn-3.3.0.tgz"
+        },
+        "supports-color": {
+          "version": "3.1.2",
+          "from": "supports-color@>=3.1.0 <4.0.0",
+          "resolved": "https://registry.npmjs.org/supports-color/-/supports-color-3.1.2.tgz"
+        }
+      }
     },
     "webpack-core": {
       "version": "0.6.8",
