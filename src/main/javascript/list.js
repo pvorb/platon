@@ -39,6 +39,21 @@ new Vue({
         addComment: function (newComment) {
             this.comments.push(newComment);
         },
+        updateComment: function (updatedComment) {
+
+            var commentIndex = false;
+
+            this.comments.forEach(function (comment, i) {
+                if (comment.id === updatedComment.id) {
+                    commentIndex = i;
+                }
+            });
+
+            if (commentIndex !== false) {
+                Vue.set(this.comments, commentIndex, updatedComment);
+            }
+
+        },
         removeComment: function (commentToRemove) {
 
             var commentIndex = false;

@@ -85,7 +85,7 @@ module.exports = {
 
             CommentService.updateComment(comment)
                 .then(function () {
-                    vm.comment = comment;
+                    vm.$emit('edited', comment);
                     vm.showEditForm = false;
                 })
                 .catch(function () {
