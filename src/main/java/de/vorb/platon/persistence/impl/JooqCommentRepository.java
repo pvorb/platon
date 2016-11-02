@@ -74,7 +74,8 @@ public class JooqCommentRepository implements CommentRepository {
         return dslContext.select(THREADS.URL, count())
                 .from(COMMENTS
                         .join(THREADS).on(COMMENTS.THREAD_ID.eq(THREADS.ID)))
-                .where(THREADS.URL.in(threadUrls))
+                .where(THREADS.URL.in(threadUrls)
+                      .and(COMMENTS.STATUS.eq("PUBLIC")))
                 .fetchMap(THREADS.URL, count());
     }
 
