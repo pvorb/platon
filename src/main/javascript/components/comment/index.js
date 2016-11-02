@@ -86,6 +86,7 @@ module.exports = {
             CommentService.updateComment(comment)
                 .then(function () {
                     vm.comment = comment;
+                    vm.showEditForm = false;
                 })
                 .catch(function () {
                     console.error('error', arguments);
