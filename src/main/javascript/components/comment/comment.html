@@ -9,6 +9,7 @@
         <span v-else class="platon-author">{{ comment.author || 'Anonymous' }}</span>
         ~
         <span class="platon-creation-date" v-bind:title="longCreationDate">{{ creationDate }}</span>
+        <span v-if="comment.lastModificationDate !== comment.creationDate" class="platon-modification-date" v-bind:title="longModificationDate">(Edited)</span>
     </div>
     <div v-else class="platon-meta">
         <span class="platon-author">[deleted]</span>

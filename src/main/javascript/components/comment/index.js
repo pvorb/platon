@@ -50,7 +50,10 @@ module.exports = {
             return new Date(this.comment.creationDate).toLocaleString();
         },
         longCreationDate: function () {
-            return new Date(this.comment.creationDate).toISOString();
+            return 'Created: ' + new Date(this.comment.creationDate).toISOString();
+        },
+        longModificationDate: function () {
+            return 'Last modified: ' + new Date(this.comment.lastModificationDate).toISOString();
         },
         canEdit: function () {
             return CommentService.canEditComment(this.comment);
