@@ -15,8 +15,8 @@
  */
 
 var Vue = require('vue');
-
 var CommentService = require('./services/comment-service.js');
+var findById = require('./utils/find-by-id.js');
 
 var template = require('./list.html');
 
@@ -41,31 +41,24 @@ new Vue({
         },
         updateComment: function (updatedComment) {
 
-            var commentIndex = false;
+            var index = findById(this.comments, updatedComment.id);
 
-            this.comments.forEach(function (comment, i) {
-                if (comment.id === updatedComment.id) {
-                    commentIndex = i;
-                }
-            });
-
-            if (commentIndex !== false) {
-                Vue.set(this.comments, commentIndex, updatedComment);
+            if (index !== false) {
+                Vue.set(this.comments, index, updatedComment);
             }
-
         },
         removeComment: function (commentToRemove) {
 
-            var commentIndex = false;
+            var index = findById(this.comments, commentToRemove.id);
 
-            this.comments.forEach(function (comment, i) {
-                if (comment.id === commentToRemove) {
-                    commentIndex = i;
-                }
-            });
-
-            if (commentIndex !== false) {
-                this.comments.splice(commentIndex, 1);
+            if (index !== false) {
+                Vue.set(this.comments, index, {
+                    id: commentToRemove.id,
+                    parentId: commentToRemove.parentId,
+                    creationDate: commentToRemove.creationDate,
+                    lastModificationDate: commentToRemove.lastModificationDate,
+                    status: 'DELETED'
+                });
             }
         }
     },

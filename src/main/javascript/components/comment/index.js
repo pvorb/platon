@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 
+var Vue = require('vue');
 var CommentService = require('../../services/comment-service.js');
 var TextService = require('../../services/text-service.js');
+var findById = require('../../utils/find-by-id.js');
 
 var template = require('./comment.html');
 
@@ -66,6 +68,28 @@ module.exports = {
         addReply: function (newComment) {
             this.comment.replies.push(newComment);
             this.showReplyForm = false;
+        },
+        updateReply: function (updatedReply) {
+
+            var index = findById(this.comment.replies, updatedReply.id);
+
+            if (index !== false) {
+                Vue.set(this.comment.replies, index, updatedReply);
+            }
+        },
+        removeReply: function (commentToRemove) {
+
+            var index = findById(this.comment.replies, commentToRemove.id);
+
+            if (index !== false) {
+                Vue.set(this.comment.replies, index, {
+                    id: commentToRemove.id,
+                    parentId: commentToRemove.parentId,
+                    creationDate: commentToRemove.creationDate,
+                    lastModificationDate: commentToRemove.lastModificationDate,
+                    status: 'DELETED'
+                });
+            }
         },
         toggleEditPreview: function () {
             this.showPreview = !this.showPreview;

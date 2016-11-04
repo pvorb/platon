@@ -2,6 +2,10 @@
     max-width: 40rem;
 }
 
+.platon-comment {
+    clear: left;
+}
+
 .platon-comment > * {
     margin-left: 58px;
 }
