@@ -16,7 +16,8 @@
 
 var Vue = require('vue');
 var CommentService = require('./services/comment-service.js');
-var findById = require('./utils/find-by-id.js');
+var updateCommentInList = require('./utils/update-comment-in-list.js');
+var removeCommentFromList = require('./utils/remove-comment-from-list.js');
 
 var template = require('./list.html');
 
@@ -36,30 +37,14 @@ new Vue({
     },
 
     methods: {
-        addComment: function (newComment) {
+        commentPosted: function (newComment) {
             this.comments.push(newComment);
         },
-        updateComment: function (updatedComment) {
-
-            var index = findById(this.comments, updatedComment.id);
-
-            if (index !== false) {
-                Vue.set(this.comments, index, updatedComment);
-            }
+        commentEdited: function (updatedComment) {
+            updateCommentInList(this.comments, updatedComment);
         },
-        removeComment: function (commentToRemove) {
-
-            var index = findById(this.comments, commentToRemove.id);
-
-            if (index !== false) {
-                Vue.set(this.comments, index, {
-                    id: commentToRemove.id,
-                    parentId: commentToRemove.parentId,
-                    creationDate: commentToRemove.creationDate,
-                    lastModificationDate: commentToRemove.lastModificationDate,
-                    status: 'DELETED'
-                });
-            }
+        commentDeleted: function (commentToRemove) {
+            removeCommentFromList(this.comments, commentToRemove);
         }
     },
 

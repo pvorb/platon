@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-var Vue = require('vue');
 var CommentService = require('../../services/comment-service.js');
 var TextService = require('../../services/text-service.js');
-var findById = require('../../utils/find-by-id.js');
+var updateCommentInList = require('../../utils/update-comment-in-list.js');
+var removeCommentFromList = require('../../utils/remove-comment-from-list.js');
 
 var template = require('./comment.html');
 
@@ -71,31 +71,15 @@ module.exports = {
     },
 
     methods: {
-        addReply: function (newComment) {
+        replyPosted: function (newComment) {
             this.comment.replies.push(newComment);
             this.showReplyForm = false;
         },
-        updateReply: function (updatedReply) {
-
-            var index = findById(this.comment.replies, updatedReply.id);
-
-            if (index !== false) {
-                Vue.set(this.comment.replies, index, updatedReply);
-            }
+        replyEdited: function (updatedReply) {
+            updateCommentInList(this.comment.replies, updatedReply);
         },
-        removeReply: function (commentToRemove) {
-
-            var index = findById(this.comment.replies, commentToRemove.id);
-
-            if (index !== false) {
-                Vue.set(this.comment.replies, index, {
-                    id: commentToRemove.id,
-                    parentId: commentToRemove.parentId,
-                    creationDate: commentToRemove.creationDate,
-                    lastModificationDate: commentToRemove.lastModificationDate,
-                    status: 'DELETED'
-                });
-            }
+        replyDeleted: function (replyToRemove) {
+            removeCommentFromList(this.comment.replies, replyToRemove);
         },
         toggleEditPreview: function () {
             this.showPreview = !this.showPreview;
