@@ -60,6 +60,9 @@ module.exports = {
         },
         canDelete: function () {
             return CommentService.canDeleteComment(this.comment);
+        },
+        permalinkId: function () {
+            return 'platon-comment-' + this.comment.id;
         }
     },
 

@@ -1,4 +1,4 @@
-<div class="platon-comment" v-bind:id="'platon-comment-' + comment.id">
+<div class="platon-comment" v-bind:id="permalinkId">
 
     <div class="platon-avatar">
         <img v-bind:src="'https://www.gravatar.com/avatar/' + comment.emailHash + '?size=48&default=identicon'">
@@ -27,6 +27,7 @@
     </div>
 
     <div v-if="comment.status !== 'DELETED'"  class="platon-actions" v-show="!showEditForm">
+        <a v-bind:href="'#' + permalinkId" class="platon-permalink">Permalink</a>
         <a href="" v-on:click.prevent="showReplyForm = !showReplyForm">{{ showReplyForm ? 'Close' : 'Reply' }}</a>
         <a href="" v-if="canEdit" v-on:click.prevent="updateMarkdown(); showEditForm = true">Edit</a>
         <a href="" v-if="canDelete" v-on:click.prevent="deleteComment">Delete</a>
