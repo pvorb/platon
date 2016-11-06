@@ -17,6 +17,7 @@
 var UserInfoService = require('./../../services/user-info-service.js');
 var CommentService = require('../../services/comment-service.js');
 var TextService = require('../../services/text-service.js');
+var events = require('../../utils/events.js');
 
 var template = require('./comment-form.html');
 
@@ -77,5 +78,12 @@ module.exports = {
                     console.error('error', arguments);
                 });
         }
+    },
+
+    created: function () {
+        var vm = this;
+        events.bus.$on(events.types.clearForm, function() {
+            vm.markdown = '';
+        });
     }
 };
