@@ -16,10 +16,12 @@
 
 package de.vorb.platon.web.rest.json;
 
-import de.vorb.platon.model.Comment;
+import de.vorb.platon.jooq.tables.records.CommentsRecord;
+import de.vorb.platon.model.CommentStatus;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.common.base.MoreObjects;
 import org.apache.commons.codec.digest.MessageDigestAlgorithms;
@@ -29,9 +31,11 @@ import org.slf4j.LoggerFactory;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.List;
 import java.util.Objects;
 
@@ -46,13 +50,14 @@ public class CommentJson {
     private Instant lastModificationDate;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING)
-    private Comment.Status status = Comment.Status.PUBLIC;
+    private CommentStatus status = CommentStatus.PUBLIC;
 
     private String text;
 
     private String author;
 
     @JsonSerialize(using = ByteArraySerializer.class)
+    @JsonDeserialize(using = ByteArrayDeserializer.class)
     private byte[] emailHash;
 
     private String url;
@@ -62,16 +67,28 @@ public class CommentJson {
 
     public CommentJson() {}
 
-    public CommentJson(Comment comment) {
+    public CommentJson(CommentsRecord comment) {
         id = comment.getId();
         parentId = comment.getParentId();
-        creationDate = comment.getCreationDate();
-        lastModificationDate = comment.getLastModificationDate();
-        status = comment.getStatus();
-        text = comment.getText();
-        author = comment.getAuthor();
-        emailHash = comment.getEmailHash();
-        url = comment.getUrl();
+
+        creationDate = comment.getCreationDate() == null
+                ? null
+                : comment.getCreationDate().toInstant();
+        lastModificationDate = comment.getLastModificationDate() == null
+                ? null
+                : comment.getLastModificationDate().toInstant();
+
+        status = comment.getStatus() == null
+                ? null
+                : Enum.valueOf(CommentStatus.class, comment.getStatus());
+        if (status != CommentStatus.DELETED) {
+            text = comment.getText();
+            author = comment.getAuthor();
+            if (comment.getEmailHash() != null) {
+                emailHash = Base64.getDecoder().decode(comment.getEmailHash());
+            }
+            url = comment.getUrl();
+        }
         replies = new ArrayList<>();
     }
 
@@ -107,11 +124,11 @@ public class CommentJson {
         this.lastModificationDate = lastModificationDate;
     }
 
-    public Comment.Status getStatus() {
+    public CommentStatus getStatus() {
         return status;
     }
 
-    public void setStatus(Comment.Status status) {
+    public void setStatus(CommentStatus status) {
         this.status = status;
     }
 
@@ -169,18 +186,17 @@ public class CommentJson {
         this.replies = replies;
     }
 
-    public Comment toComment() {
-        return Comment.builder()
-                .id(id)
-                .parentId(parentId)
-                .creationDate(creationDate)
-                .modificationDate(lastModificationDate)
-                .status(status)
-                .text(text)
-                .author(author)
-                .emailHash(emailHash)
-                .url(url)
-                .build();
+    public CommentsRecord toRecord() {
+        return new CommentsRecord()
+                .setId(id)
+                .setParentId(parentId)
+                .setCreationDate(creationDate == null ? null : Timestamp.from(creationDate))
+                .setLastModificationDate(lastModificationDate == null ? null : Timestamp.from(lastModificationDate))
+                .setStatus(status == null ? null : status.toString())
+                .setText(text)
+                .setAuthor(author)
+                .setEmailHash(emailHash == null ? null : Base64.getEncoder().encodeToString(emailHash))
+                .setUrl(url);
     }
 
     @Override

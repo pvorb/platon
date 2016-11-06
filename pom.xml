@@ -33,32 +33,36 @@
         </developer>
     </developers>
 
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>1.4.1.RELEASE</version>
+    </parent>
+
     <properties>
         <!-- Java version -->
         <java.version>1.8</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <!-- Dependency versions -->
-        <guava.version>19.0</guava.version>
-        <commons-lang.version>3.4</commons-lang.version>
+        <guava.version>20.0</guava.version>
+        <commons-lang.version>3.5</commons-lang.version>
         <commons-codec.version>1.10</commons-codec.version>
-        <jackson-jsr310.version>2.6.1</jackson-jsr310.version>
-        <owasp-java-html.version>1.1</owasp-java-html.version>
+        <jackson-jsr310.version>2.8.4</jackson-jsr310.version>
+        <owasp-java-html.version>20160924.1</owasp-java-html.version>
         <encoder.version>1.2</encoder.version>
         <h2.version>1.4.190</h2.version>
         <postgresql.version>9.4.1211</postgresql.version>
-        <flyway.version>3.2.1</flyway.version>
+        <flyway.version>4.0.3</flyway.version>
 
         <!-- Testing -->
         <junit.version>4.12</junit.version>
-        <truth.version>0.28</truth.version>
-    </properties>
+        <truth.version>0.30</truth.version>
 
-    <parent>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-parent</artifactId>
-        <version>1.3.8.RELEASE</version>
-    </parent>
+        <!-- Database -->
+        <db.url>jdbc:h2:file:./platon</db.url>
+        <db.username>sa</db.username>
+    </properties>
 
     <dependencies>
         <dependency>
@@ -84,10 +88,6 @@
                     <artifactId>spring-boot-starter-tomcat</artifactId>
                 </exclusion>
             </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-jpa</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -128,6 +128,15 @@
             <groupId>org.owasp.encoder</groupId>
             <artifactId>encoder</artifactId>
             <version>${encoder.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-jdbc</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jooq</groupId>
+            <artifactId>jooq</artifactId>
         </dependency>
         <dependency>
             <groupId>com.h2database</groupId>
@@ -246,6 +255,90 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.flywaydb</groupId>
+                <artifactId>flyway-maven-plugin</artifactId>
+                <version>${flyway.version}</version>
+
+                <executions>
+                    <execution>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>migrate</goal>
+                        </goals>
+                    </execution>
+                </executions>
+
+                <configuration>
+                    <url>${db.url}</url>
+                    <user>${db.username}</user>
+                    <locations>
+                        <location>filesystem:src/main/resources/db/migration</location>
+                    </locations>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.jooq</groupId>
+                <artifactId>jooq-codegen-maven</artifactId>
+                <version>${jooq.version}</version>
+
+                <!-- The plugin should hook into the generate goal -->
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                    </execution>
+                </executions>
+
+                <dependencies>
+                    <dependency>
+                        <groupId>com.h2database</groupId>
+                        <artifactId>h2</artifactId>
+                        <version>${h2.version}</version>
+                    </dependency>
+                </dependencies>
+
+                <configuration>
+
+                    <jdbc>
+                        <driver>org.h2.Driver</driver>
+                        <url>${db.url}</url>
+                        <user>${db.username}</user>
+                    </jdbc>
+
+                    <generator>
+                        <database>
+                            <name>org.jooq.util.h2.H2Database</name>
+                            <includes>.*</includes>
+                            <excludes>schema_version</excludes>
+                            <inputSchema>PUBLIC</inputSchema>
+                        </database>
+
+                        <target>
+                            <packageName>de.vorb.platon.jooq</packageName>
+                            <directory>target/generated-sources/jooq</directory>
+                        </target>
+
+                        <generate>
+                            <relations>true</relations>
+                            <deprecated>false</deprecated>
+                            <instanceFields>true</instanceFields>
+                            <generatedAnnotation>true</generatedAnnotation>
+                            <records>true</records>
+                            <pojos>false</pojos>
+                            <immutablePojos>false</immutablePojos>
+                            <interfaces>false</interfaces>
+                            <daos>false</daos>
+                            <jpaAnnotations>false</jpaAnnotations>
+                            <validationAnnotations>true</validationAnnotations>
+                            <springAnnotations>false</springAnnotations>
+                            <globalObjectReferences>true</globalObjectReferences>
+                            <fluentSetters>true</fluentSetters>
+                        </generate>
+                    </generator>
+                </configuration>
             </plugin>
         </plugins>
     </build>

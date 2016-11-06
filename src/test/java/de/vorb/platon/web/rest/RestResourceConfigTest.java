@@ -37,6 +37,7 @@ public class RestResourceConfigTest {
                 RequestContextFilter.class,
                 PoweredByResponseFilter.class,
                 CommentResource.class,
+                CommentCountResource.class,
                 LoggingFilter.class,
                 ObjectMapperContextResolver.class);
 

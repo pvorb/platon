@@ -14,21 +14,24 @@
  * limitations under the License.
  */
 
-package de.vorb.platon.web.rest.json;
+var toMarkdown = require('to-markdown');
+var toMarkdownOptions = {
+    gfm: true
+};
 
-import de.vorb.platon.util.ByteArrayConverter;
+var marked = require('marked');
+marked.setOptions({
+    gfm: true,
+    tables: false,
+    breaks: false,
+    sanitize: false,
+    smartLists: true,
+    smartypants: true
+});
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
-
-import java.io.IOException;
-
-class ByteArraySerializer extends JsonSerializer<byte[]> {
-
-    @Override
-    public void serialize(byte[] bytes, JsonGenerator gen, SerializerProvider serializers) throws IOException {
-        gen.writeString(ByteArrayConverter.bytesToHexString(bytes));
+module.exports = {
+    markdownToHtml: marked,
+    htmlToMarkdown: function (html) {
+        return toMarkdown(html, toMarkdownOptions);
     }
-
-}
+};

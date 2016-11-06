@@ -14,6 +14,11 @@
  * limitations under the License.
  */
 
+var CommentService = require('../../services/comment-service.js');
+var TextService = require('../../services/text-service.js');
+var updateCommentInList = require('../../utils/update-comment-in-list.js');
+var removeCommentFromList = require('../../utils/remove-comment-from-list.js');
+
 var template = require('./comment.html');
 
 module.exports = {
@@ -24,29 +29,90 @@ module.exports = {
             required: true
         }
     },
+
     render: template.render,
     staticRenderFns: template.staticRenderFns,
+
     data: function () {
         return {
             showReplyForm: false,
-            commentDraft: {}
+            showEditForm: false,
+            showPreview: false,
+            markdown: '',
+            editedComment: {
+                text: ''
+            }
         }
     },
+
     computed: {
         creationDate: function () {
             return new Date(this.comment.creationDate).toLocaleString();
         },
         longCreationDate: function () {
-            return new Date(this.comment.creationDate).toISOString();
+            return 'Created: ' + new Date(this.comment.creationDate).toISOString();
+        },
+        longModificationDate: function () {
+            return 'Last modified: ' + new Date(this.comment.lastModificationDate).toISOString();
+        },
+        canEdit: function () {
+            return CommentService.canEditComment(this.comment);
+        },
+        canDelete: function () {
+            return CommentService.canDeleteComment(this.comment);
+        },
+        permalinkId: function () {
+            return 'platon-comment-' + this.comment.id;
         }
     },
+
     components: {
         'platon-comment-form': require('../comment-form')
     },
+
     methods: {
-        addReply: function (newComment) {
+        replyPosted: function (newComment) {
             this.comment.replies.push(newComment);
             this.showReplyForm = false;
+        },
+        replyEdited: function (updatedReply) {
+            updateCommentInList(this.comment.replies, updatedReply);
+        },
+        replyDeleted: function (replyToRemove) {
+            removeCommentFromList(this.comment.replies, replyToRemove);
+        },
+        toggleEditPreview: function () {
+            this.showPreview = !this.showPreview;
+
+            if (this.showPreview) {
+                this.editedComment.text = TextService.markdownToHtml(this.markdown);
+            }
+        },
+        updateMarkdown: function () {
+            this.markdown = TextService.htmlToMarkdown(this.comment.text);
+        },
+        saveEdit: function () {
+            var vm = this;
+
+            var comment = JSON.parse(JSON.stringify(this.comment));
+            comment.text = TextService.markdownToHtml(this.markdown);
+
+            CommentService.updateComment(comment)
+                .then(function () {
+                    vm.$emit('edited', comment);
+                    vm.showEditForm = false;
+                })
+                .catch(function () {
+                    console.error('error', arguments);
+                });
+        },
+        deleteComment: function () {
+            if (confirm('Do you really want to delete this comment?')) {
+                var vm = this;
+                CommentService.deleteComment(vm.comment).then(function () {
+                    vm.$emit('deleted', vm.comment);
+                });
+            }
         }
     }
 };

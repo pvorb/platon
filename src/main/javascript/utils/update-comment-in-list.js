@@ -14,21 +14,15 @@
  * limitations under the License.
  */
 
-package de.vorb.platon.web.rest.json;
+var Vue = require('vue');
+var findById = require('./find-by-id.js');
 
-import de.vorb.platon.util.ByteArrayConverter;
+module.exports = function updateCommentInList(list, comment) {
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
+    var index = findById(list, comment.id);
 
-import java.io.IOException;
-
-class ByteArraySerializer extends JsonSerializer<byte[]> {
-
-    @Override
-    public void serialize(byte[] bytes, JsonGenerator gen, SerializerProvider serializers) throws IOException {
-        gen.writeString(ByteArrayConverter.bytesToHexString(bytes));
+    if (index !== false) {
+        comment.lastModificationDate = new Date().toISOString();
+        Vue.set(list, index, comment);
     }
-
-}
+};

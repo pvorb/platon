@@ -16,8 +16,6 @@
 
 package de.vorb.platon;
 
-import de.vorb.platon.security.HmacRequestVerifier;
-import de.vorb.platon.security.SecretKeyProvider;
 import de.vorb.platon.util.CurrentTimeProvider;
 import de.vorb.platon.util.InputSanitizer;
 
@@ -32,11 +30,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
-import javax.crypto.KeyGenerator;
-import javax.crypto.SecretKey;
 import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
-import java.util.Base64;
 
 @SpringBootApplication
 public class PlatonApp {
@@ -47,12 +42,7 @@ public class PlatonApp {
         SpringApplication.run(PlatonApp.class, args);
     }
 
-    private final SecretKey secretKey;
-
     public PlatonApp() throws NoSuchAlgorithmException {
-        secretKey = KeyGenerator.getInstance(HmacRequestVerifier.HMAC_ALGORITHM.toString()).generateKey();
-
-        logger.info("Secret key: {}", Base64.getEncoder().encodeToString(secretKey.getEncoded()));
     }
 
     @Bean
@@ -63,11 +53,6 @@ public class PlatonApp {
                 registry.addResourceHandler("classpath:/public");
             }
         };
-    }
-
-    @Bean
-    public SecretKeyProvider secretKeyProvider() {
-        return () -> secretKey;
     }
 
     @Bean

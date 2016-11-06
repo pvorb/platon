@@ -14,19 +14,10 @@
  * limitations under the License.
  */
 
-var debounce = require('lodash.debounce');
-var marked = require('marked');
-marked.setOptions({
-    gfm: true,
-    tables: false,
-    breaks: false,
-    sanitize: true,
-    smartLists: true,
-    smartypants: true
-});
-
 var UserInfoService = require('./../../services/user-info-service.js');
 var CommentService = require('../../services/comment-service.js');
+var TextService = require('../../services/text-service.js');
+var events = require('../../utils/events.js');
 
 var template = require('./comment-form.html');
 
@@ -55,7 +46,7 @@ module.exports = {
         togglePreview: function () {
             this.showPreview = !this.showPreview;
             if (this.showPreview) {
-                this.comment.text = marked(this.markdown);
+                this.comment.text = TextService.markdownToHtml(this.markdown);
             }
             try {
                 this.previewStyle.height = this.$el.getElementsByClassName('platon-form-text')[0].offsetHeight;
@@ -77,15 +68,22 @@ module.exports = {
             }
 
             vm.comment.parentId = vm.parentId;
-            vm.comment.text = marked(vm.markdown);
+            vm.comment.text = TextService.markdownToHtml(vm.markdown);
 
             CommentService.postComment(window.location.pathname, document.title, vm.comment)
                 .then(function (newComment) {
                     vm.$emit('posted', newComment);
                 })
                 .catch(function () {
-                    console.log('error', arguments);
+                    console.error('error', arguments);
                 });
         }
+    },
+
+    created: function () {
+        var vm = this;
+        events.bus.$on(events.types.clearForm, function() {
+            vm.markdown = '';
+        });
     }
 };

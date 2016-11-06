@@ -31,6 +31,7 @@ public class RestResourceConfig extends ResourceConfig {
         register(RequestContextFilter.class);
         register(PoweredByResponseFilter.class);
         register(CommentResource.class);
+        register(CommentCountResource.class);
         register(LoggingFilter.class);
         register(ObjectMapperContextResolver.class);
     }

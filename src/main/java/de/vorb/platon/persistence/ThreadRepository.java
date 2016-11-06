@@ -14,21 +14,14 @@
  * limitations under the License.
  */
 
-package de.vorb.platon.web.rest.json;
+package de.vorb.platon.persistence;
 
-import de.vorb.platon.util.ByteArrayConverter;
+import de.vorb.platon.jooq.tables.records.ThreadsRecord;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
+public interface ThreadRepository {
 
-import java.io.IOException;
+    Long findThreadIdForUrl(String threadUrl);
 
-class ByteArraySerializer extends JsonSerializer<byte[]> {
-
-    @Override
-    public void serialize(byte[] bytes, JsonGenerator gen, SerializerProvider serializers) throws IOException {
-        gen.writeString(ByteArrayConverter.bytesToHexString(bytes));
-    }
+    ThreadsRecord insert(ThreadsRecord thread);
 
 }

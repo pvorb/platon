@@ -14,27 +14,19 @@
  * limitations under the License.
  */
 
-package de.vorb.platon.persistence;
+package de.vorb.platon.web.rest.json;
 
-import org.springframework.stereotype.Component;
+import de.vorb.platon.util.ByteArrayConverter;
 
-import javax.persistence.AttributeConverter;
-import javax.persistence.Converter;
-import java.sql.Timestamp;
-import java.time.Instant;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonDeserializer;
 
-@Component
-@Converter(autoApply = true)
-public class Jsr310InstantTimestampConverter implements AttributeConverter<Instant, Timestamp> {
+import java.io.IOException;
 
+class ByteArrayDeserializer extends JsonDeserializer<byte[]> {
     @Override
-    public Timestamp convertToDatabaseColumn(Instant attribute) {
-        return attribute == null ? null : Timestamp.from(attribute);
+    public byte[] deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+        return ByteArrayConverter.hexStringToBytes(p.getValueAsString());
     }
-
-    @Override
-    public Instant convertToEntityAttribute(Timestamp dbData) {
-        return dbData == null ? null : dbData.toInstant();
-    }
-
 }

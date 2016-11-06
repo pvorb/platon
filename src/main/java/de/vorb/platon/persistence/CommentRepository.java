@@ -16,29 +16,25 @@
 
 package de.vorb.platon.persistence;
 
-import de.vorb.platon.model.Comment;
-import de.vorb.platon.model.CommentThread;
-
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.PagingAndSortingRepository;
-import org.springframework.data.repository.query.Param;
-import org.springframework.stereotype.Repository;
+import de.vorb.platon.jooq.tables.records.CommentsRecord;
+import de.vorb.platon.model.CommentStatus;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
-@Repository
-public interface CommentRepository extends PagingAndSortingRepository<Comment, Long> {
+public interface CommentRepository {
 
-    @Query("select c from Comment c where c.thread = :thread and c.status in ('DELETED', 'PUBLIC') "
-            + "order by c.creationDate asc")
-    List<Comment> findByThread(@Param("thread") CommentThread thread);
+    List<CommentsRecord> findByThreadUrl(String threadUrl);
 
-    @Modifying
-    @Query("update Comment c set c.status = :status where c.id = :commentId")
-    void setStatus(@Param("commentId") Long commentId, @Param("status") Comment.Status status);
+    CommentsRecord findById(long id);
 
-    @Query("select count(c) from Comment c where c.thread = :thread and c.status = 'PUBLIC'")
-    Long countCommentsOfThread(@Param("thread") CommentThread thread);
+    CommentsRecord insert(CommentsRecord comment);
+
+    Map<String, Integer> countByThreadUrls(Set<String> threadUrls);
+
+    void update(CommentsRecord comment);
+
+    void setStatus(long id, CommentStatus status);
 
 }

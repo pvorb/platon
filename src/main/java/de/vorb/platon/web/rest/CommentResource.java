@@ -16,28 +16,30 @@
 
 package de.vorb.platon.web.rest;
 
-import de.vorb.platon.model.Comment;
-import de.vorb.platon.model.CommentThread;
+import de.vorb.platon.jooq.tables.records.CommentsRecord;
+import de.vorb.platon.jooq.tables.records.ThreadsRecord;
+import de.vorb.platon.model.CommentStatus;
 import de.vorb.platon.persistence.CommentRepository;
-import de.vorb.platon.persistence.CommentThreadRepository;
+import de.vorb.platon.persistence.ThreadRepository;
 import de.vorb.platon.security.RequestVerifier;
+import de.vorb.platon.util.CommentFilters;
 import de.vorb.platon.util.InputSanitizer;
 import de.vorb.platon.web.rest.json.CommentJson;
 import de.vorb.platon.web.rest.json.CommentListResultJson;
-import de.vorb.platon.web.rest.json.CommentCountsJson;
 
 import com.google.common.base.Preconditions;
+import org.jooq.exception.DataAccessException;
 import org.owasp.encoder.Encode;
 import org.owasp.html.HtmlPolicyBuilder;
 import org.owasp.html.PolicyFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.BadRequestException;
+import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -53,7 +55,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
-import java.nio.charset.StandardCharsets;
+import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoUnit;
@@ -77,34 +79,38 @@ public class CommentResource {
     private static final PolicyFactory NO_HTML_POLICY = new HtmlPolicyBuilder().toFactory();
 
 
-    private final CommentThreadRepository threadRepository;
+    private final ThreadRepository threadRepository;
     private final CommentRepository commentRepository;
 
     private final RequestVerifier requestVerifier;
     private final InputSanitizer inputSanitizer;
+    private final CommentFilters commentFilters;
 
 
     @Inject
-    public CommentResource(CommentThreadRepository threadRepository, CommentRepository commentRepository,
-            RequestVerifier requestVerifier, InputSanitizer inputSanitizer) {
+    public CommentResource(
+            ThreadRepository threadRepository,
+            CommentRepository commentRepository,
+            RequestVerifier requestVerifier,
+            InputSanitizer inputSanitizer,
+            CommentFilters commentFilters) {
 
         this.threadRepository = threadRepository;
         this.commentRepository = commentRepository;
 
         this.requestVerifier = requestVerifier;
         this.inputSanitizer = inputSanitizer;
+        this.commentFilters = commentFilters;
     }
 
 
     @GET
     @Path("{id}")
-    @Transactional(readOnly = true)
-    public CommentJson getComment(
-            @NotNull @PathParam("id") Long commentId) {
+    public CommentJson getComment(@NotNull @PathParam("id") long commentId) {
 
-        final Comment comment = commentRepository.findOne(commentId);
+        final CommentsRecord comment = commentRepository.findById(commentId);
 
-        if (comment == null || comment.getStatus() != Comment.Status.PUBLIC) {
+        if (comment == null || Enum.valueOf(CommentStatus.class, comment.getStatus()) != CommentStatus.PUBLIC) {
             throw new NotFoundException(String.format("No comment found with id = %d", commentId));
         } else {
             return new CommentJson(comment);
@@ -113,22 +119,19 @@ public class CommentResource {
 
 
     @GET
-    @Transactional(readOnly = true)
-    public CommentListResultJson findCommentsByThreadUrl(
-            @NotNull @QueryParam("threadUrl") String threadUrl) {
+    public CommentListResultJson findCommentsByThreadUrl(@NotNull @QueryParam("threadUrl") String threadUrl) {
 
-        final CommentThread thread = threadRepository.getByUrl(threadUrl);
-        if (thread == null) {
+        final List<CommentsRecord> comments = commentRepository.findByThreadUrl(threadUrl);
+        if (comments.isEmpty()) {
             throw new NotFoundException(String.format("No thread found with url = '%s'", threadUrl));
         } else {
-            final List<Comment> comments = commentRepository.findByThread(thread);
-            final long totalCommentCount = comments.size();
+            final long totalCommentCount = comments.stream().filter(commentFilters::doesCommentCount).count();
             final List<CommentJson> topLevelComments = transformFlatCommentListToTree(comments);
             return new CommentListResultJson(totalCommentCount, topLevelComments);
         }
     }
 
-    private static List<CommentJson> transformFlatCommentListToTree(List<Comment> comments) {
+    private static List<CommentJson> transformFlatCommentListToTree(List<CommentsRecord> comments) {
 
         final Map<Long, CommentJson> lookupMap = comments.stream()
                 .map(CommentJson::new)
@@ -149,7 +152,6 @@ public class CommentResource {
     }
 
     @POST
-    @Transactional
     public Response postComment(
             @NotNull @QueryParam("threadUrl") String threadUrl,
             @NotNull @QueryParam("threadTitle") String threadTitle,
@@ -159,38 +161,36 @@ public class CommentResource {
             throw new BadRequestException("Comment id is not null");
         }
 
-        CommentThread thread = threadRepository.getByUrl(threadUrl);
-        if (thread == null) {
+        Long threadId = threadRepository.findThreadIdForUrl(threadUrl);
+        if (threadId == null) {
 
-            thread =
-                    CommentThread.builder()
-                            .url(threadUrl)
-                            .title(threadTitle)
-                            .build();
+            final ThreadsRecord thread = new ThreadsRecord()
+                    .setUrl(threadUrl)
+                    .setTitle(threadTitle);
 
-            threadRepository.save(thread);
+            threadId = threadRepository.insert(thread).getId();
 
-            logger.info("Created new {}", thread);
+            logger.info("Created new thread for url '{}'", threadUrl);
         }
 
-        Comment comment = commentJson.toComment();
+        CommentsRecord comment = commentJson.toRecord();
 
-        comment.setThread(thread);
-        comment.setCreationDate(Instant.now());
+        comment.setThreadId(threadId);
+        comment.setCreationDate(Timestamp.from(Instant.now()));
         comment.setLastModificationDate(comment.getCreationDate());
 
         assertParentBelongsToSameThread(comment);
 
         sanitizeComment(comment);
 
-        commentRepository.save(comment);
+        comment = commentRepository.insert(comment);
 
-        logger.info("Posted new comment to {}", thread);
+        logger.info("Posted new comment to thread '{}'", threadUrl);
 
         final URI commentUri = getUriFromId(comment.getId());
 
         final String identifier = commentUri.toString();
-        final Instant expirationDate = comment.getCreationDate().plus(2, ChronoUnit.HOURS);
+        final Instant expirationDate = comment.getCreationDate().toInstant().plus(24, ChronoUnit.HOURS);
         final byte[] signature = requestVerifier.getSignatureToken(identifier, expirationDate);
 
         return Response.created(commentUri)
@@ -200,23 +200,20 @@ public class CommentResource {
                 .build();
     }
 
-    @Transactional(readOnly = true)
-    protected void assertParentBelongsToSameThread(Comment comment) {
+    private void assertParentBelongsToSameThread(CommentsRecord comment) {
 
         final Long parentId = comment.getParentId();
         if (parentId == null) {
             return;
         }
 
-        final Comment parentComment = commentRepository.findOne(parentId);
+        final CommentsRecord parentComment = commentRepository.findById(parentId);
 
         if (parentComment == null) {
             throw new BadRequestException("Parent comment does not exist");
         }
 
-        final boolean parentBelongsToSameThread = comment.getThread().equalsById(parentComment.getThread());
-
-        if (!parentBelongsToSameThread) {
+        if (!comment.getThreadId().equals(parentComment.getThreadId())) {
             throw new BadRequestException("Parent comment does not belong to same thread");
         }
 
@@ -225,7 +222,6 @@ public class CommentResource {
 
     @PUT
     @Path("{id}")
-    @Transactional(noRollbackFor = BadRequestException.class)
     public void updateComment(
             @NotNull @HeaderParam(SIGNATURE_HEADER) String signature,
             @NotNull @PathParam("id") Long commentId,
@@ -238,13 +234,23 @@ public class CommentResource {
 
         verifyValidRequest(signature, commentId);
 
-        if (commentRepository.exists(commentId)) {
+        final CommentsRecord comment = commentRepository.findById(commentId);
 
-            Comment comment = commentJson.toComment();
+        if (comment != null) {
+
+            comment.setText(commentJson.getText());
+            comment.setAuthor(comment.getAuthor());
+            comment.setUrl(comment.getUrl());
+
+            comment.setLastModificationDate(Timestamp.from(Instant.now()));
 
             sanitizeComment(comment);
 
-            commentRepository.save(comment);
+            try {
+                commentRepository.update(comment);
+            } catch (DataAccessException e) {
+                throw new ClientErrorException(Response.Status.CONFLICT, e);
+            }
 
         } else {
             throw new BadRequestException(String.format("Comment with id = %d does not exist", commentId));
@@ -252,7 +258,7 @@ public class CommentResource {
     }
 
 
-    protected void sanitizeComment(Comment comment) {
+    void sanitizeComment(CommentsRecord comment) {
         if (comment.getAuthor() != null) {
             comment.setAuthor(NO_HTML_POLICY.sanitize(comment.getAuthor()));
         }
@@ -269,22 +275,19 @@ public class CommentResource {
 
     @DELETE
     @Path("{id}")
-    @Transactional
     public void deleteComment(
             @NotNull @HeaderParam(SIGNATURE_HEADER) String signature,
             @NotNull @PathParam("id") Long commentId) {
 
         verifyValidRequest(signature, commentId);
 
-        if (commentRepository.exists(commentId)) {
+        try {
+            commentRepository.setStatus(commentId, CommentStatus.DELETED);
 
-            commentRepository.setStatus(commentId, Comment.Status.DELETED);
-            logger.info("Deleted comment with id = {}", commentId);
-
-        } else {
+            logger.info("Marked comment with id = {} as DELETED", commentId);
+        } catch (DataAccessException e) {
             throw new BadRequestException(String.format("Comment with id = %d does not exist", commentId));
         }
-
     }
 
     private void verifyValidRequest(String signature, Long commentId) {
@@ -301,8 +304,7 @@ public class CommentResource {
             Preconditions.checkArgument(identifier.equals(referenceIdentifier));
 
             final Instant expirationDate = Instant.parse(signatureComponents[1]);
-            final byte[] signatureToken =
-                    Base64.getDecoder().decode(signatureComponents[2].getBytes(StandardCharsets.UTF_8));
+            final byte[] signatureToken = Base64.getDecoder().decode(signatureComponents[2]);
 
             if (!requestVerifier.isRequestValid(identifier, expirationDate, signatureToken)) {
                 throw new BadRequestException("Authentication signature is invalid or has expired");
@@ -315,22 +317,6 @@ public class CommentResource {
 
     private URI getUriFromId(long commentId) {
         return UriBuilder.fromResource(getClass()).segment("{id}").build(commentId);
-    }
-
-    @GET
-    @Path("counts")
-    @Transactional(readOnly = true)
-    public CommentCountsJson getCommentCounts(@NotNull @QueryParam("threadUrl[]") List<String> threadUrls) {
-
-        final CommentCountsJson commentCounts = new CommentCountsJson();
-
-        threadUrls.forEach(threadUrl -> {
-            final CommentThread thread = threadRepository.getByUrl(threadUrl);
-            final Long threadCommentCount = commentRepository.countCommentsOfThread(thread);
-            commentCounts.setCommentCount(threadUrl, threadCommentCount);
-        });
-
-        return commentCounts;
     }
 
 }

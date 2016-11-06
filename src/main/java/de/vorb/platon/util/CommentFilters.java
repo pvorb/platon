@@ -14,21 +14,23 @@
  * limitations under the License.
  */
 
-package de.vorb.platon.web.rest.json;
+package de.vorb.platon.util;
 
-import de.vorb.platon.util.ByteArrayConverter;
+import de.vorb.platon.jooq.tables.records.CommentsRecord;
+import de.vorb.platon.model.CommentStatus;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
+import org.springframework.stereotype.Component;
 
-import java.io.IOException;
+import java.util.EnumSet;
+import java.util.Set;
 
-class ByteArraySerializer extends JsonSerializer<byte[]> {
+@Component
+public class CommentFilters {
 
-    @Override
-    public void serialize(byte[] bytes, JsonGenerator gen, SerializerProvider serializers) throws IOException {
-        gen.writeString(ByteArrayConverter.bytesToHexString(bytes));
+    private static final Set<CommentStatus> countStatus = EnumSet.of(CommentStatus.PUBLIC);
+
+    public boolean doesCommentCount(CommentsRecord comment) {
+        return countStatus.contains(Enum.valueOf(CommentStatus.class, comment.getStatus()));
     }
 
 }

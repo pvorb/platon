@@ -15,8 +15,10 @@
  */
 
 var Vue = require('vue');
-
 var CommentService = require('./services/comment-service.js');
+var updateCommentInList = require('./utils/update-comment-in-list.js');
+var removeCommentFromList = require('./utils/remove-comment-from-list.js');
+var events = require('./utils/events.js');
 
 var template = require('./list.html');
 
@@ -36,8 +38,15 @@ new Vue({
     },
 
     methods: {
-        addComment: function (newComment) {
+        commentPosted: function (newComment) {
             this.comments.push(newComment);
+            events.bus.$emit(events.types.clearForm);
+        },
+        commentEdited: function (updatedComment) {
+            updateCommentInList(this.comments, updatedComment);
+        },
+        commentDeleted: function (commentToRemove) {
+            removeCommentFromList(this.comments, commentToRemove);
         }
     },
 

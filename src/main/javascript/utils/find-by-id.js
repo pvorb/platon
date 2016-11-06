@@ -1,3 +1,5 @@
+
+
 /*
  * Copyright 2016 the original author or authors.
  *
@@ -14,20 +16,14 @@
  * limitations under the License.
  */
 
-package de.vorb.platon.persistence;
+module.exports = function findById(array, id) {
 
-import de.vorb.platon.model.CommentThread;
+    for (var i = 0; i < array.length; i++) {
+        var element = array[i];
+        if (element.id === id) {
+            return i;
+        }
+    }
 
-import org.springframework.data.jpa.repository.EntityGraph;
-import org.springframework.data.repository.PagingAndSortingRepository;
-import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
-
-@Repository
-public interface CommentThreadRepository extends PagingAndSortingRepository<CommentThread, Long> {
-
-    @Transactional(readOnly = true)
-    @EntityGraph(value = "CommentThread.detail", type = EntityGraph.EntityGraphType.LOAD)
-    CommentThread getByUrl(String url);
-
-}
+    return false;
+};

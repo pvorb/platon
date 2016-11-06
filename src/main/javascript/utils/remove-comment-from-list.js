@@ -14,21 +14,23 @@
  * limitations under the License.
  */
 
-package de.vorb.platon.web.rest.json;
+var Vue = require('vue');
+var findById = require('./find-by-id.js');
 
-import de.vorb.platon.util.ByteArrayConverter;
+module.exports = function removeCommentFromList(list, comment) {
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
+    var index = findById(list, comment.id);
 
-import java.io.IOException;
+    if (index !== false) {
+        var originalReplies = list[index].replies;
 
-class ByteArraySerializer extends JsonSerializer<byte[]> {
-
-    @Override
-    public void serialize(byte[] bytes, JsonGenerator gen, SerializerProvider serializers) throws IOException {
-        gen.writeString(ByteArrayConverter.bytesToHexString(bytes));
+        Vue.set(list, index, {
+            id: comment.id,
+            parentId: comment.parentId,
+            creationDate: comment.creationDate,
+            lastModificationDate: comment.lastModificationDate,
+            replies: originalReplies,
+            status: 'DELETED'
+        });
     }
-
-}
+};
