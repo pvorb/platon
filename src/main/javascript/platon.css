@@ -4,6 +4,7 @@
 
 .platon-comment {
     clear: left;
+    min-height: 48px;
 }
 
 .platon-comment > * {
