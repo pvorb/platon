@@ -28,7 +28,6 @@ import de.vorb.platon.web.rest.json.CommentJson;
 import de.vorb.platon.web.rest.json.CommentListResultJson;
 
 import com.google.common.truth.Truth;
-import com.sun.mail.iap.Argument;
 import org.jooq.exception.DataAccessException;
 import org.junit.Before;
 import org.junit.Test;
@@ -39,6 +38,7 @@ import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.ws.rs.BadRequestException;
+import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.NotFoundException;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -357,4 +357,14 @@ public class CommentResourceTest {
         Truth.assertThat(comment.getUrl()).isEqualTo("http://example.com/article?param1=foo&amp;param2=bar");
     }
 
+    @Test(expected = ClientErrorException.class)
+    public void dataAccessException() throws Exception {
+
+        Mockito.when(commentRepository.findById(Mockito.eq(updateComment.getId())))
+                .thenReturn(updateComment.toRecord());
+
+        Mockito.doThrow(DataAccessException.class).when(commentRepository).update(Mockito.any());
+
+        commentResource.updateComment(defaultRequestSignature, updateComment.getId(), updateComment);
+    }
 }
