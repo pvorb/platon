@@ -20,6 +20,8 @@ import javax.xml.bind.DatatypeConverter;
 
 public class ByteArrayConverter {
 
+    private ByteArrayConverter() {}
+
     public static String bytesToHexString(byte[] bytes) {
         return DatatypeConverter.printHexBinary(bytes).toLowerCase();
     }
