@@ -225,6 +225,7 @@
                     <excludes>
                         <exclude>**/de/vorb/platon/jooq/*</exclude>
                         <exclude>**/de/vorb/platon/jooq/**</exclude>
+                        <exclude>**/de/vorb/platon/persistence/**</exclude>
                     </excludes>
                 </configuration>
             </plugin>
