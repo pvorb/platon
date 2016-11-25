@@ -221,6 +221,12 @@
                         </goals>
                     </execution>
                 </executions>
+                <configuration>
+                    <excludes>
+                        <exclude>**/de/vorb/platon/jooq/*</exclude>
+                        <exclude>**/de/vorb/platon/jooq/**</exclude>
+                    </excludes>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.flywaydb</groupId>
