@@ -14,25 +14,13 @@
  * limitations under the License.
  */
 
-package de.vorb.platon.web.rest.json;
+package de.vorb.platon.config;
 
-import java.util.List;
+import de.vorb.platon.config.PlatonConfig;
 
-public class CommentListResultJson {
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
 
-    private Long totalCommentCount;
-    private List<CommentJson> comments;
-
-    public CommentListResultJson(Long totalCommentCount, List<CommentJson> comments) {
-        this.totalCommentCount = totalCommentCount;
-        this.comments = comments;
-    }
-
-    public Long getTotalCommentCount() {
-        return totalCommentCount;
-    }
-
-    public List<CommentJson> getComments() {
-        return comments;
-    }
-}
+@Configuration
+@PropertySource(value = "classpath:config/application.properties")
+public class SpringTestConfig extends PlatonConfig {}

@@ -40,6 +40,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.NotFoundException;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -83,6 +84,8 @@ public class CommentResourceTest {
                         .setThreadId(nonEmptyThread.getId())
                         .setText("Text")
                         .setAuthor("Author")
+                        .setEmailHash(
+                                Base64.getEncoder().encodeToString("test@example.org".getBytes(StandardCharsets.UTF_8)))
                         .setStatus(CommentStatus.PUBLIC.toString());
 
         nonEmptyThreadComments.add(comment);

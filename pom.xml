@@ -58,6 +58,7 @@
         <!-- Testing -->
         <junit.version>4.12</junit.version>
         <truth.version>0.30</truth.version>
+        <openpojo.version>0.8.4</openpojo.version>
 
         <!-- Frontend -->
         <frontend>true</frontend>
@@ -167,10 +168,17 @@
             <groupId>com.google.truth</groupId>
             <artifactId>truth</artifactId>
             <version>${truth.version}</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.openpojo</groupId>
+            <artifactId>openpojo</artifactId>
+            <version>${openpojo.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -225,6 +233,7 @@
                     <excludes>
                         <exclude>**/de/vorb/platon/jooq/*</exclude>
                         <exclude>**/de/vorb/platon/jooq/**</exclude>
+                        <exclude>**/de/vorb/platon/persistence/**</exclude>
                     </excludes>
                 </configuration>
             </plugin>
