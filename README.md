@@ -15,6 +15,17 @@ mvn clean package
 
 ### Run
 
+#### Production
+
+~~~
+mvn package
+java -jar target/platon-${version}.jar
+~~~
+
+where you have to replace `${version}` with the current version in the file `pom.xml`.
+
+#### Testing
+
 ~~~
 mvn spring-boot:run
 ~~~
