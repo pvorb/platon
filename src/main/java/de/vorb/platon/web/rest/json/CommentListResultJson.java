@@ -20,15 +20,15 @@ import java.util.List;
 
 public class CommentListResultJson {
 
-    private long totalCommentCount;
+    private Long totalCommentCount;
     private List<CommentJson> comments;
 
-    public CommentListResultJson(long totalCommentCount, List<CommentJson> comments) {
+    public CommentListResultJson(Long totalCommentCount, List<CommentJson> comments) {
         this.totalCommentCount = totalCommentCount;
         this.comments = comments;
     }
 
-    public long getTotalCommentCount() {
+    public Long getTotalCommentCount() {
         return totalCommentCount;
     }
 

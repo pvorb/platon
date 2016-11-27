@@ -21,8 +21,8 @@ import org.junit.Test;
 
 public class ByteArrayConverterTest {
 
-    public static final byte[] BYTES = {(byte) 0xFF, (byte) 0x00, (byte) 0xA3};
-    public static final String HEX_STRING = "ff00a3";
+    private static final byte[] BYTES = {(byte) 0xFF, (byte) 0x00, (byte) 0xA3};
+    private static final String HEX_STRING = "ff00a3";
 
     @Test
     public void shortBytesToHexString() throws Exception {

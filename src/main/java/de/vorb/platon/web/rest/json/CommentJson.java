@@ -156,7 +156,7 @@ public class CommentJson {
         this.emailHash = emailHash;
     }
 
-    protected void setEmail(String email) {
+    public void setEmail(String email) {
         if (email == null) {
             this.emailHash = null;
             return;
