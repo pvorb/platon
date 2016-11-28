@@ -1,5 +1,6 @@
 {
   "private": true,
+  "main": "./src/main/javascript/platon.js",
   "scripts": {
     "start": "webpack --debug --watch",
     "build": "webpack -p"
