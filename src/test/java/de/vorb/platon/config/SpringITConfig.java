@@ -19,34 +19,49 @@ package de.vorb.platon.config;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.env.Environment;
 
+import java.net.MalformedURLException;
 import java.net.URL;
 
 @Configuration
 @PropertySource(value = "classpath:config/application.properties")
 public class SpringITConfig {
 
-    @Value("${TRAVIS_JOB_NUMBER}")
-    private String jobNumber;
-
-    @Value("${selenium.version}")
-    private String seleniumVersion;
-
-    @Value("http://${SAUCE_USERNAME}:${SAUCE_ACCESS_KEY}@localhost:4445/wd/hub")
-    private URL remoteUrl;
+    @Autowired
+    private Environment env;
 
     @Bean
-    public WebDriver webDriver() {
+    public WebDriver webDriver() throws MalformedURLException {
+        return new RemoteWebDriver(getRemoteUrl(), getDesiredCapabilities());
+    }
+
+    private DesiredCapabilities getDesiredCapabilities() {
 
         final DesiredCapabilities capabilities = DesiredCapabilities.firefox();
-        capabilities.setCapability("tunnel-identifier", jobNumber);
-        capabilities.setCapability("seleniumVersion", seleniumVersion);
+        if (useSauceLabs()) {
+            capabilities.setCapability("tunnel-identifier", env.getProperty("TRAVIS_JOB_NUMBER"));
+            capabilities.setCapability("seleniumVersion", env.getProperty("selenium.version"));
+        }
 
-        return new RemoteWebDriver(remoteUrl, capabilities);
+        return capabilities;
+    }
+
+    private boolean useSauceLabs() {
+        return env.getProperty("SAUCE_USERNAME") != null;
+    }
+
+    private URL getRemoteUrl() throws MalformedURLException {
+        if (useSauceLabs()) {
+            return new URL(String.format("http://%s:%s@localhost:4445/wd/hub",
+                    env.getProperty("SAUCE_USERNAME"), env.getProperty("SAUCE_ACCESS_KEY")));
+        } else {
+            return new URL("http://localhost:4445/wd/hub");
+        }
     }
 
 }
