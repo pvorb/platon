@@ -44,6 +44,7 @@ public class SpringITConfig {
 
         final DesiredCapabilities capabilities = DesiredCapabilities.firefox();
         if (useSauceLabs()) {
+            capabilities.setCapability("name", "Firefox");
             capabilities.setCapability("tunnel-identifier", env.getProperty("TRAVIS_JOB_NUMBER"));
             capabilities.setCapability("seleniumVersion", env.getProperty("selenium.version"));
         }
