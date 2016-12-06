@@ -23,9 +23,11 @@ var threadUrls = Object.keys(groupedThreadUrlElements);
 
 CommentService.countComments(threadUrls).then(function(commentCounts) {
     for (var threadUrl in commentCounts) {
-        groupedThreadUrlElements[threadUrl].forEach(function(element) {
-            var count = commentCounts[threadUrl];
-            element.textContent = count + (count === 1 ? ' Comment' : ' Comments');
-        });
+        if (commentCounts.hasOwnProperty(threadUrl)) {
+            groupedThreadUrlElements[threadUrl].forEach(function (element) {
+                var count = commentCounts[threadUrl];
+                element.textContent = count + (count === 1 ? ' Comment' : ' Comments');
+            });
+        }
     }
 });
