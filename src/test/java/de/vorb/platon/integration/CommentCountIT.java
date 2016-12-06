@@ -28,7 +28,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.logging.LogType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,6 +63,9 @@ public class CommentCountIT {
 
     @Value("http://localhost:${server.port}/comment-count.html")
     private String testUrl;
+
+    @Value("http://localhost:${server.port}/js/platon.js")
+    private String jsUrl;
 
     private static final String URL_THREAD_1 = "/comment-count-thread-1.html";
     private static final String URL_THREAD_2 = "/comment-count-thread-2.html";
@@ -124,10 +129,18 @@ public class CommentCountIT {
     @Test
     public void loadComments() throws Exception {
 
+        webDriver.get(jsUrl);
+
         final CommentCountPage commentPage = new CommentCountPage(webDriver);
 
         webDriver.get(testUrl);
-        commentPage.waitUntilCommentCountsLoaded();
+        try {
+            commentPage.waitUntilCommentCountsLoaded();
+        } catch (TimeoutException e) {
+            webDriver.manage().logs().get(LogType.BROWSER).getAll().forEach(
+                    logEntry -> logger.info("Browser log: <{}> [{}] {}", logEntry.getLevel(),
+                            Instant.ofEpochMilli(logEntry.getTimestamp()), logEntry.getMessage()));
+        }
 
         final Map<String, Set<Long>> commentCountsByThread = commentPage.getCommentCountsByThread();
 

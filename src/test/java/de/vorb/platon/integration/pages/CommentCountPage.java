@@ -46,7 +46,7 @@ public class CommentCountPage {
     }
 
     public void waitUntilCommentCountsLoaded() {
-        new WebDriverWait(webDriver, 60)
+        new WebDriverWait(webDriver, 15)
                 .until(textMatches(By.cssSelector(HREF_SELECTOR + ", " + ATTR_SELECTOR), COUNT_PATTERN));
     }
 

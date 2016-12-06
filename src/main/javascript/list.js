@@ -22,60 +22,63 @@ var events = require('./utils/events.js');
 
 var template = require('./list.html');
 
-new Vue({
-    el: '#platon-comment-thread',
-    render: template.render,
-    staticRenderFns: template.staticRenderFns,
+if (document.getElementById('platon-comment-thread') !== null) {
 
-    data: {
-        loading: true,
-        comments: []
-    },
+    new Vue({
+        el: '#platon-comment-thread',
+        render: template.render,
+        staticRenderFns: template.staticRenderFns,
 
-    components: {
-        'platon-comment': require('./components/comment'),
-        'platon-comment-form': require('./components/comment-form')
-    },
-
-    methods: {
-        commentPosted: function (newComment) {
-            this.comments.push(newComment);
-            events.bus.$emit(events.types.clearForm);
+        data: {
+            loading: true,
+            comments: []
         },
-        commentEdited: function (updatedComment) {
-            updateCommentInList(this.comments, updatedComment);
+
+        components: {
+            'platon-comment': require('./components/comment'),
+            'platon-comment-form': require('./components/comment-form')
         },
-        commentDeleted: function (commentToRemove) {
-            removeCommentFromList(this.comments, commentToRemove);
+
+        methods: {
+            commentPosted: function (newComment) {
+                this.comments.push(newComment);
+                events.bus.$emit(events.types.clearForm);
+            },
+            commentEdited: function (updatedComment) {
+                updateCommentInList(this.comments, updatedComment);
+            },
+            commentDeleted: function (commentToRemove) {
+                removeCommentFromList(this.comments, commentToRemove);
+            }
+        },
+
+        created: function () {
+            var vm = this;
+            CommentService.getComments(window.location.pathname)
+                .then(function updateModel(commentsListResult) {
+                    vm.comments = commentsListResult.comments;
+                    vm.totalCommentCount = commentsListResult.totalCommentCount;
+                    vm.loading = false;
+
+                    if (window.location.hash && window.location.hash.indexOf('#platon-comment-') >= 0) {
+                        Vue.nextTick(function () {
+                            var commentElem = document.querySelector(window.location.hash);
+                            if (commentElem != null && !userHasScrolled) {
+                                commentElem.scrollIntoView(true);
+                            }
+                        });
+                    }
+                })
+                .catch(function displayError(reason) {
+                    alert(reason);
+                });
         }
-    },
+    });
 
-    created: function () {
-        var vm = this;
-        CommentService.getComments(window.location.pathname)
-            .then(function updateModel(commentsListResult) {
-                vm.comments = commentsListResult.comments;
-                vm.totalCommentCount = commentsListResult.totalCommentCount;
-                vm.loading = false;
-
-                if (window.location.hash && window.location.hash.indexOf('#platon-comment-') >= 0) {
-                    Vue.nextTick(function () {
-                        var commentElem = document.querySelector(window.location.hash);
-                        if (commentElem != null && !userHasScrolled) {
-                            commentElem.scrollIntoView(true);
-                        }
-                    });
-                }
-            })
-            .catch(function displayError(reason) {
-                alert(reason);
-            });
+    var userHasScrolled = false;
+    window.addEventListener('scroll', scrollListener);
+    function scrollListener() {
+        userHasScrolled = true;
+        window.removeEventListener('scroll', scrollListener);
     }
-});
-
-var userHasScrolled = false;
-window.addEventListener('scroll', scrollListener);
-function scrollListener() {
-    userHasScrolled = true;
-    window.removeEventListener('scroll', scrollListener);
 }
