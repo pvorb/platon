@@ -28,13 +28,13 @@ module.exports = function findGroupedPlatonThreadUrlElements() {
 
     var linksToCommentThreads = document.querySelectorAll('a[href$="#platon-comment-thread"]');
 
-    linksToCommentThreads.forEach(function (linkElem) {
+    Array.prototype.forEach.call(linksToCommentThreads, function (linkElem) {
         addThreadUrlAndElement(linkElem.pathname, linkElem);
     });
 
     var elemsWithThreadIds = document.querySelectorAll('*[data-platon-thread-url]');
 
-    elemsWithThreadIds.forEach(function (elem) {
+    Array.prototype.forEach.call(elemsWithThreadIds, function (elem) {
         addThreadUrlAndElement(elem.getAttribute('data-platon-thread-url'), elem);
     });
 
