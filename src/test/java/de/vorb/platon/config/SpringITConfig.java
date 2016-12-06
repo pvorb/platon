@@ -20,6 +20,7 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
@@ -29,6 +30,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 @Configuration
+@EnableAutoConfiguration
 @PropertySource(value = "classpath:config/application.properties")
 public class SpringITConfig {
 
