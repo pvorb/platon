@@ -64,9 +64,6 @@ public class CommentCountIT {
     @Value("http://localhost:${server.port}/comment-count.html")
     private String testUrl;
 
-    @Value("http://localhost:${server.port}/js/platon.js")
-    private String jsUrl;
-
     private static final String URL_THREAD_1 = "/comment-count-thread-1.html";
     private static final String URL_THREAD_2 = "/comment-count-thread-2.html";
 
@@ -128,8 +125,6 @@ public class CommentCountIT {
 
     @Test
     public void loadComments() throws Exception {
-
-        webDriver.get(jsUrl);
 
         final CommentCountPage commentPage = new CommentCountPage(webDriver);
 
