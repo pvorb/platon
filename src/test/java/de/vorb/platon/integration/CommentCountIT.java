@@ -119,12 +119,12 @@ public class CommentCountIT {
 
     @After
     public void tearDown() throws Exception {
-        dslContext.deleteFrom(COMMENTS).execute();
-        dslContext.deleteFrom(THREADS).execute();
+        dslContext.deleteFrom(COMMENTS).where(COMMENTS.THREAD_ID.eq(thread1Id)).execute();
+        dslContext.deleteFrom(THREADS).where(THREADS.ID.eq(thread1Id)).execute();
     }
 
     @Test
-    public void loadComments() throws Exception {
+    public void loadCommentCounts() throws Exception {
 
         final CommentCountPage commentPage = new CommentCountPage(webDriver);
 
