@@ -18,23 +18,33 @@ package de.vorb.platon.integration.pages;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
-public class CommentPage {
+public class CommentListPage {
 
     private final WebDriver webDriver;
 
-    public CommentPage(WebDriver webDriver) {
+    public CommentListPage(WebDriver webDriver) {
         this.webDriver = webDriver;
     }
 
-    public void waitUntilCommentsLoaded() {
+    public void waitUntilCommentListLoaded() {
         new WebDriverWait(webDriver, 15).until(
                 ExpectedConditions.presenceOfElementLocated(By.className("platon-comments")));
     }
 
     public boolean isCommentFormVisible() {
         return webDriver.findElement(By.className("platon-form")).isDisplayed();
+    }
+
+    public boolean isCommentWithIdVisible(long id) {
+        final WebElement comment = webDriver.findElement(By.id("platon-comment-" + id));
+        final String author = comment.findElement(By.className("platon-author")).getText();
+        final String text = comment.findElement(By.className("platon-text")).getText();
+        return comment.isDisplayed()
+                && !"[deleted]".equals(author)
+                && !"[deleted]".equals(text);
     }
 }
