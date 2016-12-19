@@ -41,10 +41,14 @@ public class CommentListPage {
 
     public boolean isCommentWithIdVisible(long id) {
         final WebElement comment = webDriver.findElement(By.id("platon-comment-" + id));
+        return comment.isDisplayed();
+    }
+
+    public boolean isCommentWithIdDeleted(long id) {
+        final WebElement comment = webDriver.findElement(By.id("platon-comment-" + id));
         final String author = comment.findElement(By.className("platon-author")).getText();
         final String text = comment.findElement(By.className("platon-text")).getText();
-        return comment.isDisplayed()
-                && !"[deleted]".equals(author)
-                && !"[deleted]".equals(text);
+        return "[deleted]".equals(author)
+                && "[deleted]".equals(text);
     }
 }

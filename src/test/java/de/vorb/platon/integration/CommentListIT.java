@@ -134,7 +134,11 @@ public class CommentListIT {
         Truth.assertThat(commentPage.isCommentFormVisible()).isTrue();
 
         Truth.assertThat(commentPage.isCommentWithIdVisible(topLevelComment.getId())).isTrue();
-        Truth.assertThat(commentPage.isCommentWithIdVisible(deletedComment.getId())).isFalse();
+        Truth.assertThat(commentPage.isCommentWithIdVisible(deletedComment.getId())).isTrue();
         Truth.assertThat(commentPage.isCommentWithIdVisible(childComment.getId())).isTrue();
+
+        Truth.assertThat(commentPage.isCommentWithIdDeleted(topLevelComment.getId())).isFalse();
+        Truth.assertThat(commentPage.isCommentWithIdDeleted(deletedComment.getId())).isTrue();
+        Truth.assertThat(commentPage.isCommentWithIdDeleted(childComment.getId())).isFalse();
     }
 }
