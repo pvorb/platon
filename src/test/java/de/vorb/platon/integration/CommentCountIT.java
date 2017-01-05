@@ -22,7 +22,6 @@ import de.vorb.platon.jooq.tables.records.CommentsRecord;
 import de.vorb.platon.jooq.tables.records.ThreadsRecord;
 import de.vorb.platon.model.CommentStatus;
 
-import com.google.common.truth.Truth;
 import org.jooq.DSLContext;
 import org.junit.After;
 import org.junit.Before;
@@ -46,6 +45,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static com.google.common.truth.Truth.assertThat;
 import static de.vorb.platon.jooq.Tables.COMMENTS;
 import static de.vorb.platon.jooq.Tables.THREADS;
 
@@ -139,18 +139,18 @@ public class CommentCountIT {
 
         final Map<String, Set<Long>> commentCountsByThread = commentPage.getCommentCountsByThread();
 
-        commentCountsByThread.values().forEach(commentCounts -> Truth.assertThat(commentCounts).hasSize(1));
+        commentCountsByThread.values().forEach(commentCounts -> assertThat(commentCounts).hasSize(1));
 
         final long countThread1 = commentCountsByThread.get(URL_THREAD_1).iterator().next();
         final long expectedCountThread1 = commentsThread1.stream().filter(
                 comment -> CommentStatus.valueOf(comment.getStatus()) == CommentStatus.PUBLIC).count();
 
-        Truth.assertThat(countThread1).isEqualTo(expectedCountThread1);
+        assertThat(countThread1).isEqualTo(expectedCountThread1);
 
         final long countThread2 = commentCountsByThread.get(URL_THREAD_2).iterator().next();
         final long expectedCountThread2 = commentsThread2.stream().filter(
                 comment -> CommentStatus.valueOf(comment.getStatus()) == CommentStatus.PUBLIC).count();
 
-        Truth.assertThat(countThread2).isEqualTo(expectedCountThread2);
+        assertThat(countThread2).isEqualTo(expectedCountThread2);
     }
 }

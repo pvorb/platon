@@ -22,7 +22,6 @@ import de.vorb.platon.jooq.tables.records.CommentsRecord;
 import de.vorb.platon.jooq.tables.records.ThreadsRecord;
 import de.vorb.platon.model.CommentStatus;
 
-import com.google.common.truth.Truth;
 import org.apache.commons.codec.digest.MessageDigestAlgorithms;
 import org.jooq.DSLContext;
 import org.junit.After;
@@ -46,6 +45,7 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.Base64;
 
+import static com.google.common.truth.Truth.assertThat;
 import static de.vorb.platon.jooq.Tables.COMMENTS;
 import static de.vorb.platon.jooq.Tables.THREADS;
 
@@ -131,14 +131,14 @@ public class CommentListIT {
                             Instant.ofEpochMilli(logEntry.getTimestamp()), logEntry.getMessage()));
         }
 
-        Truth.assertThat(commentPage.isCommentFormVisible()).isTrue();
+        assertThat(commentPage.isCommentFormVisible()).isTrue();
 
-        Truth.assertThat(commentPage.isCommentWithIdVisible(topLevelComment.getId())).isTrue();
-        Truth.assertThat(commentPage.isCommentWithIdVisible(deletedComment.getId())).isTrue();
-        Truth.assertThat(commentPage.isCommentWithIdVisible(childComment.getId())).isTrue();
+        assertThat(commentPage.isCommentWithIdVisible(topLevelComment.getId())).isTrue();
+        assertThat(commentPage.isCommentWithIdVisible(deletedComment.getId())).isTrue();
+        assertThat(commentPage.isCommentWithIdVisible(childComment.getId())).isTrue();
 
-        Truth.assertThat(commentPage.isCommentWithIdDeleted(topLevelComment.getId())).isFalse();
-        Truth.assertThat(commentPage.isCommentWithIdDeleted(deletedComment.getId())).isTrue();
-        Truth.assertThat(commentPage.isCommentWithIdDeleted(childComment.getId())).isFalse();
+        assertThat(commentPage.isCommentWithIdDeleted(topLevelComment.getId())).isFalse();
+        assertThat(commentPage.isCommentWithIdDeleted(deletedComment.getId())).isTrue();
+        assertThat(commentPage.isCommentWithIdDeleted(childComment.getId())).isFalse();
     }
 }
