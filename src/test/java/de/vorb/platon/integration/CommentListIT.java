@@ -98,6 +98,7 @@ public class CommentListIT {
         CommentsRecord comment = new CommentsRecord();
 
         comment.setThreadId(thread.getId());
+        comment.setParentId(parentId);
         comment.setCreationDate(Timestamp.from(Instant.now()));
         comment.setLastModificationDate(comment.getCreationDate());
         comment.setStatus(status.toString());
@@ -140,5 +141,29 @@ public class CommentListIT {
         assertThat(commentPage.isCommentWithIdDeleted(topLevelComment.getId())).isFalse();
         assertThat(commentPage.isCommentWithIdDeleted(deletedComment.getId())).isTrue();
         assertThat(commentPage.isCommentWithIdDeleted(childComment.getId())).isFalse();
+    }
+
+    @Test
+    public void postNewComment() throws Exception {
+
+        final CommentListPage commentPage = new CommentListPage(webDriver);
+
+        webDriver.get(testUrl);
+        try {
+            commentPage.waitUntilCommentListLoaded();
+        } catch (TimeoutException e) {
+            webDriver.manage().logs().get(LogType.BROWSER).getAll().forEach(
+                    logEntry -> logger.info("Browser log: <{}> [{}] {}", logEntry.getLevel(),
+                            Instant.ofEpochMilli(logEntry.getTimestamp()), logEntry.getMessage()));
+        }
+
+        commentPage.replyToComment(
+                childComment.getId(),
+                "A newly created comment",
+                "Selenium",
+                "selenium@example.org",
+                "http://example.org/selenium");
+
+        assertThat(commentPage.commentWithIdHasReplies(childComment.getId())).isTrue();
     }
 }

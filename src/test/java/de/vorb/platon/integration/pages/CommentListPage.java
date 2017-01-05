@@ -16,6 +16,7 @@
 
 package de.vorb.platon.integration.pages;
 
+import org.assertj.core.util.Preconditions;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -40,15 +41,57 @@ public class CommentListPage {
     }
 
     public boolean isCommentWithIdVisible(long id) {
-        final WebElement comment = webDriver.findElement(By.id("platon-comment-" + id));
+        final WebElement comment = findCommentById(id);
         return comment.isDisplayed();
     }
 
     public boolean isCommentWithIdDeleted(long id) {
-        final WebElement comment = webDriver.findElement(By.id("platon-comment-" + id));
+        final WebElement comment = findCommentById(id);
         final String author = comment.findElement(By.className("platon-author")).getText();
         final String text = comment.findElement(By.className("platon-text")).getText();
         return "[deleted]".equals(author)
                 && "[deleted]".equals(text);
+    }
+
+    public void replyToComment(long id, String text, String author, String email, String url) {
+        final WebElement existingComment = findCommentById(id);
+        existingComment.findElement(By.linkText("Reply")).click();
+
+        Preconditions.checkNotNull(text);
+        getFirstVisibleChildMatching(existingComment, By.className("platon-form-text")).sendKeys(text);
+
+        if (author != null) {
+            getFirstVisibleChildMatching(existingComment, By.className("platon-form-author")).sendKeys(author);
+        }
+
+        if (email != null) {
+            getFirstVisibleChildMatching(existingComment, By.className("platon-form-email")).sendKeys(email);
+        }
+
+        if (url != null) {
+            getFirstVisibleChildMatching(existingComment, By.className("platon-form-email")).sendKeys(url);
+        }
+
+        getFirstVisibleChildMatching(existingComment, By.cssSelector("form.platon-form")).submit();
+    }
+
+    public boolean commentWithIdHasReplies(long id) {
+
+        new WebDriverWait(webDriver, 15).until(
+                ExpectedConditions.visibilityOfNestedElementsLocatedBy(findCommentById(id),
+                        By.className("platon-comment")));
+
+        return !findCommentById(id).findElements(By.className("platon-comment")).isEmpty();
+    }
+
+    private WebElement findCommentById(long id) {
+        return webDriver.findElement(By.id("platon-comment-" + id));
+    }
+
+    private WebElement getFirstVisibleChildMatching(WebElement parent, By childLocator) {
+        return parent.findElements(childLocator).stream()
+                .filter(WebElement::isDisplayed)
+                .findFirst()
+                .orElseThrow(() -> new NullPointerException("No matching element found that is visible"));
     }
 }
