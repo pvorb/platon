@@ -20,8 +20,11 @@ import org.assertj.core.util.Preconditions;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+
+import java.util.List;
 
 public class CommentListPage {
 
@@ -58,18 +61,26 @@ public class CommentListPage {
         existingComment.findElement(By.linkText("Reply")).click();
 
         Preconditions.checkNotNull(text);
-        getFirstVisibleChildMatching(existingComment, By.className("platon-form-text")).sendKeys(text);
+        final WebElement textArea = getFirstVisibleChildMatching(existingComment, By.className("platon-form-text"));
+        new Actions(webDriver).moveToElement(textArea).perform();
+        textArea.sendKeys(text);
 
         if (author != null) {
-            getFirstVisibleChildMatching(existingComment, By.className("platon-form-author")).sendKeys(author);
+            final WebElement authorTextField = getFirstVisibleChildMatching(existingComment, By.className("platon-form-author"));
+            new Actions(webDriver).moveToElement(authorTextField).perform();
+            authorTextField.sendKeys(author);
         }
 
         if (email != null) {
-            getFirstVisibleChildMatching(existingComment, By.className("platon-form-email")).sendKeys(email);
+            final WebElement emailTextField = getFirstVisibleChildMatching(existingComment, By.className("platon-form-email"));
+            new Actions(webDriver).moveToElement(emailTextField).perform();
+            emailTextField.sendKeys(email);
         }
 
         if (url != null) {
-            getFirstVisibleChildMatching(existingComment, By.className("platon-form-email")).sendKeys(url);
+            final WebElement urlTextField = getFirstVisibleChildMatching(existingComment, By.className("platon-form-email"));
+            new Actions(webDriver).moveToElement(urlTextField).perform();
+            urlTextField.sendKeys(url);
         }
 
         getFirstVisibleChildMatching(existingComment, By.cssSelector("form.platon-form")).submit();
@@ -81,7 +92,14 @@ public class CommentListPage {
                 ExpectedConditions.visibilityOfNestedElementsLocatedBy(findCommentById(id),
                         By.className("platon-comment")));
 
-        return !findCommentById(id).findElements(By.className("platon-comment")).isEmpty();
+        final List<WebElement> replies = findCommentById(id).findElements(By.className("platon-comment"));
+
+        if (!replies.isEmpty()) {
+            new Actions(webDriver).moveToElement(replies.get(0)).perform();
+            return true;
+        } else {
+            return false;
+        }
     }
 
     private WebElement findCommentById(long id) {
