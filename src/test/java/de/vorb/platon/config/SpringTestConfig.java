@@ -16,8 +16,6 @@
 
 package de.vorb.platon.config;
 
-import de.vorb.platon.config.PlatonConfig;
-
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 

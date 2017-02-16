@@ -75,7 +75,8 @@ public class JooqCommentRepository implements CommentRepository {
                 .from(COMMENTS
                         .join(THREADS).on(COMMENTS.THREAD_ID.eq(THREADS.ID)))
                 .where(THREADS.URL.in(threadUrls)
-                      .and(COMMENTS.STATUS.eq("PUBLIC")))
+                      .and(COMMENTS.STATUS.eq(CommentStatus.PUBLIC.toString())))
+                .groupBy(THREADS.URL)
                 .fetchMap(THREADS.URL, count());
     }
 

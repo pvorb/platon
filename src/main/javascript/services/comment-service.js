@@ -100,6 +100,10 @@ function getSignatureKey(comment) {
 }
 
 function hasSignatureExpired(signature) {
+    if (!signature) {
+        return true;
+    }
+
     var signatureComponents = signature.split('|');
 
     if (signatureComponents.length == 3) {
