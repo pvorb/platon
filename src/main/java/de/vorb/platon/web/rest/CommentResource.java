@@ -144,7 +144,7 @@ public class CommentResource {
                 .collect(Collectors.toMap(CommentJson::getId, Function.identity()));
 
         final List<CommentJson> topLevelComments = new ArrayList<>();
-        comments.forEach(comment -> {
+        for (CommentsRecord comment : comments) {
             final List<CommentJson> commentList;
             if (comment.getParentId() == null) {
                 commentList = topLevelComments;
@@ -152,7 +152,7 @@ public class CommentResource {
                 commentList = lookupMap.get(comment.getParentId()).getReplies();
             }
             commentList.add(lookupMap.get(comment.getId()));
-        });
+        }
 
         return topLevelComments;
     }
@@ -179,7 +179,7 @@ public class CommentResource {
             logger.info("Created new thread for url '{}'", threadUrl);
         }
 
-        CommentsRecord comment = commentJson.toRecord();
+        CommentsRecord comment = commentConverter.convertJsonToRecord(commentJson);
 
         comment.setThreadId(threadId);
         comment.setCreationDate(Timestamp.from(Instant.now()));

@@ -28,14 +28,12 @@ import de.vorb.platon.util.InputSanitizer;
 import de.vorb.platon.web.rest.json.CommentJson;
 import de.vorb.platon.web.rest.json.CommentListResultJson;
 
-import com.google.common.truth.Truth;
 import org.jooq.exception.DataAccessException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.ws.rs.BadRequestException;
@@ -48,6 +46,18 @@ import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
+
+import static com.google.common.truth.Truth.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyLong;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.isNull;
+import static org.mockito.Matchers.refEq;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CommentResourceTest {
@@ -93,21 +103,21 @@ public class CommentResourceTest {
 
         nonEmptyThreadComments.add(comment);
 
-        Mockito.when(commentRepository.findByThreadUrl(Mockito.isNull(String.class)))
+        when(commentRepository.findByThreadUrl(isNull(String.class)))
                 .thenReturn(Collections.emptyList());
 
-        Mockito.when(threadRepository.findThreadIdForUrl(Mockito.anyString()))
+        when(threadRepository.findThreadIdForUrl(any()))
                 .thenReturn(null);
-        Mockito.when(commentRepository.findByThreadUrl(Mockito.anyString()))
+        when(commentRepository.findByThreadUrl(any()))
                 .thenReturn(Collections.emptyList());
 
-        Mockito.when(threadRepository.findThreadIdForUrl(Mockito.eq(nonEmptyThread.getUrl())))
+        when(threadRepository.findThreadIdForUrl(eq(nonEmptyThread.getUrl())))
                 .thenReturn(nonEmptyThread.getId());
-        Mockito.when(commentRepository.findByThreadUrl(Mockito.eq(nonEmptyThread.getUrl())))
+        when(commentRepository.findByThreadUrl(eq(nonEmptyThread.getUrl())))
                 .thenReturn(nonEmptyThreadComments);
 
         final AtomicLong threadIdSequence = new AtomicLong(2);
-        Mockito.when(threadRepository.insert(Mockito.any(ThreadsRecord.class))).then(invocation -> {
+        when(threadRepository.insert(any(ThreadsRecord.class))).then(invocation -> {
             final ThreadsRecord newThread = invocation.getArgumentAt(0, ThreadsRecord.class);
             if (newThread.getId() == null) {
                 newThread.setId(threadIdSequence.getAndIncrement());
@@ -116,7 +126,7 @@ public class CommentResourceTest {
         });
 
         final AtomicLong commentIdSequence = new AtomicLong(2);
-        Mockito.when(commentRepository.insert(Mockito.any(CommentsRecord.class))).then(invocation -> {
+        when(commentRepository.insert(any(CommentsRecord.class))).then(invocation -> {
             final CommentsRecord newComment = invocation.getArgumentAt(0, CommentsRecord.class);
             if (newComment.getId() == null) {
                 newComment.setId(commentIdSequence.getAndIncrement());
@@ -124,8 +134,8 @@ public class CommentResourceTest {
             return newComment;
         });
 
-        Mockito.when(requestVerifier.getSignatureToken(Mockito.any(), Mockito.any())).thenReturn(new byte[0]);
-        Mockito.when(requestVerifier.isRequestValid(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(true);
+        when(requestVerifier.getSignatureToken(any(), any())).thenReturn(new byte[0]);
+        when(requestVerifier.isRequestValid(any(), any(), any())).thenReturn(true);
 
         commentResource = new CommentResource(threadRepository, commentRepository, commentConverter, requestVerifier,
                 htmlInputSanitizer, new CommentFilters());
@@ -146,26 +156,26 @@ public class CommentResourceTest {
 
         final CommentListResultJson comments = commentResource.findCommentsByThreadUrl(nonEmptyThread.getUrl());
 
-        Truth.assertThat(comments.getTotalCommentCount()).isGreaterThan(0L);
-        Truth.assertThat(comments.getComments()).isNotEmpty();
+        assertThat(comments.getTotalCommentCount()).isGreaterThan(0L);
+        assertThat(comments.getComments()).isNotEmpty();
     }
 
     @Test
     public void testGetCommentById() throws Exception {
 
-        final CommentsRecord comment = Mockito.mock(CommentsRecord.class);
-        Mockito.when(comment.getStatus()).thenReturn(CommentStatus.PUBLIC.toString());
-        Mockito.when(commentRepository.findById(Mockito.eq(4711L))).thenReturn(comment);
+        final CommentsRecord comment = mock(CommentsRecord.class);
+        when(comment.getStatus()).thenReturn(CommentStatus.PUBLIC.toString());
+        when(commentRepository.findById(eq(4711L))).thenReturn(comment);
 
-        Truth.assertThat(commentResource.getComment(4711L)).isEqualTo(commentConverter.convertRecordToJson(comment));
+        assertThat(commentResource.getComment(4711L)).isEqualTo(commentConverter.convertRecordToJson(comment));
     }
 
     @Test(expected = NotFoundException.class)
     public void testGetCommentAwaitingModerationById() throws Exception {
 
-        final CommentsRecord comment = Mockito.mock(CommentsRecord.class);
-        Mockito.when(comment.getStatus()).thenReturn(CommentStatus.AWAITING_MODERATION.toString());
-        Mockito.when(commentRepository.findById(Mockito.eq(4711L))).thenReturn(comment);
+        final CommentsRecord comment = mock(CommentsRecord.class);
+        when(comment.getStatus()).thenReturn(CommentStatus.AWAITING_MODERATION.toString());
+        when(commentRepository.findById(eq(4711L))).thenReturn(comment);
 
         commentResource.getComment(4711L);
     }
@@ -173,9 +183,9 @@ public class CommentResourceTest {
     @Test(expected = NotFoundException.class)
     public void testGetDeletedCommentById() throws Exception {
 
-        final CommentsRecord comment = Mockito.mock(CommentsRecord.class);
-        Mockito.when(comment.getStatus()).thenReturn(CommentStatus.DELETED.toString());
-        Mockito.when(commentRepository.findById(Mockito.eq(4711L))).thenReturn(comment);
+        final CommentsRecord comment = mock(CommentsRecord.class);
+        when(comment.getStatus()).thenReturn(CommentStatus.DELETED.toString());
+        when(commentRepository.findById(eq(4711L))).thenReturn(comment);
 
         commentResource.getComment(4711L);
     }
@@ -183,7 +193,7 @@ public class CommentResourceTest {
     @Test(expected = NotFoundException.class)
     public void testGetCommentIdNotFound() throws Exception {
 
-        Mockito.when(commentRepository.findById(Mockito.anyLong())).thenReturn(null);
+        when(commentRepository.findById(anyLong())).thenReturn(null);
 
         commentResource.getComment(4711L);
     }
@@ -200,9 +210,9 @@ public class CommentResourceTest {
 
         final ArgumentCaptor<CommentsRecord> commentCaptor = ArgumentCaptor.forClass(CommentsRecord.class);
 
-        Mockito.verify(commentRepository).insert(commentCaptor.capture());
+        verify(commentRepository).insert(commentCaptor.capture());
 
-        Truth.assertThat(commentCaptor.getValue().getThreadId()).isEqualTo(nonEmptyThread.getId());
+        assertThat(commentCaptor.getValue().getThreadId()).isEqualTo(nonEmptyThread.getId());
     }
 
     @Test
@@ -210,7 +220,7 @@ public class CommentResourceTest {
         final String threadUrl = "http://example.com/new-article";
         final String threadTitle = "New article";
         final CommentJson newComment =
-                Mockito.spy(CommentJson.builder()
+                spy(CommentJson.builder()
                         .text("Text")
                         .author("Author")
                         .build());
@@ -218,16 +228,16 @@ public class CommentResourceTest {
         commentResource.postComment(threadUrl, threadTitle, newComment);
 
         final ArgumentCaptor<ThreadsRecord> threadCaptor = ArgumentCaptor.forClass(ThreadsRecord.class);
-        Mockito.verify(threadRepository).insert(threadCaptor.capture());
+        verify(threadRepository).insert(threadCaptor.capture());
 
-        Truth.assertThat(threadCaptor.getValue().getUrl()).isEqualTo(threadUrl);
-        Truth.assertThat(threadCaptor.getValue().getTitle()).isEqualTo(threadTitle);
+        assertThat(threadCaptor.getValue().getUrl()).isEqualTo(threadUrl);
+        assertThat(threadCaptor.getValue().getTitle()).isEqualTo(threadTitle);
 
         final ArgumentCaptor<CommentsRecord> commentCaptor = ArgumentCaptor.forClass(CommentsRecord.class);
 
-        Mockito.verify(commentRepository).insert(commentCaptor.capture());
+        verify(commentRepository).insert(commentCaptor.capture());
 
-        Truth.assertThat(commentCaptor.getValue().getThreadId()).isEqualTo(threadCaptor.getValue().getId());
+        assertThat(commentCaptor.getValue().getThreadId()).isEqualTo(threadCaptor.getValue().getId());
     }
 
     @Test(expected = BadRequestException.class)
@@ -243,16 +253,16 @@ public class CommentResourceTest {
     @Test
     public void testUpdateComment() throws Exception {
 
-        Mockito.when(commentRepository.findById(Mockito.eq(updateComment.getId())))
-                .thenReturn(updateComment.toRecord());
+        when(commentRepository.findById(eq(updateComment.getId())))
+                .thenReturn(commentConverter.convertJsonToRecord(updateComment));
 
         commentResource.updateComment(defaultRequestSignature, updateComment.getId(), updateComment);
 
         final ArgumentCaptor<CommentsRecord> commentCaptor = ArgumentCaptor.forClass(CommentsRecord.class);
 
-        Mockito.verify(commentRepository).update(commentCaptor.capture());
+        verify(commentRepository).update(commentCaptor.capture());
 
-        Truth.assertThat(commentCaptor.getValue().getId()).isEqualTo(updateComment.getId());
+        assertThat(commentCaptor.getValue().getId()).isEqualTo(updateComment.getId());
     }
 
     @Test(expected = BadRequestException.class)
@@ -264,7 +274,7 @@ public class CommentResourceTest {
     @Test(expected = BadRequestException.class)
     public void testUpdateNonExistingComment() throws Exception {
 
-        Mockito.when(commentRepository.findById(Mockito.eq(updateComment.getId()))).thenReturn(null);
+        when(commentRepository.findById(eq(updateComment.getId()))).thenReturn(null);
 
         commentResource.updateComment(defaultRequestSignature, updateComment.getId(), updateComment);
 
@@ -275,14 +285,14 @@ public class CommentResourceTest {
 
         commentResource.deleteComment(defaultRequestSignature, 42L);
 
-        Mockito.verify(commentRepository).setStatus(Mockito.eq(42L), Mockito.refEq(CommentStatus.DELETED));
+        verify(commentRepository).setStatus(eq(42L), refEq(CommentStatus.DELETED));
     }
 
     @Test(expected = BadRequestException.class)
     public void testDeleteNonExistingComment() throws Exception {
 
-        Mockito.doThrow(DataAccessException.class)
-                .when(commentRepository).setStatus(Mockito.eq(42L), Mockito.refEq(CommentStatus.DELETED));
+        doThrow(DataAccessException.class)
+                .when(commentRepository).setStatus(eq(42L), refEq(CommentStatus.DELETED));
 
         commentResource.deleteComment(defaultRequestSignature, 42L);
     }
@@ -295,7 +305,7 @@ public class CommentResourceTest {
 
         final String signature = getSignature(identifier, expirationDate);
 
-        Mockito.when(requestVerifier.isRequestValid(Mockito.eq(identifier), Mockito.eq(expirationDate), Mockito.any()))
+        when(requestVerifier.isRequestValid(eq(identifier), eq(expirationDate), any()))
                 .thenReturn(false);
 
         commentResource.deleteComment(signature, 42L);
@@ -342,13 +352,13 @@ public class CommentResourceTest {
     @Test
     public void testSanitizeComment() throws Exception {
 
-        final InputSanitizer inputSanitizer = Mockito.mock(InputSanitizer.class);
+        final InputSanitizer inputSanitizer = mock(InputSanitizer.class);
 
         final CommentResource commentResource = new CommentResource(
-                Mockito.mock(ThreadRepository.class),
-                Mockito.mock(CommentRepository.class),
+                mock(ThreadRepository.class),
+                mock(CommentRepository.class),
                 commentConverter,
-                Mockito.mock(RequestVerifier.class),
+                mock(RequestVerifier.class),
                 inputSanitizer,
                 new CommentFilters()
         );
@@ -358,23 +368,23 @@ public class CommentResourceTest {
                 .setUrl("http://example.com/article?param1=foo&param2=bar")
                 .setAuthor("<a href=\"http://example.com/\">Sam</a>");
 
-        Mockito.when(inputSanitizer.sanitize(Mockito.eq(comment.getText()))).thenReturn(comment.getText());
+        when(inputSanitizer.sanitize(eq(comment.getText()))).thenReturn(comment.getText());
 
         commentResource.sanitizeComment(comment);
 
-        Mockito.verify(inputSanitizer).sanitize(Mockito.eq(comment.getText()));
+        verify(inputSanitizer).sanitize(eq(comment.getText()));
 
-        Truth.assertThat(comment.getAuthor()).isEqualTo("Sam");
-        Truth.assertThat(comment.getUrl()).isEqualTo("http://example.com/article?param1=foo&amp;param2=bar");
+        assertThat(comment.getAuthor()).isEqualTo("Sam");
+        assertThat(comment.getUrl()).isEqualTo("http://example.com/article?param1=foo&amp;param2=bar");
     }
 
     @Test(expected = ClientErrorException.class)
     public void dataAccessException() throws Exception {
 
-        Mockito.when(commentRepository.findById(Mockito.eq(updateComment.getId())))
-                .thenReturn(updateComment.toRecord());
+        when(commentRepository.findById(eq(updateComment.getId())))
+                .thenReturn(commentConverter.convertJsonToRecord(updateComment));
 
-        Mockito.doThrow(DataAccessException.class).when(commentRepository).update(Mockito.any());
+        doThrow(DataAccessException.class).when(commentRepository).update(any());
 
         commentResource.updateComment(defaultRequestSignature, updateComment.getId(), updateComment);
     }

@@ -16,7 +16,6 @@
 
 package de.vorb.platon.web.rest.json;
 
-import de.vorb.platon.jooq.tables.records.CommentsRecord;
 import de.vorb.platon.model.CommentStatus;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -27,10 +26,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.Singular;
 
-import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.List;
 
 @Data
@@ -56,20 +53,7 @@ public class CommentJson {
 
     private final String url;
 
-    @Singular
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private final List<CommentJson> replies;
 
-    public CommentsRecord toRecord() {
-        return new CommentsRecord()
-                .setId(id)
-                .setParentId(parentId)
-                .setCreationDate(creationDate == null ? null : Timestamp.from(creationDate))
-                .setLastModificationDate(lastModificationDate == null ? null : Timestamp.from(lastModificationDate))
-                .setStatus(status == null ? null : status.toString())
-                .setText(text)
-                .setAuthor(author)
-                .setEmailHash(emailHash == null ? null : Base64.getEncoder().encodeToString(emailHash))
-                .setUrl(url);
-    }
 }

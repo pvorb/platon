@@ -22,37 +22,72 @@ import de.vorb.platon.web.rest.json.CommentJson;
 
 import org.springframework.stereotype.Component;
 
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Base64;
-import java.util.Collections;
 
 @Component
 public class CommentConverter {
 
     public CommentJson convertRecordToJson(CommentsRecord record) {
+
+        final Instant creationDate = record.getCreationDate() == null
+                ? null
+                : record.getCreationDate().toInstant();
+
+        final Instant lastModificationDate = record.getLastModificationDate() == null
+                ? null
+                : record.getLastModificationDate().toInstant();
+
+        final CommentStatus status = record.getStatus() == null
+                ? null
+                : Enum.valueOf(CommentStatus.class, record.getStatus());
+
         final CommentJson.CommentJsonBuilder json = CommentJson.builder()
                 .id(record.getId())
                 .parentId(record.getParentId())
-                .creationDate(record.getCreationDate() == null
-                        ? null
-                        : record.getCreationDate().toInstant())
-                .lastModificationDate(record.getLastModificationDate() == null
-                        ? null
-                        : record.getLastModificationDate().toInstant())
-                .status(record.getStatus() == null
-                        ? null
-                        : Enum.valueOf(CommentStatus.class, record.getStatus()))
-                .replies(Collections.emptyList());
+                .creationDate(creationDate)
+                .lastModificationDate(lastModificationDate)
+                .status(status)
+                .replies(new ArrayList<>());
 
-        if (Enum.valueOf(CommentStatus.class, record.getStatus()) != CommentStatus.DELETED) {
-            json
-                    .text(record.getText())
-                    .author(record.getAuthor())
-                    .url(record.getUrl());
+        if (status != CommentStatus.DELETED) {
+
+            json.text(record.getText());
+            json.author(record.getAuthor());
+            json.url(record.getUrl());
+
             if (record.getEmailHash() != null) {
                 json.emailHash(Base64.getDecoder().decode(record.getEmailHash()));
             }
         }
 
         return json.build();
+    }
+
+    public CommentsRecord convertJsonToRecord(CommentJson json) {
+        return new CommentsRecord()
+                .setId(json.getId())
+                .setParentId(json.getParentId())
+                .setCreationDate(
+                        json.getCreationDate() == null
+                                ? null
+                                : Timestamp.from(json.getCreationDate()))
+                .setLastModificationDate(
+                        json.getLastModificationDate() == null
+                                ? null
+                                : Timestamp.from(json.getLastModificationDate()))
+                .setStatus(
+                        json.getStatus() == null
+                                ? null
+                                : json.getStatus().toString())
+                .setText(json.getText())
+                .setAuthor(json.getAuthor())
+                .setEmailHash(
+                        json.getEmailHash() == null
+                                ? null
+                                : Base64.getEncoder().encodeToString(json.getEmailHash()))
+                .setUrl(json.getUrl());
     }
 }

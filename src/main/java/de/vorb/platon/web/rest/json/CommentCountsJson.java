@@ -18,10 +18,8 @@ package de.vorb.platon.web.rest.json;
 
 import lombok.Builder;
 import lombok.Data;
-import lombok.Getter;
 import lombok.Singular;
 
-import java.util.HashMap;
 import java.util.Map;
 
 @Data
