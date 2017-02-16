@@ -22,6 +22,7 @@ import de.vorb.platon.model.CommentStatus;
 import de.vorb.platon.persistence.CommentRepository;
 import de.vorb.platon.persistence.ThreadRepository;
 import de.vorb.platon.security.RequestVerifier;
+import de.vorb.platon.util.CommentConverter;
 import de.vorb.platon.util.CommentFilters;
 import de.vorb.platon.util.InputSanitizer;
 import de.vorb.platon.web.rest.json.CommentJson;
@@ -82,6 +83,7 @@ public class CommentResource {
     private final ThreadRepository threadRepository;
     private final CommentRepository commentRepository;
 
+    private final CommentConverter commentConverter;
     private final RequestVerifier requestVerifier;
     private final InputSanitizer inputSanitizer;
     private final CommentFilters commentFilters;
@@ -91,6 +93,7 @@ public class CommentResource {
     public CommentResource(
             ThreadRepository threadRepository,
             CommentRepository commentRepository,
+            CommentConverter commentConverter,
             RequestVerifier requestVerifier,
             InputSanitizer inputSanitizer,
             CommentFilters commentFilters) {
@@ -98,6 +101,7 @@ public class CommentResource {
         this.threadRepository = threadRepository;
         this.commentRepository = commentRepository;
 
+        this.commentConverter = commentConverter;
         this.requestVerifier = requestVerifier;
         this.inputSanitizer = inputSanitizer;
         this.commentFilters = commentFilters;
@@ -113,7 +117,7 @@ public class CommentResource {
         if (comment == null || Enum.valueOf(CommentStatus.class, comment.getStatus()) != CommentStatus.PUBLIC) {
             throw new NotFoundException(String.format("No comment found with id = %d", commentId));
         } else {
-            return new CommentJson(comment);
+            return commentConverter.convertRecordToJson(comment);
         }
     }
 
@@ -127,14 +131,18 @@ public class CommentResource {
         } else {
             final long totalCommentCount = comments.stream().filter(commentFilters::doesCommentCount).count();
             final List<CommentJson> topLevelComments = transformFlatCommentListToTree(comments);
-            return new CommentListResultJson(totalCommentCount, topLevelComments);
+
+            return CommentListResultJson.builder()
+                    .totalCommentCount(totalCommentCount)
+                    .comments(topLevelComments)
+                    .build();
         }
     }
 
-    private static List<CommentJson> transformFlatCommentListToTree(List<CommentsRecord> comments) {
+    private List<CommentJson> transformFlatCommentListToTree(List<CommentsRecord> comments) {
 
         final Map<Long, CommentJson> lookupMap = comments.stream()
-                .map(CommentJson::new)
+                .map(commentConverter::convertRecordToJson)
                 .collect(Collectors.toMap(CommentJson::getId, Function.identity()));
 
         final List<CommentJson> topLevelComments = new ArrayList<>();
@@ -196,7 +204,7 @@ public class CommentResource {
         return Response.created(commentUri)
                 .header(SIGNATURE_HEADER, String.format("%s|%s|%s", identifier, expirationDate,
                         Base64.getEncoder().encodeToString(signature)))
-                .entity(new CommentJson(comment))
+                .entity(commentConverter.convertRecordToJson(comment))
                 .build();
     }
 

@@ -21,9 +21,9 @@ import de.vorb.platon.jooq.tables.records.ThreadsRecord;
 import de.vorb.platon.persistence.CommentRepository;
 import de.vorb.platon.persistence.ThreadRepository;
 import de.vorb.platon.security.RequestVerifier;
+import de.vorb.platon.util.CommentConverter;
 import de.vorb.platon.util.CommentFilters;
 import de.vorb.platon.util.InputSanitizer;
-import de.vorb.platon.web.rest.json.CommentJson;
 
 import com.google.common.truth.Truth;
 import org.junit.Before;
@@ -44,6 +44,8 @@ public class CommentResourcePostWithParentTest {
 
     @Mock
     private CommentRepository commentRepository;
+
+    private final CommentConverter commentConverter = new CommentConverter();
 
     @Mock
     private RequestVerifier requestVerifier;
@@ -113,8 +115,8 @@ public class CommentResourcePostWithParentTest {
         Mockito.when(commentRepository.findById(Mockito.eq(existingParentFromOtherThreadId)))
                 .thenReturn(existingParentFromOtherThread);
 
-        commentResource = new CommentResource(threadRepository, commentRepository, requestVerifier, htmlInputSanitizer,
-                new CommentFilters());
+        commentResource = new CommentResource(threadRepository, commentRepository, commentConverter, requestVerifier,
+                htmlInputSanitizer, new CommentFilters());
     }
 
     @Test
@@ -132,7 +134,7 @@ public class CommentResourcePostWithParentTest {
         });
 
         final Response response = commentResource.postComment(thread.getUrl(), thread.getTitle(),
-                new CommentJson(newChildComment));
+                commentConverter.convertRecordToJson(newChildComment));
 
         Truth.assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
     }
@@ -150,7 +152,8 @@ public class CommentResourcePostWithParentTest {
             return newChildComment;
         });
 
-        commentResource.postComment(thread.getUrl(), thread.getTitle(), new CommentJson(newChildComment));
+        commentResource.postComment(thread.getUrl(), thread.getTitle(),
+                commentConverter.convertRecordToJson(newChildComment));
     }
 
     @Test(expected = BadRequestException.class)
@@ -161,6 +164,7 @@ public class CommentResourcePostWithParentTest {
                         .setParentId(existingParentFromOtherThread.getId())
                         .setText("Child");
 
-        commentResource.postComment(thread.getUrl(), thread.getTitle(), new CommentJson(newChildComment));
+        commentResource.postComment(thread.getUrl(), thread.getTitle(),
+                commentConverter.convertRecordToJson(newChildComment));
     }
 }

@@ -22,6 +22,7 @@ import de.vorb.platon.model.CommentStatus;
 import de.vorb.platon.persistence.CommentRepository;
 import de.vorb.platon.persistence.ThreadRepository;
 import de.vorb.platon.security.RequestVerifier;
+import de.vorb.platon.util.CommentConverter;
 import de.vorb.platon.util.CommentFilters;
 import de.vorb.platon.util.InputSanitizer;
 import de.vorb.platon.web.rest.json.CommentJson;
@@ -65,6 +66,8 @@ public class CommentResourceTest {
     @Mock
     private ThreadRepository threadRepository;
 
+    private final CommentConverter commentConverter = new CommentConverter();
+
     @Mock
     private RequestVerifier requestVerifier;
 
@@ -72,7 +75,7 @@ public class CommentResourceTest {
 
     private CommentResource commentResource;
 
-    private final CommentJson updateComment = new CommentJson(new CommentsRecord().setId(42L).setText("Text"));
+    private final CommentJson updateComment = CommentJson.builder().id(42L).text("Text").build();
     private final String defaultRequestSignature = getSignature("comments/42", Instant.now());
 
     @Before
@@ -124,8 +127,8 @@ public class CommentResourceTest {
         Mockito.when(requestVerifier.getSignatureToken(Mockito.any(), Mockito.any())).thenReturn(new byte[0]);
         Mockito.when(requestVerifier.isRequestValid(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(true);
 
-        commentResource = new CommentResource(threadRepository, commentRepository, requestVerifier, htmlInputSanitizer,
-                new CommentFilters());
+        commentResource = new CommentResource(threadRepository, commentRepository, commentConverter, requestVerifier,
+                htmlInputSanitizer, new CommentFilters());
     }
 
     @Test(expected = NotFoundException.class)
@@ -154,7 +157,7 @@ public class CommentResourceTest {
         Mockito.when(comment.getStatus()).thenReturn(CommentStatus.PUBLIC.toString());
         Mockito.when(commentRepository.findById(Mockito.eq(4711L))).thenReturn(comment);
 
-        Truth.assertThat(commentResource.getComment(4711L)).isEqualTo(new CommentJson(comment));
+        Truth.assertThat(commentResource.getComment(4711L)).isEqualTo(commentConverter.convertRecordToJson(comment));
     }
 
     @Test(expected = NotFoundException.class)
@@ -188,9 +191,10 @@ public class CommentResourceTest {
     @Test
     public void testPostCommentToExistingThread() throws Exception {
 
-        final CommentJson newComment = new CommentJson();
-        newComment.setText("Text");
-        newComment.setAuthor("Author");
+        final CommentJson newComment = CommentJson.builder()
+                .text("Text")
+                .author("Author")
+                .build();
 
         commentResource.postComment(nonEmptyThread.getUrl(), nonEmptyThread.getTitle(), newComment);
 
@@ -206,9 +210,10 @@ public class CommentResourceTest {
         final String threadUrl = "http://example.com/new-article";
         final String threadTitle = "New article";
         final CommentJson newComment =
-                Mockito.spy(new CommentJson(new CommentsRecord()
-                        .setText("Text")
-                        .setAuthor("Author")));
+                Mockito.spy(CommentJson.builder()
+                        .text("Text")
+                        .author("Author")
+                        .build());
 
         commentResource.postComment(threadUrl, threadTitle, newComment);
 
@@ -228,7 +233,9 @@ public class CommentResourceTest {
     @Test(expected = BadRequestException.class)
     public void testPostCommentWithId() throws Exception {
 
-        final CommentJson comment = new CommentJson(new CommentsRecord().setId(1337L));
+        final CommentJson comment = CommentJson.builder()
+                .id(1337L)
+                .build();
 
         commentResource.postComment("http://example.com/article", "Article", comment);
     }
@@ -340,6 +347,7 @@ public class CommentResourceTest {
         final CommentResource commentResource = new CommentResource(
                 Mockito.mock(ThreadRepository.class),
                 Mockito.mock(CommentRepository.class),
+                commentConverter,
                 Mockito.mock(RequestVerifier.class),
                 inputSanitizer,
                 new CommentFilters()
