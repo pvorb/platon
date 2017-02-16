@@ -29,12 +29,11 @@ import de.vorb.platon.web.rest.json.CommentJson;
 import de.vorb.platon.web.rest.json.CommentListResultJson;
 
 import com.google.common.base.Preconditions;
+import lombok.extern.slf4j.Slf4j;
 import org.jooq.exception.DataAccessException;
 import org.owasp.encoder.Encode;
 import org.owasp.html.HtmlPolicyBuilder;
 import org.owasp.html.PolicyFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
@@ -71,9 +70,8 @@ import java.util.stream.Collectors;
 @Path("comments")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
+@Slf4j
 public class CommentResource {
-
-    private static final Logger logger = LoggerFactory.getLogger(CommentResource.class);
 
     private static final String SIGNATURE_HEADER = "X-Signature";
 
