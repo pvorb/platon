@@ -14,6 +14,9 @@ addons:
   jwt:
     secure: E9SLNkt6OJFN5fWhUsJ70MEUjQh9LU2iY4nFot3QTaVSfBIZeUUe1fynBhgZpPF5IFFZLDgT/T1iituS5m9kAS/sbUnUkfB9Iq3SncfVmjVA4xrS0gcwxF95Z6kcFzro49CsbZIJWnrbrVSDGx6/g+oLyGzky8thXQ15dtmszoPXZeHPNtiI3bY9NWxjNmwkIw6C9du6DGLfC6iaSjtRaoyWGm1x79FaGGga3+m4IsDd8w2QlH/ixfBAss8Xqbfzk2BVBWll43avW18h/HtpSaRVXR6Y6eK/pvs8/jb7iJxzmdv/uxV7UxG6c7gO14lAOqy5bFVvSLfr/QR4T821UXy+GlOhlMKeE0FbUoGUBh4tuWaP4gbUuQViekkSmw0t4JfgOZn7D3VdBRj7qHGV2BOe62H0/xkeXYXvtOYaUn40UGdDkwHW/kOX6R+z1IAFK9Od2mp/62wc/BRxbmq4i59dpYhxtHMYxM63aY1FtI/oEFNTkeu0lR9xWKJzHVPCHKExGG2xP9/yue+1KJI49MThaf6+szq80ASro+2iDEQwtYbELPvBc+DJ+eiST4o10dxLFUdK/a/f1Yu085OT7t1gEioyBfKTtGxOFTw9QFBnq9D2l+DJN446EJ2VhANvoZiYZiK5v0D3iqx0b71/6/TyX8h/tMsrRTB231nqbWk=
 
+install:
+   mvn install -DskipTests -DskipITs -Dmaven.javadoc.skip -B -V
+
 script:
   mvn verify -B
 
