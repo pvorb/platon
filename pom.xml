@@ -41,11 +41,9 @@
 
     <properties>
         <!-- Java version -->
-        <java.version>1.8</java.version>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-
-        <!-- Compile time dependency versions -->
-        <versions-maven-plugin.version>2.3</versions-maven-plugin.version>
 
         <!-- Dependency versions -->
         <guava.version>21.0</guava.version>
@@ -428,7 +426,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>versions-maven-plugin</artifactId>
-                <version>${versions-maven-plugin.version}</version>
+                <version>2.3</version>
             </plugin>
         </plugins>
     </build>
