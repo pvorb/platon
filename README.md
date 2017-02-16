@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/pvorb/platon.svg?branch=develop)](https://travis-ci.org/pvorb/platon) [![Code Coverage](https://codecov.io/gh/pvorb/platon/branch/develop/graph/badge.svg)](https://codecov.io/gh/pvorb/platon)
 
-A comment server similar to disqus and isso
+A comment service
 
 
 ## Development
@@ -35,7 +35,7 @@ By default, the server will start under [localhost:8080](http://localhost:8080/)
 ### Test
 
 ~~~
-mvn clean test
+mvn clean verify
 ~~~
 
 
