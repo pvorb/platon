@@ -35,7 +35,7 @@ public class CommentListPage {
     }
 
     public void waitUntilCommentListLoaded() {
-        new WebDriverWait(webDriver, 15).until(
+        new WebDriverWait(webDriver, 60).until(
                 ExpectedConditions.presenceOfElementLocated(By.className("platon-comments")));
     }
 
