@@ -66,19 +66,22 @@ public class CommentListPage {
         textArea.sendKeys(text);
 
         if (author != null) {
-            final WebElement authorTextField = getFirstVisibleChildMatching(existingComment, By.className("platon-form-author"));
+            final WebElement authorTextField = getFirstVisibleChildMatching(existingComment,
+                    By.className("platon-form-author"));
             new Actions(webDriver).moveToElement(authorTextField).perform();
             authorTextField.sendKeys(author);
         }
 
         if (email != null) {
-            final WebElement emailTextField = getFirstVisibleChildMatching(existingComment, By.className("platon-form-email"));
+            final WebElement emailTextField = getFirstVisibleChildMatching(existingComment,
+                    By.className("platon-form-email"));
             new Actions(webDriver).moveToElement(emailTextField).perform();
             emailTextField.sendKeys(email);
         }
 
         if (url != null) {
-            final WebElement urlTextField = getFirstVisibleChildMatching(existingComment, By.className("platon-form-email"));
+            final WebElement urlTextField = getFirstVisibleChildMatching(existingComment,
+                    By.className("platon-form-email"));
             new Actions(webDriver).moveToElement(urlTextField).perform();
             urlTextField.sendKeys(url);
         }

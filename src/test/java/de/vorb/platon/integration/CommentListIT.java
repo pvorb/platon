@@ -35,7 +35,7 @@ import org.openqa.selenium.logging.LogType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit4.SpringRunner;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -48,8 +48,8 @@ import static com.google.common.truth.Truth.assertThat;
 import static de.vorb.platon.jooq.Tables.COMMENTS;
 import static de.vorb.platon.jooq.Tables.THREADS;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = {SpringITConfig.class})
+@RunWith(SpringRunner.class)
+@ContextConfiguration(classes = SpringITConfig.class)
 @Slf4j
 public class CommentListIT {
 
