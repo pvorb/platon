@@ -19,12 +19,10 @@ package de.vorb.platon.config;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
-import org.springframework.core.env.Environment;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -34,37 +32,17 @@ import java.net.URL;
 @PropertySource(value = "classpath:config/application.properties")
 public class SpringITConfig {
 
-    @Autowired
-    private Environment env;
-
     @Bean
     public WebDriver webDriver() throws MalformedURLException {
         return new RemoteWebDriver(getRemoteUrl(), getDesiredCapabilities());
     }
 
     private DesiredCapabilities getDesiredCapabilities() {
-
-        final DesiredCapabilities capabilities = DesiredCapabilities.firefox();
-        if (useSauceLabs()) {
-            capabilities.setCapability("name", "Firefox");
-            capabilities.setCapability("tunnel-identifier", env.getProperty("TRAVIS_JOB_NUMBER"));
-            capabilities.setCapability("seleniumVersion", env.getProperty("selenium.version"));
-        }
-
-        return capabilities;
-    }
-
-    private boolean useSauceLabs() {
-        return env.getProperty("SAUCE_USERNAME") != null;
+        return DesiredCapabilities.firefox();
     }
 
     private URL getRemoteUrl() throws MalformedURLException {
-        if (useSauceLabs()) {
-            return new URL(String.format("http://%s:%s@localhost:4445/wd/hub",
-                    env.getProperty("SAUCE_USERNAME"), env.getProperty("SAUCE_ACCESS_KEY")));
-        } else {
-            return new URL("http://localhost:4445/wd/hub");
-        }
+        return new URL("http://localhost:4444/wd/hub");
     }
 
 }
