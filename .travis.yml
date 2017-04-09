@@ -20,7 +20,7 @@ before_install:
   - tar -xzf geckodriver-v0.15.0-linux64.tar.gz -C geckodriver
   - export PATH=$PATH:$PWD/geckodriver
   - "wget -q http://selenium-release.storage.googleapis.com/3.3/selenium-server-standalone-3.3.1.jar"
-  - "java -jar selenium-server-standalone-3.3.1.jar > /dev/null &"
+  - "java -jar selenium-server-standalone-3.3.1.jar &"
   - sleep 5
 
 script:
