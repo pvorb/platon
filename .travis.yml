@@ -14,8 +14,11 @@ branches:
 
 before_install:
   - "/sbin/start-stop-daemon --start --quiet --pidfile /tmp/custom_xvfb_99.pid --make-pidfile --background --exec /usr/bin/Xvfb -- :99 -ac -screen 0 1280x1024x24"
-  - sleep 3
-  - "wget -q -O selenium-server-standalone-3.3.1.jar http://selenium-release.storage.googleapis.com/3.3/selenium-server-standalone-3.3.1.jar"
+  - "wget https://github.com/mozilla/geckodriver/releases/download/v0.15.0/geckodriver-v0.15.0-linux64.tar.gz"
+  - mkdir geckodriver
+  - tar -xzf geckodriver-v0.15.0-linux64.tar.gz -C geckodriver
+  - export PATH=$PATH:$PWD/geckodriver
+  - "wget -q http://selenium-release.storage.googleapis.com/3.3/selenium-server-standalone-3.3.1.jar"
   - "java -jar selenium-server-standalone-3.3.1.jar > /dev/null &"
   - sleep 5
 
