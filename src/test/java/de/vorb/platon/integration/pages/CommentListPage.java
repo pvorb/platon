@@ -92,7 +92,7 @@ public class CommentListPage {
 
     public boolean commentWithIdHasReplies(long id) {
 
-        new WebDriverWait(webDriver, 15).until(
+        new WebDriverWait(webDriver, 30).until(
                 ExpectedConditions.visibilityOfNestedElementsLocatedBy(findCommentById(id),
                         By.className("platon-comment")));
 
