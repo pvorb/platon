@@ -18,6 +18,7 @@ package de.vorb.platon.integration.pages;
 
 import org.assertj.core.util.Preconditions;
 import org.openqa.selenium.By;
+import org.openqa.selenium.UnsupportedCommandException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
@@ -35,7 +36,7 @@ public class CommentListPage {
     }
 
     public void waitUntilCommentListLoaded() {
-        new WebDriverWait(webDriver, 60).until(
+        new WebDriverWait(webDriver, 15).until(
                 ExpectedConditions.presenceOfElementLocated(By.className("platon-comments")));
     }
 
@@ -62,27 +63,27 @@ public class CommentListPage {
 
         Preconditions.checkNotNull(text);
         final WebElement textArea = getFirstVisibleChildMatching(existingComment, By.className("platon-form-text"));
-        new Actions(webDriver).moveToElement(textArea).perform();
+        tryMovingToElement(textArea);
         textArea.sendKeys(text);
 
         if (author != null) {
             final WebElement authorTextField = getFirstVisibleChildMatching(existingComment,
                     By.className("platon-form-author"));
-            new Actions(webDriver).moveToElement(authorTextField).perform();
+            tryMovingToElement(authorTextField);
             authorTextField.sendKeys(author);
         }
 
         if (email != null) {
             final WebElement emailTextField = getFirstVisibleChildMatching(existingComment,
                     By.className("platon-form-email"));
-            new Actions(webDriver).moveToElement(emailTextField).perform();
+            tryMovingToElement(emailTextField);
             emailTextField.sendKeys(email);
         }
 
         if (url != null) {
             final WebElement urlTextField = getFirstVisibleChildMatching(existingComment,
                     By.className("platon-form-email"));
-            new Actions(webDriver).moveToElement(urlTextField).perform();
+            tryMovingToElement(urlTextField);
             urlTextField.sendKeys(url);
         }
 
@@ -98,10 +99,17 @@ public class CommentListPage {
         final List<WebElement> replies = findCommentById(id).findElements(By.className("platon-comment"));
 
         if (!replies.isEmpty()) {
-            new Actions(webDriver).moveToElement(replies.get(0)).perform();
+            tryMovingToElement(replies.get(0));
             return true;
         } else {
             return false;
+        }
+    }
+
+    private void tryMovingToElement(WebElement element) {
+        try {
+            new Actions(webDriver).moveToElement(element).perform();
+        } catch (UnsupportedCommandException ignored) {
         }
     }
 
