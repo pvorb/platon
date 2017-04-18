@@ -74,6 +74,7 @@ import java.util.stream.Collectors;
 public class CommentResource {
 
     private static final String SIGNATURE_HEADER = "X-Signature";
+    private static final CommentStatus DEFAULT_STATUS = CommentStatus.PUBLIC;
 
     private static final PolicyFactory NO_HTML_POLICY = new HtmlPolicyBuilder().toFactory();
 
@@ -178,6 +179,8 @@ public class CommentResource {
 
             logger.info("Created new thread for url '{}'", threadUrl);
         }
+
+        commentJson.setStatus(DEFAULT_STATUS);
 
         CommentsRecord comment = commentConverter.convertJsonToRecord(commentJson);
 
