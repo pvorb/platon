@@ -29,7 +29,7 @@ import java.net.URL;
 
 @Configuration
 @EnableAutoConfiguration
-@PropertySource(value = "classpath:config/application.properties")
+@PropertySource("classpath:config/application.properties")
 public class SpringITConfig {
 
     @Bean

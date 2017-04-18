@@ -82,7 +82,7 @@ public class CommentListPage {
 
         if (url != null) {
             final WebElement urlTextField = getFirstVisibleChildMatching(existingComment,
-                    By.className("platon-form-email"));
+                    By.className("platon-form-url"));
             tryMovingToElement(urlTextField);
             urlTextField.sendKeys(url);
         }
@@ -92,7 +92,7 @@ public class CommentListPage {
 
     public boolean commentWithIdHasReplies(long id) {
 
-        new WebDriverWait(webDriver, 15).until(
+        new WebDriverWait(webDriver, 30).until(
                 ExpectedConditions.visibilityOfNestedElementsLocatedBy(findCommentById(id),
                         By.className("platon-comment")));
 

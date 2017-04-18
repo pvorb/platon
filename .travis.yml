@@ -8,12 +8,9 @@ addons:
 
 cache:
   directories:
+    - $HOME/.m2
     - node
     - node_modules
-
-branches:
-  only:
-    - feature/standalone-selenium
 
 before_install:
   - "/sbin/start-stop-daemon --start --quiet --pidfile /tmp/custom_xvfb_99.pid --make-pidfile --background --exec /usr/bin/Xvfb -- :99 -ac -screen 0 1280x1024x24 +extension RANDR"
@@ -25,8 +22,9 @@ before_install:
   - "java -Dwebdriver.gecko.driver=$PWD/geckodriver/geckodriver -jar selenium-server-standalone-3.3.1.jar &"
   - sleep 5
 
-script:
-  mvn verify -B
+install: /bin/true
+
+script: mvn verify -B -Djava.util.logging.config.file="src/test/resources/logging.properties"
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)

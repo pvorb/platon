@@ -20,21 +20,26 @@ import de.vorb.platon.jooq.tables.records.CommentsRecord;
 import de.vorb.platon.persistence.CommentRepository;
 import de.vorb.platon.persistence.ThreadRepository;
 import de.vorb.platon.security.RequestVerifier;
+import de.vorb.platon.util.CommentConverter;
 import de.vorb.platon.util.CommentFilters;
 import de.vorb.platon.util.InputSanitizer;
 import de.vorb.platon.web.rest.json.CommentJson;
 import de.vorb.platon.web.rest.json.CommentListResultJson;
 
-import com.google.common.truth.Truth;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Arrays;
 import java.util.List;
+
+import static com.google.common.truth.Truth.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CommentResourceHierarchyTest {
@@ -44,6 +49,9 @@ public class CommentResourceHierarchyTest {
 
     @Mock
     private ThreadRepository threadRepository;
+
+    @Mock
+    private CommentConverter commentConverter;
 
     @Mock
     private RequestVerifier requestVerifier;
@@ -57,6 +65,11 @@ public class CommentResourceHierarchyTest {
     @InjectMocks
     private CommentResource commentResource;
 
+    @Before
+    public void setUp() throws Exception {
+        when(commentConverter.convertRecordToJson(any())).thenCallRealMethod();
+    }
+
     @Test
     public void testSimpleTree() throws Exception {
 
@@ -64,20 +77,20 @@ public class CommentResourceHierarchyTest {
         final CommentsRecord comment1 = new CommentsRecord().setId(1L).setText("1");
         final CommentsRecord comment2 = new CommentsRecord().setId(2L).setParentId(1L).setText("2");
 
-        Mockito.when(commentFilters.doesCommentCount(Mockito.any())).thenReturn(true);
+        when(commentFilters.doesCommentCount(any())).thenReturn(true);
 
-        Mockito.when(commentRepository.findByThreadUrl(Mockito.eq(testThreadUrl)))
+        when(commentRepository.findByThreadUrl(eq(testThreadUrl)))
                 .thenReturn(Arrays.asList(comment1, comment2));
 
-        CommentListResultJson commentListResult = commentResource.findCommentsByThreadUrl(testThreadUrl);
+        final CommentListResultJson commentListResult = commentResource.findCommentsByThreadUrl(testThreadUrl);
 
-        Truth.assertThat(commentListResult.getTotalCommentCount()).isEqualTo(2);
+        assertThat(commentListResult.getTotalCommentCount()).isEqualTo(2);
 
-        Truth.assertThat(commentListResult.getComments()).hasSize(1);
-        Truth.assertThat(commentListResult.getComments().get(0).getId()).isEqualTo(comment1.getId());
+        assertThat(commentListResult.getComments()).hasSize(1);
+        assertThat(commentListResult.getComments().get(0).getId()).isEqualTo(comment1.getId());
 
-        List<CommentJson> replies = commentListResult.getComments().get(0).getReplies();
-        Truth.assertThat(replies).hasSize(1);
-        Truth.assertThat(replies.get(0).getId()).isEqualTo(comment2.getId());
+        final List<CommentJson> replies = commentListResult.getComments().get(0).getReplies();
+        assertThat(replies).hasSize(1);
+        assertThat(replies.get(0).getId()).isEqualTo(comment2.getId());
     }
 }

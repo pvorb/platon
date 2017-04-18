@@ -16,23 +16,14 @@
 
 package de.vorb.platon.web.rest.json;
 
+import lombok.Builder;
+import lombok.Data;
+
 import java.util.List;
 
+@Data
+@Builder
 public class CommentListResultJson {
-
-    private Long totalCommentCount;
-    private List<CommentJson> comments;
-
-    public CommentListResultJson(Long totalCommentCount, List<CommentJson> comments) {
-        this.totalCommentCount = totalCommentCount;
-        this.comments = comments;
-    }
-
-    public Long getTotalCommentCount() {
-        return totalCommentCount;
-    }
-
-    public List<CommentJson> getComments() {
-        return comments;
-    }
+    private final Long totalCommentCount;
+    private final List<CommentJson> comments;
 }

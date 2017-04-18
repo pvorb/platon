@@ -16,22 +16,15 @@
 
 package de.vorb.platon.web.rest.json;
 
-import java.util.HashMap;
+import lombok.Builder;
+import lombok.Data;
+import lombok.Singular;
+
 import java.util.Map;
 
+@Data
+@Builder
 public class CommentCountsJson {
-
-    private Map<String, Long> commentCounts;
-
-    public CommentCountsJson() {
-        commentCounts = new HashMap<>();
-    }
-
-    public void setCommentCount(String threadUrl, long commentCount) {
-        commentCounts.put(threadUrl, commentCount);
-    }
-
-    public Map<String, Long> getCommentCounts() {
-        return commentCounts;
-    }
+    @Singular
+    private final Map<String, Long> commentCounts;
 }

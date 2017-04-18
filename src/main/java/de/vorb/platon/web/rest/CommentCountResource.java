@@ -50,13 +50,13 @@ public class CommentCountResource {
     @GET
     public CommentCountsJson getCommentCounts(@NotNull @QueryParam("threadUrl[]") Set<String> threadUrls) {
 
-        final CommentCountsJson commentCounts = new CommentCountsJson();
+        final CommentCountsJson.CommentCountsJsonBuilder commentCounts = CommentCountsJson.builder();
 
-        Map<String, Integer> counts = commentRepository.countByThreadUrls(threadUrls);
+        final Map<String, Integer> counts = commentRepository.countByThreadUrls(threadUrls);
 
         threadUrls.forEach(threadUrl ->
-                commentCounts.setCommentCount(threadUrl, counts.getOrDefault(threadUrl, 0)));
+                commentCounts.commentCount(threadUrl, (long) counts.getOrDefault(threadUrl, 0)));
 
-        return commentCounts;
+        return commentCounts.build();
     }
 }

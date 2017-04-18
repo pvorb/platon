@@ -22,6 +22,7 @@ import de.vorb.platon.jooq.tables.records.CommentsRecord;
 import de.vorb.platon.jooq.tables.records.ThreadsRecord;
 import de.vorb.platon.model.CommentStatus;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.MessageDigestAlgorithms;
 import org.jooq.DSLContext;
 import org.junit.After;
@@ -31,12 +32,10 @@ import org.junit.runner.RunWith;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.logging.LogType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit4.SpringRunner;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -49,11 +48,10 @@ import static com.google.common.truth.Truth.assertThat;
 import static de.vorb.platon.jooq.Tables.COMMENTS;
 import static de.vorb.platon.jooq.Tables.THREADS;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = {SpringITConfig.class})
+@RunWith(SpringRunner.class)
+@ContextConfiguration(classes = SpringITConfig.class)
+@Slf4j
 public class CommentListIT {
-
-    private static final Logger logger = LoggerFactory.getLogger(CommentListIT.class);
 
     @Autowired
     private WebDriver webDriver;

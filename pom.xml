@@ -45,6 +45,9 @@
         <maven.compiler.target>1.8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
+        <!-- Compile time dependency versions -->
+        <lombok.version>1.16.14</lombok.version>
+
         <!-- Dependency versions -->
         <guava.version>21.0</guava.version>
         <commons-lang.version>3.5</commons-lang.version>
@@ -62,8 +65,10 @@
         <openpojo.version>0.8.4</openpojo.version>
         <selenium.version>3.3.1</selenium.version>
 
-        <!-- Frontend -->
+        <!-- Skipping properties -->
         <skipFrontend>false</skipFrontend>
+        <skipTests>false</skipTests>
+        <skipITs>false</skipITs>
 
         <!-- Database -->
         <db.url>jdbc:h2:file:./platon</db.url>
@@ -71,6 +76,13 @@
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>${lombok.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
@@ -210,6 +222,7 @@
                         </goals>
                         <configuration>
                             <arguments>--server.port=${server.port}</arguments>
+                            <skip>${skipITs}</skip>
                         </configuration>
                     </execution>
                     <execution>
@@ -217,6 +230,9 @@
                         <goals>
                             <goal>stop</goal>
                         </goals>
+                        <configuration>
+                            <skip>${skipITs}</skip>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>

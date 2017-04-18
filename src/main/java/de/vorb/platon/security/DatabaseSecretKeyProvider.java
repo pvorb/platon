@@ -18,8 +18,7 @@ package de.vorb.platon.security;
 
 import de.vorb.platon.persistence.PropertyRepository;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.KeyGenerator;
@@ -30,9 +29,8 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 
 @Component
+@Slf4j
 public class DatabaseSecretKeyProvider implements SecretKeyProvider {
-
-    private static final Logger logger = LoggerFactory.getLogger(DatabaseSecretKeyProvider.class);
 
     private static final String SECRET_KEY = "secret_key";
 

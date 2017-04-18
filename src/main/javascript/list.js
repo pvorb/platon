@@ -22,6 +22,8 @@ var events = require('./utils/events.js');
 
 var template = require('./list.html');
 
+var userHasScrolled = false;
+
 if (document.getElementById('platon-comment-thread') !== null) {
 
     new Vue({
@@ -75,10 +77,10 @@ if (document.getElementById('platon-comment-thread') !== null) {
         }
     });
 
-    var userHasScrolled = false;
     window.addEventListener('scroll', scrollListener);
-    function scrollListener() {
-        userHasScrolled = true;
-        window.removeEventListener('scroll', scrollListener);
-    }
+}
+
+function scrollListener() {
+    userHasScrolled = true;
+    window.removeEventListener('scroll', scrollListener);
 }
