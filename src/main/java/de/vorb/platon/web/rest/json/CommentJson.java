@@ -19,41 +19,47 @@ package de.vorb.platon.web.rest.json;
 import de.vorb.platon.model.CommentStatus;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.Singular;
+import lombok.NoArgsConstructor;
 
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 @Builder
 public class CommentJson {
 
-    private final Long id;
-    private final Long parentId;
+    private Long id;
+    private Long parentId;
 
-    private final Instant creationDate;
-    private final Instant lastModificationDate;
+    private Instant creationDate;
+    private Instant lastModificationDate;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING)
-    private final CommentStatus status;
+    private CommentStatus status;
 
-    private final String text;
+    private String text;
 
-    private final String author;
+    private String author;
+
+    @JsonIgnore
+    private String email;
 
     @JsonSerialize(using = ByteArraySerializer.class)
     @JsonDeserialize(using = ByteArrayDeserializer.class)
-    private final byte[] emailHash;
+    private byte[] emailHash;
 
-    private final String url;
+    private String url;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    private final List<CommentJson> replies;
+    private List<CommentJson> replies;
 
 }
