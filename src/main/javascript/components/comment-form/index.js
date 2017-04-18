@@ -74,8 +74,8 @@ module.exports = {
                 .then(function (newComment) {
                     vm.$emit('posted', newComment);
                 })
-                .catch(function () {
-                    console.error('error', arguments);
+                .catch(function (error) {
+                    console.error('error', error);
                 });
         }
     },
