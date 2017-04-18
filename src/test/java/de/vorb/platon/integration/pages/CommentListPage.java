@@ -82,7 +82,7 @@ public class CommentListPage {
 
         if (url != null) {
             final WebElement urlTextField = getFirstVisibleChildMatching(existingComment,
-                    By.className("platon-form-email"));
+                    By.className("platon-form-url"));
             tryMovingToElement(urlTextField);
             urlTextField.sendKeys(url);
         }
