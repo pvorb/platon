@@ -20,8 +20,11 @@ import de.vorb.platon.jooq.tables.records.CommentsRecord;
 import de.vorb.platon.model.CommentStatus;
 import de.vorb.platon.web.rest.json.CommentJson;
 
+import lombok.SneakyThrows;
 import org.springframework.stereotype.Component;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -29,6 +32,13 @@ import java.util.Base64;
 
 @Component
 public class CommentConverter {
+
+    private final MessageDigest md5;
+
+    @SneakyThrows
+    public CommentConverter() {
+        this.md5 = MessageDigest.getInstance("MD5");
+    }
 
     public CommentJson convertRecordToJson(CommentsRecord record) {
 
@@ -84,10 +94,15 @@ public class CommentConverter {
                                 : json.getStatus().toString())
                 .setText(json.getText())
                 .setAuthor(json.getAuthor())
-                .setEmailHash(
-                        json.getEmailHash() == null
-                                ? null
-                                : Base64.getEncoder().encodeToString(json.getEmailHash()))
+                .setEmailHash(calculateEmailHash(json.getEmail()))
                 .setUrl(json.getUrl());
+    }
+
+    private String calculateEmailHash(String email) {
+        if (email == null) {
+            return "";
+        }
+
+        return ByteArrayConverter.bytesToHexString(md5.digest(email.getBytes(StandardCharsets.UTF_8)));
     }
 }
