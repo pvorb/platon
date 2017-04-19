@@ -16,8 +16,9 @@
 
 package de.vorb.platon.util;
 
-import com.google.common.truth.Truth;
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ByteArrayConverterTest {
 
@@ -26,12 +27,12 @@ public class ByteArrayConverterTest {
 
     @Test
     public void shortBytesToHexString() throws Exception {
-        Truth.assertThat(ByteArrayConverter.bytesToHexString(BYTES)).isEqualTo(HEX_STRING);
+        assertThat(ByteArrayConverter.bytesToHexString(BYTES)).isEqualTo(HEX_STRING);
     }
 
     @Test
     public void shortHexStringToBytes() throws Exception {
-        Truth.assertThat(ByteArrayConverter.hexStringToBytes(HEX_STRING)).isEqualTo(BYTES);
+        assertThat(ByteArrayConverter.hexStringToBytes(HEX_STRING)).isEqualTo(BYTES);
     }
 
     @Test(expected = IllegalArgumentException.class)

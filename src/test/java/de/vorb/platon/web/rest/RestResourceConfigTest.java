@@ -16,12 +16,13 @@
 
 package de.vorb.platon.web.rest;
 
-import com.google.common.truth.Truth;
 import org.glassfish.jersey.filter.LoggingFilter;
 import org.glassfish.jersey.server.spring.scope.RequestContextFilter;
 import org.junit.Test;
 
 import java.util.Set;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class RestResourceConfigTest {
 
@@ -33,7 +34,7 @@ public class RestResourceConfigTest {
         final Set<Class<?>> registeredClasses = restResourceConfig.getClasses();
 
         // assert that the correct resources and filters are registered
-        Truth.assertThat(registeredClasses).containsExactly(
+        assertThat(registeredClasses).containsExactly(
                 RequestContextFilter.class,
                 PoweredByResponseFilter.class,
                 CommentResource.class,

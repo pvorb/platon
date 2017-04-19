@@ -44,9 +44,9 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.Base64;
 
-import static com.google.common.truth.Truth.assertThat;
 import static de.vorb.platon.jooq.Tables.COMMENTS;
 import static de.vorb.platon.jooq.Tables.THREADS;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
 @ContextConfiguration(classes = SpringITConfig.class)

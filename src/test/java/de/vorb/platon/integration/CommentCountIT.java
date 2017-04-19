@@ -44,9 +44,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static com.google.common.truth.Truth.assertThat;
 import static de.vorb.platon.jooq.Tables.COMMENTS;
 import static de.vorb.platon.jooq.Tables.THREADS;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
 @ContextConfiguration(classes = SpringITConfig.class)

@@ -19,12 +19,13 @@ package de.vorb.platon;
 import de.vorb.platon.config.SpringTestConfig;
 import de.vorb.platon.util.InputSanitizer;
 
-import com.google.common.truth.Truth;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 @ContextConfiguration(classes = SpringTestConfig.class)
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -38,7 +39,7 @@ public class InputSanitizerTest {
 
         final String sanitizedHtml = inputSanitizer.sanitize("<p>Text</p><script>alert('boo!');</script>");
 
-        Truth.assertThat(sanitizedHtml).doesNotContain("<script");
-        Truth.assertThat(sanitizedHtml).doesNotContain("alert(");
+        assertThat(sanitizedHtml).doesNotContain("<script");
+        assertThat(sanitizedHtml).doesNotContain("alert(");
     }
 }

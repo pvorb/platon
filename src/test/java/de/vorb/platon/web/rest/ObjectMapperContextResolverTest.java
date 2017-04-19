@@ -18,8 +18,9 @@ package de.vorb.platon.web.rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.google.common.truth.Truth;
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ObjectMapperContextResolverTest {
 
@@ -31,9 +32,7 @@ public class ObjectMapperContextResolverTest {
         final ObjectMapper objectMapper = new ObjectMapperContextResolver().getContext(Object.class);
         final int serializationFeatures = objectMapper.getSerializationConfig().getSerializationFeatures();
 
-        // assert that write dates as timestampts is NOT enabled
-        Truth.assertThat(serializationFeatures & writeDatesAsTimestamps).isEqualTo(0);
-
+        // assert that write dates as timestamps is NOT enabled
+        assertThat(serializationFeatures & writeDatesAsTimestamps).isEqualTo(0);
     }
-
 }
