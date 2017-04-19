@@ -16,7 +16,6 @@
 
 package de.vorb.platon.web.rest;
 
-import com.google.common.truth.Truth;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,6 +26,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerResponseContext;
 import javax.ws.rs.core.MultivaluedHashMap;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PoweredByResponseFilterTest {
@@ -47,7 +48,6 @@ public class PoweredByResponseFilterTest {
 
         new PoweredByResponseFilter().filter(requestContext, responseContext);
 
-        Truth.assertThat(responseContext.getHeaders()).containsKey("X-Powered-By");
-
+        assertThat(responseContext.getHeaders()).containsKey("X-Powered-By");
     }
 }

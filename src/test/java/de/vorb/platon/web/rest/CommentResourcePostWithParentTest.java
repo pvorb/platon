@@ -35,7 +35,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.Response;
 
-import static com.google.common.truth.Truth.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)

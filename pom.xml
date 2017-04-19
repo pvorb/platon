@@ -61,7 +61,7 @@
 
         <!-- Testing -->
         <junit.version>4.12</junit.version>
-        <truth.version>0.31</truth.version>
+        <assertj.version>3.6.2</assertj.version>
         <openpojo.version>0.8.4</openpojo.version>
         <selenium.version>3.3.1</selenium.version>
 
@@ -179,9 +179,9 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.google.truth</groupId>
-            <artifactId>truth</artifactId>
-            <version>${truth.version}</version>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <version>${assertj.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>

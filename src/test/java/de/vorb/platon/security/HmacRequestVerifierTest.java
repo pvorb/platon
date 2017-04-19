@@ -18,7 +18,6 @@ package de.vorb.platon.security;
 
 import de.vorb.platon.util.CurrentTimeProvider;
 
-import com.google.common.truth.Truth;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -30,6 +29,8 @@ import org.springframework.test.annotation.Repeat;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import java.time.Instant;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
 public class HmacRequestVerifierTest {
@@ -73,8 +74,7 @@ public class HmacRequestVerifierTest {
         final byte[] firstSignatureToken = requestVerifier.getSignatureToken(identifier, expirationDate);
         final byte[] secondSignatureToken = requestVerifier.getSignatureToken(identifier, expirationDate);
 
-        Truth.assertThat(firstSignatureToken).isEqualTo(secondSignatureToken);
-
+        assertThat(firstSignatureToken).isEqualTo(secondSignatureToken);
     }
 
     @Test
@@ -90,8 +90,7 @@ public class HmacRequestVerifierTest {
 
         final boolean validity = requestVerifier.isRequestValid(identifier, expirationDate, signatureToken);
 
-        Truth.assertThat(validity).isFalse();
-
+        assertThat(validity).isFalse();
     }
 
     @Test
@@ -110,8 +109,6 @@ public class HmacRequestVerifierTest {
 
         final boolean validity = requestVerifier.isRequestValid(identifier, fakedExpirationDate, signatureToken);
 
-        Truth.assertThat(validity).isFalse();
-
+        assertThat(validity).isFalse();
     }
-
 }

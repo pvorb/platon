@@ -19,7 +19,6 @@ package de.vorb.platon.web.rest;
 import de.vorb.platon.persistence.CommentRepository;
 
 import com.google.common.collect.Sets;
-import com.google.common.truth.Truth;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,6 +30,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CommentCountResourceTest {
@@ -56,7 +57,7 @@ public class CommentCountResourceTest {
         commentCountResource.getCommentCounts(sampleThreadUrls)
                 .getCommentCounts()
                 .forEach((threadUrl, count) -> {
-                    Truth.assertThat(count).isEqualTo(threadUrl.length());
+                    assertThat(count).isEqualTo(threadUrl.length());
                 });
     }
 }

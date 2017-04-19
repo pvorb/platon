@@ -18,7 +18,6 @@ package de.vorb.platon.security;
 
 import de.vorb.platon.persistence.PropertyRepository;
 
-import com.google.common.truth.Truth;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -30,6 +29,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import java.util.Base64;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DatabaseSecretKeyProviderTest {
@@ -68,6 +69,6 @@ public class DatabaseSecretKeyProviderTest {
 
         final SecretKey secretKeyFromRepo = secretKeyProvider.getSecretKey();
 
-        Truth.assertThat(secretKeyFromRepo).isEqualTo(storedSecretKey);
+        assertThat(secretKeyFromRepo).isEqualTo(storedSecretKey);
     }
 }
