@@ -33,14 +33,12 @@ public class RestResourceConfigTest {
 
         final Set<Class<?>> registeredClasses = restResourceConfig.getClasses();
 
-        // assert that the correct resources and filters are registered
-        assertThat(registeredClasses).containsExactly(
+        assertThat(registeredClasses).containsExactlyInAnyOrder(
                 RequestContextFilter.class,
                 PoweredByResponseFilter.class,
                 CommentResource.class,
                 CommentCountResource.class,
                 LoggingFilter.class,
                 ObjectMapperContextResolver.class);
-
     }
 }
