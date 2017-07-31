@@ -20,9 +20,8 @@ import de.vorb.platon.jooq.tables.records.ThreadsRecord;
 import de.vorb.platon.persistence.ThreadRepository;
 
 import org.jooq.DSLContext;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-
-import javax.inject.Inject;
 
 import static de.vorb.platon.jooq.Tables.THREADS;
 
@@ -31,7 +30,7 @@ public class JooqThreadRepository implements ThreadRepository {
 
     private final DSLContext dslContext;
 
-    @Inject
+    @Autowired
     public JooqThreadRepository(DSLContext dslContext) {
         this.dslContext = dslContext;
     }

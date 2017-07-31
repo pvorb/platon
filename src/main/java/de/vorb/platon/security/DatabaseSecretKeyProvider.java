@@ -19,12 +19,12 @@ package de.vorb.platon.security;
 import de.vorb.platon.persistence.PropertyRepository;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
-import javax.inject.Inject;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 
@@ -38,7 +38,7 @@ public class DatabaseSecretKeyProvider implements SecretKeyProvider {
 
     private SecretKey secretKey;
 
-    @Inject
+    @Autowired
     public DatabaseSecretKeyProvider(PropertyRepository propertyRepository) {
         this.propertyRepository = propertyRepository;
     }

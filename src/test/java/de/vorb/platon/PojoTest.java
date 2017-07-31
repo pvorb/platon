@@ -16,9 +16,9 @@
 
 package de.vorb.platon;
 
-import de.vorb.platon.web.rest.json.CommentCountsJson;
-import de.vorb.platon.web.rest.json.CommentJson;
-import de.vorb.platon.web.rest.json.CommentListResultJson;
+import de.vorb.platon.web.api.json.CommentCountsJson;
+import de.vorb.platon.web.api.json.CommentJson;
+import de.vorb.platon.web.api.json.CommentListResultJson;
 
 import com.openpojo.random.RandomFactory;
 import com.openpojo.random.RandomGenerator;

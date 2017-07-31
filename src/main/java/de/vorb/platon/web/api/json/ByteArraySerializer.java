@@ -14,17 +14,21 @@
  * limitations under the License.
  */
 
-package de.vorb.platon.web.rest.json;
+package de.vorb.platon.web.api.json;
 
-import lombok.Builder;
-import lombok.Data;
-import lombok.Singular;
+import de.vorb.platon.util.ByteArrayConverter;
 
-import java.util.Map;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.SerializerProvider;
 
-@Data
-@Builder
-public class CommentCountsJson {
-    @Singular
-    private final Map<String, Long> commentCounts;
+import java.io.IOException;
+
+class ByteArraySerializer extends JsonSerializer<byte[]> {
+
+    @Override
+    public void serialize(byte[] bytes, JsonGenerator gen, SerializerProvider serializers) throws IOException {
+        gen.writeString(ByteArrayConverter.bytesToHexString(bytes));
+    }
+
 }

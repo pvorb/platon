@@ -9,7 +9,7 @@
 
     <name>Platon</name>
     <url>https://github.com/pvorb/platon</url>
-    <description>A comment service</description>
+    <description>A service for hosting comments</description>
 
     <scm>
         <connection>scm:git:git://github.com/pvorb/platon.git</connection>
@@ -36,7 +36,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>1.5.1.RELEASE</version>
+        <version>1.5.3.RELEASE</version>
     </parent>
 
     <properties>
@@ -94,16 +94,6 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-undertow</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-jersey</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.springframework.boot</groupId>
-                    <artifactId>spring-boot-starter-tomcat</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -277,7 +267,6 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.7.9</version>
                 <executions>
                     <execution>
                         <goals>
@@ -317,9 +306,6 @@
                 <configuration>
                     <url>${db.url}</url>
                     <user>${db.username}</user>
-                    <locations>
-                        <location>filesystem:src/main/resources/db/migration</location>
-                    </locations>
                 </configuration>
             </plugin>
             <plugin>

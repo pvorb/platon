@@ -14,19 +14,16 @@
  * limitations under the License.
  */
 
-package de.vorb.platon.web.rest.json;
+package de.vorb.platon.web.api.json;
 
-import de.vorb.platon.util.ByteArrayConverter;
+import lombok.Builder;
+import lombok.Data;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
+import java.util.List;
 
-import java.io.IOException;
-
-class ByteArrayDeserializer extends JsonDeserializer<byte[]> {
-    @Override
-    public byte[] deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
-        return ByteArrayConverter.hexStringToBytes(p.getValueAsString());
-    }
+@Data
+@Builder
+public class CommentListResultJson {
+    private final Long totalCommentCount;
+    private final List<CommentJson> comments;
 }

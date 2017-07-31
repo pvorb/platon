@@ -14,40 +14,40 @@
  * limitations under the License.
  */
 
-package de.vorb.platon.web.rest;
+package de.vorb.platon.web.api.json;
 
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.SerializerProvider;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.MockitoAnnotations;
 
-import javax.ws.rs.container.ContainerRequestContext;
-import javax.ws.rs.container.ContainerResponseContext;
-import javax.ws.rs.core.MultivaluedHashMap;
+import java.math.BigInteger;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-@RunWith(MockitoJUnitRunner.class)
-public class PoweredByResponseFilterTest {
+public class ByteArraySerializerTest {
 
     @Mock
-    private ContainerRequestContext requestContext;
+    private JsonGenerator jsonGenerator;
 
     @Mock
-    private ContainerResponseContext responseContext;
+    private SerializerProvider serializerProvider;
 
     @Before
     public void setUp() throws Exception {
-        Mockito.when(responseContext.getHeaders()).thenReturn(new MultivaluedHashMap<>());
+        MockitoAnnotations.initMocks(this);
     }
 
     @Test
-    public void testPoweredByHeader() throws Exception {
+    public void testSerialize() throws Exception {
 
-        new PoweredByResponseFilter().filter(requestContext, responseContext);
+        final String sampleHash = "341be97d9aff90c9978347f66f945b77";
+        final byte[] bytes = new BigInteger(sampleHash, 16).toByteArray();
 
-        assertThat(responseContext.getHeaders()).containsKey("X-Powered-By");
+        new ByteArraySerializer().serialize(bytes, jsonGenerator, serializerProvider);
+
+        // verify that the byte array is correctly serialized
+        Mockito.verify(jsonGenerator).writeString(Mockito.eq(sampleHash));
     }
 }

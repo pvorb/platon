@@ -14,41 +14,37 @@
  * limitations under the License.
  */
 
-package de.vorb.platon.web.rest;
+package de.vorb.platon.web.api.controllers;
 
 
 import de.vorb.platon.persistence.CommentRepository;
-import de.vorb.platon.web.rest.json.CommentCountsJson;
+import de.vorb.platon.web.api.json.CommentCountsJson;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
-import javax.inject.Inject;
-import javax.validation.constraints.NotNull;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.MediaType;
 import java.util.Map;
 import java.util.Set;
 
+import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
+
 
 @Component
-@Path("comment-count")
-@Consumes(MediaType.APPLICATION_JSON)
-@Produces(MediaType.APPLICATION_JSON)
-public class CommentCountResource {
+@RequestMapping(value = "comment-count", produces = APPLICATION_JSON_UTF8_VALUE)
+public class CommentCountController {
 
     private final CommentRepository commentRepository;
 
-    @Inject
-    public CommentCountResource(CommentRepository commentRepository) {
+    @Autowired
+    public CommentCountController(CommentRepository commentRepository) {
         this.commentRepository = commentRepository;
     }
 
-    @GET
-    public CommentCountsJson getCommentCounts(@NotNull @QueryParam("threadUrl[]") Set<String> threadUrls) {
+    @GetMapping
+    public CommentCountsJson getCommentCounts(@RequestParam("threadUrl") Set<String> threadUrls) {
 
         final CommentCountsJson.CommentCountsJsonBuilder commentCounts = CommentCountsJson.builder();
 

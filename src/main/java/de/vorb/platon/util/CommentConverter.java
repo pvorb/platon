@@ -18,7 +18,7 @@ package de.vorb.platon.util;
 
 import de.vorb.platon.jooq.tables.records.CommentsRecord;
 import de.vorb.platon.model.CommentStatus;
-import de.vorb.platon.web.rest.json.CommentJson;
+import de.vorb.platon.web.api.json.CommentJson;
 
 import lombok.SneakyThrows;
 import org.springframework.stereotype.Component;

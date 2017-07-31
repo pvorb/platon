@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package de.vorb.platon.integration.pages;
+package de.vorb.platon.ui.pages;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;

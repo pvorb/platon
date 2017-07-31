@@ -20,9 +20,8 @@ import de.vorb.platon.jooq.tables.records.PropertiesRecord;
 import de.vorb.platon.persistence.PropertyRepository;
 
 import org.jooq.DSLContext;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-
-import javax.inject.Inject;
 
 import static de.vorb.platon.jooq.tables.Properties.PROPERTIES;
 
@@ -31,7 +30,7 @@ public class JooqPropertyRepository implements PropertyRepository {
 
     private final DSLContext dslContext;
 
-    @Inject
+    @Autowired
     public JooqPropertyRepository(DSLContext dslContext) {
         this.dslContext = dslContext;
     }

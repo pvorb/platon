@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package de.vorb.platon.web.rest.json;
+package de.vorb.platon.web.api.json;
 
 import de.vorb.platon.model.CommentStatus;
 

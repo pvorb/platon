@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package de.vorb.platon.integration;
+package de.vorb.platon.ui;
 
 import de.vorb.platon.config.SpringITConfig;
-import de.vorb.platon.integration.pages.CommentCountPage;
 import de.vorb.platon.jooq.tables.records.CommentsRecord;
 import de.vorb.platon.jooq.tables.records.ThreadsRecord;
 import de.vorb.platon.model.CommentStatus;
+import de.vorb.platon.ui.pages.CommentCountPage;
 
 import lombok.extern.slf4j.Slf4j;
 import org.jooq.DSLContext;

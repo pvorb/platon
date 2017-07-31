@@ -14,23 +14,17 @@
  * limitations under the License.
  */
 
-package de.vorb.platon;
+package de.vorb.platon.web.api.json;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.Bean;
+import lombok.Builder;
+import lombok.Data;
+import lombok.Singular;
 
-import java.time.Clock;
+import java.util.Map;
 
-@SpringBootApplication
-public class PlatonApp {
-
-    public static void main(String... args) {
-        SpringApplication.run(PlatonApp.class, args);
-    }
-
-    @Bean
-    public Clock clock() {
-        return Clock.systemUTC();
-    }
+@Data
+@Builder
+public class CommentCountsJson {
+    @Singular
+    private final Map<String, Long> commentCounts;
 }

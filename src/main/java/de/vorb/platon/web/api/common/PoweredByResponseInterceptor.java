@@ -14,16 +14,19 @@
  * limitations under the License.
  */
 
-package de.vorb.platon.web.rest.json;
+package de.vorb.platon.web.api.common;
 
-import lombok.Builder;
-import lombok.Data;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
-import java.util.List;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
-@Data
-@Builder
-public class CommentListResultJson {
-    private final Long totalCommentCount;
-    private final List<CommentJson> comments;
+public class PoweredByResponseInterceptor extends HandlerInterceptorAdapter {
+
+    @Override
+    public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler,
+            ModelAndView modelAndView) throws Exception {
+        response.addHeader("X-Powered-By", "Platon");
+    }
 }

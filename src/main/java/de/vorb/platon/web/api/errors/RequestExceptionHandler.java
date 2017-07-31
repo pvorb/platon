@@ -14,23 +14,17 @@
  * limitations under the License.
  */
 
-package de.vorb.platon;
+package de.vorb.platon.web.api.errors;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.Bean;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 
-import java.time.Clock;
+@ControllerAdvice
+public class RequestExceptionHandler {
 
-@SpringBootApplication
-public class PlatonApp {
-
-    public static void main(String... args) {
-        SpringApplication.run(PlatonApp.class, args);
-    }
-
-    @Bean
-    public Clock clock() {
-        return Clock.systemUTC();
+    @ExceptionHandler(RequestException.class)
+    public ResponseEntity<RequestExceptionJson> handleRequestException(RequestException requestException) {
+        return requestException.toResponseEntity();
     }
 }

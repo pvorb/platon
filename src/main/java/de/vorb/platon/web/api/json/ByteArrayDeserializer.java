@@ -14,23 +14,19 @@
  * limitations under the License.
  */
 
-package de.vorb.platon;
+package de.vorb.platon.web.api.json;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.Bean;
+import de.vorb.platon.util.ByteArrayConverter;
 
-import java.time.Clock;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonDeserializer;
 
-@SpringBootApplication
-public class PlatonApp {
+import java.io.IOException;
 
-    public static void main(String... args) {
-        SpringApplication.run(PlatonApp.class, args);
-    }
-
-    @Bean
-    public Clock clock() {
-        return Clock.systemUTC();
+class ByteArrayDeserializer extends JsonDeserializer<byte[]> {
+    @Override
+    public byte[] deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+        return ByteArrayConverter.hexStringToBytes(p.getValueAsString());
     }
 }

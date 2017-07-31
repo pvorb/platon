@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-package de.vorb.platon.web.rest;
+package de.vorb.platon.web.api.errors;
 
-import javax.ws.rs.container.ContainerRequestContext;
-import javax.ws.rs.container.ContainerResponseContext;
-import javax.ws.rs.container.ContainerResponseFilter;
-import java.io.IOException;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.Data;
 
-public class PoweredByResponseFilter implements ContainerResponseFilter {
-    @Override
-    public void filter(ContainerRequestContext requestContext, ContainerResponseContext responseContext)
-            throws IOException {
-        responseContext.getHeaders().add("X-Powered-By", "Platon");
-    }
+import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
+
+@JsonInclude(NON_NULL)
+@Data
+public class RequestExceptionJson {
+    private final int status;
+    private final String message;
+    private final String cause;
 }

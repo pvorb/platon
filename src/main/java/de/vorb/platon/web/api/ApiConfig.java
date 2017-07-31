@@ -14,27 +14,30 @@
  * limitations under the License.
  */
 
-package de.vorb.platon.web.rest;
+package de.vorb.platon.web.api;
+
+import de.vorb.platon.web.api.common.PoweredByResponseInterceptor;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
-import javax.ws.rs.ext.ContextResolver;
-import javax.ws.rs.ext.Provider;
+@Configuration
+public class ApiConfig extends WebMvcConfigurerAdapter {
 
-@Provider
-public class ObjectMapperContextResolver implements ContextResolver<ObjectMapper> {
-
-    private final ObjectMapper objectMapper;
-
-    public ObjectMapperContextResolver() {
-        objectMapper = new ObjectMapper();
+    @Bean
+    public ObjectMapper objectMapper() {
+        final ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.findAndRegisterModules();
         objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+        return objectMapper;
     }
 
     @Override
-    public ObjectMapper getContext(Class<?> type) {
-        return objectMapper;
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(new PoweredByResponseInterceptor());
     }
 }

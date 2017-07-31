@@ -19,11 +19,11 @@ package de.vorb.platon.security;
 import de.vorb.platon.util.CurrentTimeProvider;
 
 import org.apache.commons.codec.digest.HmacAlgorithms;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.Mac;
 import javax.crypto.SecretKey;
-import javax.inject.Inject;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -39,7 +39,7 @@ public class HmacRequestVerifier implements RequestVerifier {
 
     private final Mac mac;
 
-    @Inject
+    @Autowired
     public HmacRequestVerifier(SecretKeyProvider keyProvider, CurrentTimeProvider currentTimeProvider) {
 
         this.currentTimeProvider = currentTimeProvider;
