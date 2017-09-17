@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8"/>
     <title>Platon comment server</title>
-<#include "head.ftl" />
 </head>
 <body>
     <h1>The Platon comment server</h1>
