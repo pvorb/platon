@@ -14,19 +14,9 @@
  * limitations under the License.
  */
 
-package de.vorb.platon.web.api.json;
+package de.vorb.platon.security;
 
-import de.vorb.platon.web.api.common.ByteArrayConverter;
+import org.springframework.context.annotation.Configuration;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-
-import java.io.IOException;
-
-class ByteArrayDeserializer extends JsonDeserializer<byte[]> {
-    @Override
-    public byte[] deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
-        return ByteArrayConverter.hexStringToBytes(p.getValueAsString());
-    }
-}
+@Configuration
+public class SecurityConfig {}

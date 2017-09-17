@@ -14,23 +14,9 @@
  * limitations under the License.
  */
 
-package de.vorb.platon;
+package de.vorb.platon.persistence;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
-import java.time.Clock;
-
-@SpringBootApplication
-public class PlatonApp {
-
-    public static void main(String... args) {
-        SpringApplication.run(PlatonApp.class, args);
-    }
-
-    @Bean
-    public Clock clock() {
-        return Clock.systemUTC();
-    }
-}
+@Configuration
+public class PersistenceConfig {}

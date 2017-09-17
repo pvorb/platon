@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-package de.vorb.platon.web.api.json;
+package de.vorb.platon.web.api.common;
 
-import de.vorb.platon.web.api.common.ByteArrayConverter;
+import javax.xml.bind.DatatypeConverter;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
+public class ByteArrayConverter {
 
-import java.io.IOException;
+    private ByteArrayConverter() {}
 
-class ByteArrayDeserializer extends JsonDeserializer<byte[]> {
-    @Override
-    public byte[] deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
-        return ByteArrayConverter.hexStringToBytes(p.getValueAsString());
+    public static String bytesToHexString(byte[] bytes) {
+        return DatatypeConverter.printHexBinary(bytes).toLowerCase();
+    }
+
+    public static byte[] hexStringToBytes(String hexString) {
+        return DatatypeConverter.parseHexBinary(hexString);
     }
 }

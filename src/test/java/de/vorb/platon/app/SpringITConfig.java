@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package de.vorb.platon.config;
+package de.vorb.platon.app;
 
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.remote.DesiredCapabilities;

@@ -16,7 +16,7 @@
 
 package de.vorb.platon.ui;
 
-import de.vorb.platon.config.SpringITConfig;
+import de.vorb.platon.app.SpringITConfig;
 import de.vorb.platon.jooq.tables.records.CommentsRecord;
 import de.vorb.platon.jooq.tables.records.ThreadsRecord;
 import de.vorb.platon.model.CommentStatus;

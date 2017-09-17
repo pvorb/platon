@@ -14,11 +14,23 @@
  * limitations under the License.
  */
 
-package de.vorb.platon.config;
+package de.vorb.platon.web.mvc;
 
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
 @Configuration
-@PropertySource(value = "classpath:config/application.properties")
-public class SpringTestConfig extends PlatonConfig {}
+public class WebMvcConfig {
+
+    @Bean
+    public WebMvcConfigurerAdapter staticResourceHandlerConfigurer() {
+        return new WebMvcConfigurerAdapter() {
+            @Override
+            public void addResourceHandlers(ResourceHandlerRegistry registry) {
+                registry.addResourceHandler("classpath:/public");
+            }
+        };
+    }
+}

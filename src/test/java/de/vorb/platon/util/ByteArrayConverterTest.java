@@ -16,6 +16,8 @@
 
 package de.vorb.platon.util;
 
+import de.vorb.platon.web.api.common.ByteArrayConverter;
+
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;

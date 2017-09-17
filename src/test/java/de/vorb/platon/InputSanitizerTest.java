@@ -16,8 +16,8 @@
 
 package de.vorb.platon;
 
-import de.vorb.platon.config.SpringTestConfig;
-import de.vorb.platon.util.InputSanitizer;
+import de.vorb.platon.app.SpringTestConfig;
+import de.vorb.platon.web.api.common.InputSanitizer;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

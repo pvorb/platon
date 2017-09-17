@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package de.vorb.platon.util;
+package de.vorb.platon.web.api.common;
 
 @FunctionalInterface
 public interface InputSanitizer {

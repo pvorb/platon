@@ -14,19 +14,25 @@
  * limitations under the License.
  */
 
-package de.vorb.platon.util;
+package de.vorb.platon.app;
 
-import javax.xml.bind.DatatypeConverter;
+import de.vorb.platon.web.WebConfig;
 
-public class ByteArrayConverter {
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
 
-    private ByteArrayConverter() {}
+import java.time.Clock;
 
-    public static String bytesToHexString(byte[] bytes) {
-        return DatatypeConverter.printHexBinary(bytes).toLowerCase();
+@SpringBootApplication(scanBasePackageClasses = WebConfig.class)
+public class PlatonApp {
+
+    public static void main(String... args) {
+        SpringApplication.run(PlatonApp.class, args);
     }
 
-    public static byte[] hexStringToBytes(String hexString) {
-        return DatatypeConverter.parseHexBinary(hexString);
+    @Bean
+    public Clock clock() {
+        return Clock.systemUTC();
     }
 }

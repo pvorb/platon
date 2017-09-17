@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package de.vorb.platon.util;
+package de.vorb.platon.web.api.common;
 
 import de.vorb.platon.jooq.tables.records.CommentsRecord;
 import de.vorb.platon.model.CommentStatus;
@@ -103,6 +103,6 @@ public class CommentConverter {
             return "";
         }
 
-        return ByteArrayConverter.bytesToHexString(md5.digest(email.getBytes(StandardCharsets.UTF_8)));
+        return de.vorb.platon.web.api.common.ByteArrayConverter.bytesToHexString(md5.digest(email.getBytes(StandardCharsets.UTF_8)));
     }
 }

@@ -14,19 +14,11 @@
  * limitations under the License.
  */
 
-package de.vorb.platon.web.api.json;
+package de.vorb.platon.app;
 
-import de.vorb.platon.web.api.common.ByteArrayConverter;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-
-import java.io.IOException;
-
-class ByteArrayDeserializer extends JsonDeserializer<byte[]> {
-    @Override
-    public byte[] deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
-        return ByteArrayConverter.hexStringToBytes(p.getValueAsString());
-    }
-}
+@Configuration
+@PropertySource(value = "classpath:config/application.properties")
+public class SpringTestConfig {}

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package de.vorb.platon.util;
+package de.vorb.platon.web.api.common;
 
 import de.vorb.platon.jooq.tables.records.CommentsRecord;
 import de.vorb.platon.model.CommentStatus;
