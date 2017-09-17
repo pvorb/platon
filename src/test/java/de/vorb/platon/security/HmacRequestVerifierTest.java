@@ -16,42 +16,37 @@
 
 package de.vorb.platon.security;
 
-import de.vorb.platon.util.CurrentTimeProvider;
-
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.test.annotation.Repeat;
 
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
+import java.time.Clock;
 import java.time.Instant;
+import java.time.ZoneOffset;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@RunWith(MockitoJUnitRunner.class)
 public class HmacRequestVerifierTest {
 
-    @Mock
-    private SecretKeyProvider secretKeyProvider;
-
-    @Mock
-    private CurrentTimeProvider currentTimeProvider;
+    private static final Instant CURRENT_TIME = Instant.now();
 
     private HmacRequestVerifier requestVerifier;
+
+    private final Clock clock = Clock.fixed(CURRENT_TIME, ZoneOffset.UTC);
+    private SecretKeyProvider secretKeyProvider;
 
     @Before
     public void setUp() throws Exception {
 
-        // generate a secret key once and always return that secret key
-        final SecretKey secretKey = KeyGenerator.getInstance(
-                HmacRequestVerifier.HMAC_ALGORITHM.toString()).generateKey();
+        final SecretKey secretKey =
+                KeyGenerator.getInstance(HmacRequestVerifier.HMAC_ALGORITHM.toString()).generateKey();
+        secretKeyProvider = Mockito.mock(SecretKeyProvider.class);
         Mockito.when(secretKeyProvider.getSecretKey()).thenReturn(secretKey);
 
-        requestVerifier = new HmacRequestVerifier(secretKeyProvider, currentTimeProvider);
+        requestVerifier = new HmacRequestVerifier(secretKeyProvider, clock);
 
     }
 
@@ -60,7 +55,7 @@ public class HmacRequestVerifierTest {
 
         Mockito.when(secretKeyProvider.getSecretKey()).thenReturn(null);
 
-        new HmacRequestVerifier(secretKeyProvider, currentTimeProvider);
+        new HmacRequestVerifier(secretKeyProvider, clock);
 
     }
 
@@ -82,10 +77,7 @@ public class HmacRequestVerifierTest {
 
         final String identifier = "comment/1";
 
-        final Instant currentTime = Instant.now();
-        Mockito.when(currentTimeProvider.get()).thenReturn(currentTime);
-
-        final Instant expirationDate = currentTime.minusMillis(1); // token expired 1ms ago
+        final Instant expirationDate = CURRENT_TIME.minusMillis(1); // token expired 1ms ago
         final byte[] signatureToken = requestVerifier.getSignatureToken(identifier, expirationDate);
 
         final boolean validity = requestVerifier.isRequestValid(identifier, expirationDate, signatureToken);
@@ -98,14 +90,11 @@ public class HmacRequestVerifierTest {
 
         final String identifier = "comment/1";
 
-        final Instant currentTime = Instant.now();
-        Mockito.when(currentTimeProvider.get()).thenReturn(currentTime);
-
-        final Instant expirationDate = currentTime.minusMillis(1);
+        final Instant expirationDate = CURRENT_TIME.minusMillis(1);
         final byte[] signatureToken = requestVerifier.getSignatureToken(identifier, expirationDate);
 
         // a user attempts to set the expiration date manually (without changing the token)
-        final Instant fakedExpirationDate = currentTime;
+        final Instant fakedExpirationDate = CURRENT_TIME;
 
         final boolean validity = requestVerifier.isRequestValid(identifier, fakedExpirationDate, signatureToken);
 

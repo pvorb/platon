@@ -16,7 +16,6 @@
 
 package de.vorb.platon.config;
 
-import de.vorb.platon.util.CurrentTimeProvider;
 import de.vorb.platon.util.InputSanitizer;
 
 import org.owasp.html.HtmlPolicyBuilder;
@@ -26,8 +25,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
-
-import java.time.Instant;
 
 @Configuration
 public class PlatonConfig {
@@ -40,11 +37,6 @@ public class PlatonConfig {
                 registry.addResourceHandler("classpath:/public");
             }
         };
-    }
-
-    @Bean
-    public CurrentTimeProvider timeProvider() {
-        return Instant::now;
     }
 
     private static final HtmlPolicyBuilder htmlContentPolicyBuilder = new HtmlPolicyBuilder()
