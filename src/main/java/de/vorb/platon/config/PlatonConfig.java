@@ -39,22 +39,18 @@ public class PlatonConfig {
         };
     }
 
-    private static final HtmlPolicyBuilder htmlContentPolicyBuilder = new HtmlPolicyBuilder()
-            .allowUrlProtocols("http", "https", "mailto")
-            .allowAttributes("href").onElements("a")
-            .allowAttributes("src", "width", "height", "alt").onElements("img")
-            .allowAttributes("class").onElements("div", "span");
-
-    @Value("${platon.input.html_elements}")
-    private String htmlElements;
-
     @Bean
-    public InputSanitizer htmlInputSanitizer() {
-        final String[] htmlElementList = htmlElements.split("\\s*,\\s*");
+    public InputSanitizer htmlInputSanitizer(@Value("${platon.input.html_elements}") String allowedHtmlElements) {
 
-        htmlContentPolicyBuilder.allowElements(htmlElementList);
+        final HtmlPolicyBuilder htmlPolicyBuilder = new HtmlPolicyBuilder()
+                .allowUrlProtocols("http", "https", "mailto")
+                .allowAttributes("href").onElements("a")
+                .allowAttributes("src", "width", "height", "alt").onElements("img")
+                .allowAttributes("class").onElements("div", "span");
 
-        final PolicyFactory htmlContentPolicy = htmlContentPolicyBuilder.toFactory();
+        htmlPolicyBuilder.allowElements(allowedHtmlElements.trim().split("\\s*,\\s*"));
+
+        final PolicyFactory htmlContentPolicy = htmlPolicyBuilder.toFactory();
 
         return htmlContentPolicy::sanitize;
     }
