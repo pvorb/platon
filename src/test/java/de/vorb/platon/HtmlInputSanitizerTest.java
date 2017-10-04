@@ -16,30 +16,40 @@
 
 package de.vorb.platon;
 
-import de.vorb.platon.app.SpringTestConfig;
-import de.vorb.platon.web.api.common.InputSanitizer;
+import de.vorb.platon.web.api.common.HtmlInputSanitizer;
 
+import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@ContextConfiguration(classes = SpringTestConfig.class)
-@RunWith(SpringJUnit4ClassRunner.class)
-public class InputSanitizerTest {
+public class HtmlInputSanitizerTest {
 
-    @Autowired
-    private InputSanitizer inputSanitizer;
+    private HtmlInputSanitizer htmlInputSanitizer;
+
+    @Before
+    public void setUp() throws Exception {
+        htmlInputSanitizer = new HtmlInputSanitizer("p,br");
+    }
 
     @Test
     public void htmlWithScriptTag() throws Exception {
 
-        final String sanitizedHtml = inputSanitizer.sanitize("<p>Text</p><script>alert('boo!');</script>");
+        final String sanitizedHtml = htmlInputSanitizer.sanitize("<p>Text</p><script>alert('boo!');</script>");
 
         assertThat(sanitizedHtml).doesNotContain("<script");
         assertThat(sanitizedHtml).doesNotContain("alert(");
+        assertThat(sanitizedHtml).startsWith("<p>");
+        assertThat(sanitizedHtml).endsWith("</p>");
+    }
+
+    @Test
+    public void worksWithMultipleTags() throws Exception {
+
+        final String sanitizedHtml = htmlInputSanitizer.sanitize("<p>First line<br />Second line</p>");
+
+        assertThat(sanitizedHtml).contains("<p>");
+        assertThat(sanitizedHtml).contains("<br />");
+        assertThat(sanitizedHtml).contains("</p>");
     }
 }

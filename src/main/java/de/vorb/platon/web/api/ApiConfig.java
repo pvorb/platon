@@ -18,14 +18,10 @@ package de.vorb.platon.web.api;
 
 import de.vorb.platon.persistence.PersistenceConfig;
 import de.vorb.platon.security.SecurityConfig;
-import de.vorb.platon.web.api.common.InputSanitizer;
 import de.vorb.platon.web.api.common.PoweredByResponseInterceptor;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import org.owasp.html.HtmlPolicyBuilder;
-import org.owasp.html.PolicyFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -47,21 +43,5 @@ public class ApiConfig extends WebMvcConfigurerAdapter {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(new PoweredByResponseInterceptor());
-    }
-
-    @Bean
-    public InputSanitizer htmlInputSanitizer(@Value("${platon.input.html_elements}") String allowedHtmlElements) {
-
-        final HtmlPolicyBuilder htmlPolicyBuilder = new HtmlPolicyBuilder()
-                .allowUrlProtocols("http", "https", "mailto")
-                .allowAttributes("href").onElements("a")
-                .allowAttributes("src", "width", "height", "alt").onElements("img")
-                .allowAttributes("class").onElements("div", "span");
-
-        htmlPolicyBuilder.allowElements(allowedHtmlElements.trim().split("\\s*,\\s*"));
-
-        final PolicyFactory htmlContentPolicy = htmlPolicyBuilder.toFactory();
-
-        return htmlContentPolicy::sanitize;
     }
 }
