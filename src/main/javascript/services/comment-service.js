@@ -75,7 +75,7 @@ module.exports = {
     },
 
     countComments: function countComments(threadUrls) {
-        return Vue.http.get('/api/comment-count', {
+        return Vue.http.get('/api/comment-count{?threadUrl*}', {
             params: {
                 threadUrl: threadUrls
             }

@@ -283,7 +283,7 @@ public class CommentController {
     }
 
 
-    void sanitizeComment(CommentsRecord comment) {
+    private void sanitizeComment(CommentsRecord comment) {
         if (comment.getAuthor() != null) {
             comment.setAuthor(NO_HTML_POLICY.sanitize(comment.getAuthor()));
         }
