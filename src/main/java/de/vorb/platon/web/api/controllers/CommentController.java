@@ -185,7 +185,7 @@ public class CommentController {
 
             threadId = threadRepository.insert(thread).getId();
 
-            logger.info("Created new thread for url '{}'", threadUrl);
+            log.info("Created new thread for url '{}'", threadUrl);
         }
 
         commentJson.setStatus(DEFAULT_STATUS);
@@ -202,7 +202,7 @@ public class CommentController {
 
         comment = commentRepository.insert(comment);
 
-        logger.info("Posted new comment to thread '{}'", threadUrl);
+        log.info("Posted new comment to thread '{}'", threadUrl);
 
         final URI commentUri = getUriFromId(comment.getId());
 
@@ -308,7 +308,7 @@ public class CommentController {
         try {
             commentRepository.setStatus(commentId, CommentStatus.DELETED);
 
-            logger.info("Marked comment with id = {} as DELETED", commentId);
+            log.info("Marked comment with id = {} as DELETED", commentId);
         } catch (DataAccessException e) {
             throw RequestException.badRequest()
                     .message(String.format("Comment with id = %d does not exist", commentId))

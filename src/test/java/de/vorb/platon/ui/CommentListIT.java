@@ -126,7 +126,7 @@ public class CommentListIT {
             commentPage.waitUntilCommentListLoaded();
         } catch (TimeoutException e) {
             webDriver.manage().logs().get(LogType.BROWSER).getAll().forEach(
-                    logEntry -> logger.info("Browser log: <{}> [{}] {}", logEntry.getLevel(),
+                    logEntry -> log.info("Browser log: <{}> [{}] {}", logEntry.getLevel(),
                             Instant.ofEpochMilli(logEntry.getTimestamp()), logEntry.getMessage()));
         }
 
@@ -151,7 +151,7 @@ public class CommentListIT {
             commentPage.waitUntilCommentListLoaded();
         } catch (TimeoutException e) {
             webDriver.manage().logs().get(LogType.BROWSER).getAll().forEach(
-                    logEntry -> logger.info("Browser log: <{}> [{}] {}", logEntry.getLevel(),
+                    logEntry -> log.info("Browser log: <{}> [{}] {}", logEntry.getLevel(),
                             Instant.ofEpochMilli(logEntry.getTimestamp()), logEntry.getMessage()));
         }
 
