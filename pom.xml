@@ -50,7 +50,7 @@
 
         <!-- Dependency versions -->
         <guava.version>21.0</guava.version>
-        <commons-lang.version>3.5</commons-lang.version>
+        <commons-lang3.version>3.5</commons-lang3.version>
         <commons-codec.version>1.10</commons-codec.version>
         <jackson-jsr310.version>2.8.6</jackson-jsr310.version>
         <owasp-java-html.version>20160924.1</owasp-java-html.version>
@@ -87,7 +87,7 @@
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-mail</artifactId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -102,12 +102,11 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
-            <version>${commons-lang.version}</version>
+            <version>${commons-lang3.version}</version>
         </dependency>
         <dependency>
             <groupId>commons-codec</groupId>
             <artifactId>commons-codec</artifactId>
-            <version>${commons-codec.version}</version>
         </dependency>
 
         <dependency>
@@ -239,7 +238,7 @@
                             <goal>copy-resources</goal>
                         </goals>
                         <configuration>
-                            <outputDirectory>${basedir}/target/classes/public</outputDirectory>
+                            <outputDirectory>${basedir}/target/classes/static</outputDirectory>
                             <resources>
                                 <resource>
                                     <directory>src/main/webapp</directory>

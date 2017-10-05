@@ -16,14 +16,14 @@
 
 var path = require('path');
 
-var jsDir = 'src/main/javascript';
+var jsDir = path.resolve(__dirname, 'src/main/javascript');
 
 module.exports = {
     entry: {
         platon: path.resolve(jsDir, 'platon.js')
     },
     output: {
-        path: path.resolve('src/main/webapp/js'),
+        path: path.resolve(__dirname, 'src/main/webapp/js'),
         filename: '[name].js'
     },
     module: {

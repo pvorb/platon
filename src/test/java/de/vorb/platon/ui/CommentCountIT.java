@@ -61,7 +61,7 @@ public class CommentCountIT {
     @Autowired
     private DSLContext dslContext;
 
-    @Value("http://localhost:${server.port}/comment-count.html")
+    @Value("http://localhost:${server.port}/comment-counts.html")
     private String testUrl;
 
     private static final String URL_THREAD_1 = "/comment-count-thread-1.html";
