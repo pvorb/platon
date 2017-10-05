@@ -16,18 +16,21 @@
 
 package de.vorb.platon.web.api;
 
+import de.vorb.platon.app.PlatonApp;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.NONE;
 
 @RunWith(SpringRunner.class)
-@ContextConfiguration(classes = ApiConfig.class)
+@SpringBootTest(classes = PlatonApp.class, webEnvironment = NONE)
 public class ApiConfigIT {
 
     @Autowired
