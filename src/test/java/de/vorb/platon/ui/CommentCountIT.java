@@ -156,12 +156,12 @@ public class CommentCountIT {
         try {
             webDriver.manage().logs().get(LogType.BROWSER).getAll().forEach(this::logBrowserLogEntry);
         } catch (UnsupportedCommandException e) {
-            logger.warn("Unable to collect logs from browser");
+            log.warn("Unable to collect logs from browser");
         }
     }
 
     private void logBrowserLogEntry(LogEntry logEntry) {
-        logger.info("Browser log: <{}> [{}] {}", logEntry.getLevel(),
+        log.info("Browser log: <{}> [{}] {}", logEntry.getLevel(),
                 Instant.ofEpochMilli(logEntry.getTimestamp()), logEntry.getMessage());
     }
 }

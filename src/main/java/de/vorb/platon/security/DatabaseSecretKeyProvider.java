@@ -50,7 +50,7 @@ public class DatabaseSecretKeyProvider implements SecretKeyProvider {
             try {
                 initSecretKey();
             } catch (NoSuchAlgorithmException e) {
-                logger.error("Unable to generate a secret key for {}", HmacRequestVerifier.HMAC_ALGORITHM, e);
+                log.error("Unable to generate a secret key for {}", HmacRequestVerifier.HMAC_ALGORITHM, e);
             }
         }
 
