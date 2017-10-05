@@ -29,7 +29,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.openqa.selenium.TimeoutException;
+import org.openqa.selenium.UnsupportedCommandException;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.logging.LogEntry;
 import org.openqa.selenium.logging.LogType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -130,9 +132,7 @@ public class CommentCountIT {
         try {
             commentPage.waitUntilCommentCountsLoaded();
         } catch (TimeoutException e) {
-            webDriver.manage().logs().get(LogType.BROWSER).getAll().forEach(
-                    logEntry -> logger.info("Browser log: <{}> [{}] {}", logEntry.getLevel(),
-                            Instant.ofEpochMilli(logEntry.getTimestamp()), logEntry.getMessage()));
+            displayBrowserLogs();
         }
 
         final Map<String, Set<Long>> commentCountsByThread = commentPage.getCommentCountsByThread();
@@ -150,5 +150,18 @@ public class CommentCountIT {
                 comment -> CommentStatus.valueOf(comment.getStatus()) == CommentStatus.PUBLIC).count();
 
         assertThat(countThread2).isEqualTo(expectedCountThread2);
+    }
+
+    private void displayBrowserLogs() {
+        try {
+            webDriver.manage().logs().get(LogType.BROWSER).getAll().forEach(this::logBrowserLogEntry);
+        } catch (UnsupportedCommandException e) {
+            logger.warn("Unable to collect logs from browser");
+        }
+    }
+
+    private void logBrowserLogEntry(LogEntry logEntry) {
+        logger.info("Browser log: <{}> [{}] {}", logEntry.getLevel(),
+                Instant.ofEpochMilli(logEntry.getTimestamp()), logEntry.getMessage());
     }
 }
