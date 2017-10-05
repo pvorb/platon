@@ -14,23 +14,19 @@
  * limitations under the License.
  */
 
-var path = require('path');
+package de.vorb.platon.web.api.common;
 
-var jsDir = path.resolve(__dirname, 'src/main/javascript');
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
-module.exports = {
-    entry: {
-        platon: path.resolve(jsDir, 'platon.js')
-    },
-    output: {
-        path: path.resolve(__dirname, 'src/main/webapp/js'),
-        filename: '[name].js'
-    },
-    module: {
-        loaders: [
-            {test: /\.html$/, loader: 'vue-template-compiler'},
-            {test: /\.css$/, loader: 'style!css'}
-        ]
-    },
-    devtool: 'source-map'
-};
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+public class PoweredByResponseInterceptor extends HandlerInterceptorAdapter {
+
+    @Override
+    public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler,
+            ModelAndView modelAndView) throws Exception {
+        response.addHeader("X-Powered-By", "Platon");
+    }
+}

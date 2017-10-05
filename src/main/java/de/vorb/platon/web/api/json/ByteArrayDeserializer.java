@@ -14,23 +14,19 @@
  * limitations under the License.
  */
 
-var path = require('path');
+package de.vorb.platon.web.api.json;
 
-var jsDir = path.resolve(__dirname, 'src/main/javascript');
+import de.vorb.platon.web.api.common.ByteArrayConverter;
 
-module.exports = {
-    entry: {
-        platon: path.resolve(jsDir, 'platon.js')
-    },
-    output: {
-        path: path.resolve(__dirname, 'src/main/webapp/js'),
-        filename: '[name].js'
-    },
-    module: {
-        loaders: [
-            {test: /\.html$/, loader: 'vue-template-compiler'},
-            {test: /\.css$/, loader: 'style!css'}
-        ]
-    },
-    devtool: 'source-map'
-};
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonDeserializer;
+
+import java.io.IOException;
+
+class ByteArrayDeserializer extends JsonDeserializer<byte[]> {
+    @Override
+    public byte[] deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+        return ByteArrayConverter.hexStringToBytes(p.getValueAsString());
+    }
+}

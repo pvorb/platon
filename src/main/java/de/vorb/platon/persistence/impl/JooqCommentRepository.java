@@ -22,9 +22,9 @@ import de.vorb.platon.persistence.CommentRepository;
 
 import org.jooq.DSLContext;
 import org.jooq.exception.DataAccessException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import javax.inject.Inject;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -38,7 +38,7 @@ public class JooqCommentRepository implements CommentRepository {
 
     private final DSLContext dslContext;
 
-    @Inject
+    @Autowired
     public JooqCommentRepository(DSLContext dslContext) {
         this.dslContext = dslContext;
     }
@@ -102,7 +102,7 @@ public class JooqCommentRepository implements CommentRepository {
                         .execute();
 
         if (affectedRows == 0) {
-            throw new DataAccessException("Could not set the comment status");
+            throw new DataAccessException("Could not set the comment withStatus");
         }
     }
 }

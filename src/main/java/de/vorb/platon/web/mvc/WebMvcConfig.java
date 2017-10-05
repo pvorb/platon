@@ -14,23 +14,9 @@
  * limitations under the License.
  */
 
-var path = require('path');
+package de.vorb.platon.web.mvc;
 
-var jsDir = path.resolve(__dirname, 'src/main/javascript');
+import org.springframework.context.annotation.Configuration;
 
-module.exports = {
-    entry: {
-        platon: path.resolve(jsDir, 'platon.js')
-    },
-    output: {
-        path: path.resolve(__dirname, 'src/main/webapp/js'),
-        filename: '[name].js'
-    },
-    module: {
-        loaders: [
-            {test: /\.html$/, loader: 'vue-template-compiler'},
-            {test: /\.css$/, loader: 'style!css'}
-        ]
-    },
-    devtool: 'source-map'
-};
+@Configuration
+public class WebMvcConfig {}

@@ -14,23 +14,11 @@
  * limitations under the License.
  */
 
-var path = require('path');
+package de.vorb.platon.web.api.common;
 
-var jsDir = path.resolve(__dirname, 'src/main/javascript');
+@FunctionalInterface
+public interface InputSanitizer {
 
-module.exports = {
-    entry: {
-        platon: path.resolve(jsDir, 'platon.js')
-    },
-    output: {
-        path: path.resolve(__dirname, 'src/main/webapp/js'),
-        filename: '[name].js'
-    },
-    module: {
-        loaders: [
-            {test: /\.html$/, loader: 'vue-template-compiler'},
-            {test: /\.css$/, loader: 'style!css'}
-        ]
-    },
-    devtool: 'source-map'
-};
+    String sanitize(String input);
+
+}

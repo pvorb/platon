@@ -9,7 +9,7 @@
 
     <name>Platon</name>
     <url>https://github.com/pvorb/platon</url>
-    <description>A comment service</description>
+    <description>A service for hosting comments</description>
 
     <scm>
         <connection>scm:git:git://github.com/pvorb/platon.git</connection>
@@ -36,7 +36,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>1.5.1.RELEASE</version>
+        <version>1.5.7.RELEASE</version>
     </parent>
 
     <properties>
@@ -50,7 +50,7 @@
 
         <!-- Dependency versions -->
         <guava.version>21.0</guava.version>
-        <commons-lang.version>3.5</commons-lang.version>
+        <commons-lang3.version>3.5</commons-lang3.version>
         <commons-codec.version>1.10</commons-codec.version>
         <jackson-jsr310.version>2.8.6</jackson-jsr310.version>
         <owasp-java-html.version>20160924.1</owasp-java-html.version>
@@ -60,8 +60,6 @@
         <flyway.version>4.1.0</flyway.version>
 
         <!-- Testing -->
-        <junit.version>4.12</junit.version>
-        <assertj.version>3.6.2</assertj.version>
         <openpojo.version>0.8.4</openpojo.version>
         <selenium.version>3.3.1</selenium.version>
 
@@ -86,30 +84,10 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.springframework.boot</groupId>
-                    <artifactId>spring-boot-starter-tomcat</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-undertow</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-jersey</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.springframework.boot</groupId>
-                    <artifactId>spring-boot-starter-tomcat</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-mail</artifactId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -124,12 +102,11 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
-            <version>${commons-lang.version}</version>
+            <version>${commons-lang3.version}</version>
         </dependency>
         <dependency>
             <groupId>commons-codec</groupId>
             <artifactId>commons-codec</artifactId>
-            <version>${commons-codec.version}</version>
         </dependency>
 
         <dependency>
@@ -150,11 +127,7 @@
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-jdbc</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.jooq</groupId>
-            <artifactId>jooq</artifactId>
+            <artifactId>spring-boot-starter-jooq</artifactId>
         </dependency>
         <dependency>
             <groupId>com.h2database</groupId>
@@ -172,18 +145,6 @@
             <version>${flyway.version}</version>
         </dependency>
 
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>${junit.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.assertj</groupId>
-            <artifactId>assertj-core</artifactId>
-            <version>${assertj.version}</version>
-            <scope>test</scope>
-        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
@@ -277,7 +238,7 @@
                             <goal>copy-resources</goal>
                         </goals>
                         <configuration>
-                            <outputDirectory>${basedir}/target/classes/public</outputDirectory>
+                            <outputDirectory>${basedir}/target/classes/static</outputDirectory>
                             <resources>
                                 <resource>
                                     <directory>src/main/webapp</directory>
@@ -331,9 +292,6 @@
                 <configuration>
                     <url>${db.url}</url>
                     <user>${db.username}</user>
-                    <locations>
-                        <location>filesystem:src/main/resources/db/migration</location>
-                    </locations>
                 </configuration>
             </plugin>
             <plugin>

@@ -14,23 +14,25 @@
  * limitations under the License.
  */
 
-var path = require('path');
+package de.vorb.platon.app;
 
-var jsDir = path.resolve(__dirname, 'src/main/javascript');
+import de.vorb.platon.web.WebConfig;
 
-module.exports = {
-    entry: {
-        platon: path.resolve(jsDir, 'platon.js')
-    },
-    output: {
-        path: path.resolve(__dirname, 'src/main/webapp/js'),
-        filename: '[name].js'
-    },
-    module: {
-        loaders: [
-            {test: /\.html$/, loader: 'vue-template-compiler'},
-            {test: /\.css$/, loader: 'style!css'}
-        ]
-    },
-    devtool: 'source-map'
-};
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
+
+import java.time.Clock;
+
+@SpringBootApplication(scanBasePackageClasses = WebConfig.class)
+public class PlatonApp {
+
+    public static void main(String... args) {
+        SpringApplication.run(PlatonApp.class, args);
+    }
+
+    @Bean
+    public Clock clock() {
+        return Clock.systemUTC();
+    }
+}

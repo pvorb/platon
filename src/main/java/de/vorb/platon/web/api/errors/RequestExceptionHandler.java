@@ -14,23 +14,17 @@
  * limitations under the License.
  */
 
-var path = require('path');
+package de.vorb.platon.web.api.errors;
 
-var jsDir = path.resolve(__dirname, 'src/main/javascript');
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 
-module.exports = {
-    entry: {
-        platon: path.resolve(jsDir, 'platon.js')
-    },
-    output: {
-        path: path.resolve(__dirname, 'src/main/webapp/js'),
-        filename: '[name].js'
-    },
-    module: {
-        loaders: [
-            {test: /\.html$/, loader: 'vue-template-compiler'},
-            {test: /\.css$/, loader: 'style!css'}
-        ]
-    },
-    devtool: 'source-map'
-};
+@ControllerAdvice
+public class RequestExceptionHandler {
+
+    @ExceptionHandler(RequestException.class)
+    public ResponseEntity<RequestExceptionJson> handleRequestException(RequestException requestException) {
+        return requestException.toResponseEntity();
+    }
+}

@@ -14,23 +14,17 @@
  * limitations under the License.
  */
 
-var path = require('path');
+package de.vorb.platon.web.api.errors;
 
-var jsDir = path.resolve(__dirname, 'src/main/javascript');
+import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.Data;
 
-module.exports = {
-    entry: {
-        platon: path.resolve(jsDir, 'platon.js')
-    },
-    output: {
-        path: path.resolve(__dirname, 'src/main/webapp/js'),
-        filename: '[name].js'
-    },
-    module: {
-        loaders: [
-            {test: /\.html$/, loader: 'vue-template-compiler'},
-            {test: /\.css$/, loader: 'style!css'}
-        ]
-    },
-    devtool: 'source-map'
-};
+import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
+
+@JsonInclude(NON_NULL)
+@Data
+public class RequestExceptionJson {
+    private final int status;
+    private final String message;
+    private final String cause;
+}

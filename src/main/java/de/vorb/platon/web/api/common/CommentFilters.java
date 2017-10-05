@@ -14,23 +14,23 @@
  * limitations under the License.
  */
 
-var path = require('path');
+package de.vorb.platon.web.api.common;
 
-var jsDir = path.resolve(__dirname, 'src/main/javascript');
+import de.vorb.platon.jooq.tables.records.CommentsRecord;
+import de.vorb.platon.model.CommentStatus;
 
-module.exports = {
-    entry: {
-        platon: path.resolve(jsDir, 'platon.js')
-    },
-    output: {
-        path: path.resolve(__dirname, 'src/main/webapp/js'),
-        filename: '[name].js'
-    },
-    module: {
-        loaders: [
-            {test: /\.html$/, loader: 'vue-template-compiler'},
-            {test: /\.css$/, loader: 'style!css'}
-        ]
-    },
-    devtool: 'source-map'
-};
+import org.springframework.stereotype.Component;
+
+import java.util.EnumSet;
+import java.util.Set;
+
+@Component
+public class CommentFilters {
+
+    private static final Set<CommentStatus> countStatus = EnumSet.of(CommentStatus.PUBLIC);
+
+    public boolean doesCommentCount(CommentsRecord comment) {
+        return countStatus.contains(Enum.valueOf(CommentStatus.class, comment.getStatus()));
+    }
+
+}
