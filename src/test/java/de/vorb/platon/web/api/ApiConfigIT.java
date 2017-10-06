@@ -16,7 +16,7 @@
 
 package de.vorb.platon.web.api;
 
-import de.vorb.platon.app.PlatonApp;
+import de.vorb.platon.PlatonApp;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;

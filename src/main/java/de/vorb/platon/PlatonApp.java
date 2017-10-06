@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-package de.vorb.platon.app;
-
-import de.vorb.platon.web.WebConfig;
+package de.vorb.platon;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -24,7 +22,7 @@ import org.springframework.context.annotation.Bean;
 
 import java.time.Clock;
 
-@SpringBootApplication(scanBasePackageClasses = WebConfig.class)
+@SpringBootApplication
 public class PlatonApp {
 
     public static void main(String... args) {
