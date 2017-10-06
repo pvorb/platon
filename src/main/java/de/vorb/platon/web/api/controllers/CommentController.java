@@ -45,6 +45,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -68,6 +69,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 
 @RestController
+@RequestMapping(path = "/api/comments")
 @Slf4j
 public class CommentController {
 
@@ -110,7 +112,7 @@ public class CommentController {
     }
 
 
-    @GetMapping(value = "/comments/{id}", produces = APPLICATION_JSON_UTF8_VALUE)
+    @GetMapping(value = "{id}", produces = APPLICATION_JSON_UTF8_VALUE)
     public CommentJson getCommentById(@PathVariable("id") long commentId) {
 
         final CommentsRecord comment = commentRepository.findById(commentId);
@@ -125,7 +127,7 @@ public class CommentController {
     }
 
 
-    @GetMapping(value = "/comments", produces = APPLICATION_JSON_UTF8_VALUE)
+    @GetMapping(produces = APPLICATION_JSON_UTF8_VALUE)
     public CommentListResultJson findCommentsByThreadUrl(@RequestParam("threadUrl") String threadUrl) {
 
         final List<CommentsRecord> comments = commentRepository.findByThreadUrl(threadUrl);
@@ -164,7 +166,7 @@ public class CommentController {
         return topLevelComments;
     }
 
-    @PostMapping(value = "/comments", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_UTF8_VALUE)
+    @PostMapping(consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<CommentJson> postComment(
             @RequestParam("threadUrl") String threadUrl,
             @RequestParam("threadTitle") String threadTitle,
@@ -240,7 +242,7 @@ public class CommentController {
     }
 
 
-    @PutMapping(value = "/comments/{id}", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_UTF8_VALUE)
+    @PutMapping(value = "{id}", consumes = APPLICATION_JSON_VALUE)
     public void updateComment(
             @PathVariable("id") Long commentId,
             @RequestHeader(SIGNATURE_HEADER) String signature,
@@ -298,7 +300,7 @@ public class CommentController {
     }
 
 
-    @DeleteMapping("/comments/{id}")
+    @DeleteMapping("{id}")
     public void deleteComment(
             @PathVariable("id") Long commentId,
             @RequestHeader(SIGNATURE_HEADER) String signature) {

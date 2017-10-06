@@ -21,7 +21,6 @@ import de.vorb.platon.persistence.CommentRepository;
 import de.vorb.platon.web.api.json.CommentCountsJson;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -34,17 +33,17 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
 
 
 @RestController
-@RequestMapping(value = "comment-count", produces = APPLICATION_JSON_UTF8_VALUE)
-public class CommentCountController {
+@RequestMapping("/api/comment-counts")
+public class CommentCountsController {
 
     private final CommentRepository commentRepository;
 
     @Autowired
-    public CommentCountController(CommentRepository commentRepository) {
+    public CommentCountsController(CommentRepository commentRepository) {
         this.commentRepository = commentRepository;
     }
 
-    @GetMapping
+    @GetMapping(produces = APPLICATION_JSON_UTF8_VALUE)
     public CommentCountsJson getCommentCounts(@RequestParam("threadUrl") Set<String> threadUrls) {
 
         final CommentCountsJson.CommentCountsJsonBuilder commentCounts = CommentCountsJson.builder();

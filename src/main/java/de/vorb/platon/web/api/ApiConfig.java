@@ -44,4 +44,5 @@ public class ApiConfig extends WebMvcConfigurerAdapter {
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(new PoweredByResponseInterceptor());
     }
+
 }
