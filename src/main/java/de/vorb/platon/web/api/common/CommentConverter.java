@@ -103,6 +103,6 @@ public class CommentConverter {
             return "";
         }
 
-        return de.vorb.platon.web.api.common.ByteArrayConverter.bytesToHexString(md5.digest(email.getBytes(StandardCharsets.UTF_8)));
+        return ByteArrayConverter.bytesToHexString(md5.digest(email.getBytes(StandardCharsets.UTF_8)));
     }
 }
