@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package de.vorb.platon.app;
+package de.vorb.platon;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 
 @Configuration
 @PropertySource(value = "classpath:config/application.properties")
-public class SpringTestConfig {}
+public class SpringUnitTestConfig {}

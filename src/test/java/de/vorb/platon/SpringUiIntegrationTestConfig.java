@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package de.vorb.platon.app;
+package de.vorb.platon;
 
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.remote.DesiredCapabilities;
@@ -30,7 +30,7 @@ import java.net.URL;
 @Configuration
 @EnableAutoConfiguration
 @PropertySource("classpath:config/application.properties")
-public class SpringITConfig {
+public class SpringUiIntegrationTestConfig {
 
     @Bean
     public WebDriver webDriver() throws MalformedURLException {
