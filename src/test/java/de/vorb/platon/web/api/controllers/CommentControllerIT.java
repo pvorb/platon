@@ -19,7 +19,6 @@ package de.vorb.platon.web.api.controllers;
 import de.vorb.platon.jooq.tables.records.CommentsRecord;
 import de.vorb.platon.model.CommentStatus;
 import de.vorb.platon.persistence.CommentRepository;
-import de.vorb.platon.web.api.common.ByteArrayConverter;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -33,7 +32,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.sql.Timestamp;
-import java.util.Base64;
+import java.time.Instant;
 
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
@@ -46,12 +45,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 public class CommentControllerIT {
 
+    private static final String CREATION_DATE = "2017-10-06T19:45:23.751Z";
+    private static final String LAST_MODIFICATION_DATE = "2017-10-06T19:48:51.179Z";
+
     private static final CommentsRecord SAMPLE_COMMENT = new CommentsRecord(
             4711L,
             25L,
             1336L,
-            Timestamp.valueOf("2017-10-06 21:45:23.751"),
-            Timestamp.valueOf("2017-10-06 21:48:51.179"),
+            Timestamp.from(Instant.parse(CREATION_DATE)),
+            Timestamp.from(Instant.parse(LAST_MODIFICATION_DATE)),
             CommentStatus.PUBLIC.toString(),
             "Sample text",
             "John Doe",
@@ -78,16 +80,12 @@ public class CommentControllerIT {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(SAMPLE_COMMENT.getId()))
                 .andExpect(jsonPath("$.parentId").value(SAMPLE_COMMENT.getParentId()))
-                .andExpect(jsonPath("$.creationDate")
-                        .value(SAMPLE_COMMENT.getCreationDate().toInstant().toString()))
-                .andExpect(jsonPath("$.lastModificationDate")
-                        .value(SAMPLE_COMMENT.getLastModificationDate().toInstant().toString()))
+                .andExpect(jsonPath("$.creationDate").value(CREATION_DATE))
+                .andExpect(jsonPath("$.lastModificationDate").value(LAST_MODIFICATION_DATE))
                 .andExpect(jsonPath("$.status").value(SAMPLE_COMMENT.getStatus()))
                 .andExpect(jsonPath("$.text").value(SAMPLE_COMMENT.getText()))
                 .andExpect(jsonPath("$.author").value(SAMPLE_COMMENT.getAuthor()))
-                .andExpect(jsonPath("$.emailHash")
-                        .value(ByteArrayConverter.bytesToHexString(
-                                Base64.getDecoder().decode(SAMPLE_COMMENT.getEmailHash()))))
+                .andExpect(jsonPath("$.emailHash").value("0c17bf66e649070167701d2d3cd71711"))
                 .andExpect(jsonPath("$.url").value(SAMPLE_COMMENT.getUrl()));
     }
 
