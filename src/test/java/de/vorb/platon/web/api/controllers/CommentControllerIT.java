@@ -45,21 +45,20 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 public class CommentControllerIT {
 
-    private static final String CREATION_DATE = "2017-10-06T19:45:23.751Z";
-    private static final String LAST_MODIFICATION_DATE = "2017-10-06T19:48:51.179Z";
+    private static final String SAMPLE_CREATION_DATE = "2017-10-06T19:45:23.751Z";
+    private static final String SAMPLE_LAST_MODIFICATION_DATE = "2017-10-06T19:48:51.179Z";
 
-    private static final CommentsRecord SAMPLE_COMMENT = new CommentsRecord(
-            4711L,
-            25L,
-            1336L,
-            Timestamp.from(Instant.parse(CREATION_DATE)),
-            Timestamp.from(Instant.parse(LAST_MODIFICATION_DATE)),
-            CommentStatus.PUBLIC.toString(),
-            "Sample text",
-            "John Doe",
-            "DBe/ZuZJBwFncB0tPNcXEQ==",
-            "https://example.org"
-    );
+    private static final CommentsRecord SAMPLE_COMMENT = new CommentsRecord()
+            .setId(4711L)
+            .setThreadId(25L)
+            .setParentId(1336L)
+            .setCreationDate(Timestamp.from(Instant.parse(SAMPLE_CREATION_DATE)))
+            .setLastModificationDate(Timestamp.from(Instant.parse(SAMPLE_LAST_MODIFICATION_DATE)))
+            .setStatus(CommentStatus.PUBLIC.toString())
+            .setText("Sample text")
+            .setAuthor("John Doe")
+            .setEmailHash("DBe/ZuZJBwFncB0tPNcXEQ==")
+            .setUrl("https://example.org");
 
     @Autowired
     private MockMvc mockMvc;
@@ -80,13 +79,14 @@ public class CommentControllerIT {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(SAMPLE_COMMENT.getId()))
                 .andExpect(jsonPath("$.parentId").value(SAMPLE_COMMENT.getParentId()))
-                .andExpect(jsonPath("$.creationDate").value(CREATION_DATE))
-                .andExpect(jsonPath("$.lastModificationDate").value(LAST_MODIFICATION_DATE))
+                .andExpect(jsonPath("$.creationDate").value(SAMPLE_CREATION_DATE))
+                .andExpect(jsonPath("$.lastModificationDate").value(SAMPLE_LAST_MODIFICATION_DATE))
                 .andExpect(jsonPath("$.status").value(SAMPLE_COMMENT.getStatus()))
                 .andExpect(jsonPath("$.text").value(SAMPLE_COMMENT.getText()))
                 .andExpect(jsonPath("$.author").value(SAMPLE_COMMENT.getAuthor()))
                 .andExpect(jsonPath("$.emailHash").value("0c17bf66e649070167701d2d3cd71711"))
-                .andExpect(jsonPath("$.url").value(SAMPLE_COMMENT.getUrl()));
+                .andExpect(jsonPath("$.url").value(SAMPLE_COMMENT.getUrl()))
+                .andExpect(jsonPath("$.replies").isEmpty());
     }
 
 }
