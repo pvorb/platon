@@ -100,7 +100,7 @@ public class CommentConverter {
 
     private String calculateEmailHash(String email) {
         if (email == null) {
-            return "";
+            return null;
         }
 
         return ByteArrayConverter.bytesToHexString(md5.digest(email.getBytes(StandardCharsets.UTF_8)));

@@ -35,7 +35,8 @@ public class CommentConverterTest {
     @Test
     public void convertsRegularRecordToEquivalentJson() throws Exception {
 
-        final CommentsRecord record = createCommentRecord(CommentStatus.PUBLIC);
+        final CommentsRecord record = prepareRecord()
+                .setStatus(CommentStatus.PUBLIC.toString());
 
         final CommentJson json = commentConverter.convertRecordToJson(record);
 
@@ -46,7 +47,8 @@ public class CommentConverterTest {
     @Test
     public void convertsDeletedRecordToJsonWithoutContent() throws Exception {
 
-        final CommentsRecord record = createCommentRecord(CommentStatus.DELETED);
+        final CommentsRecord record = prepareRecord()
+                .setStatus(CommentStatus.DELETED.toString());
 
         final CommentJson json = commentConverter.convertRecordToJson(record);
 
@@ -78,17 +80,58 @@ public class CommentConverterTest {
         assertThat(json.getUrl()).isNull();
     }
 
-    private CommentsRecord createCommentRecord(CommentStatus status) {
+    private CommentsRecord prepareRecord() {
         return new CommentsRecord()
                 .setId(15L)
                 .setParentId(13L)
                 .setCreationDate(Timestamp.from(Instant.now().minusSeconds(53)))
                 .setLastModificationDate(Timestamp.from(Instant.now()))
-                .setStatus(status.toString())
                 .setText("Some text")
                 .setAuthor("Jane Doe")
                 .setEmailHash("DBe/ZuZJBwFncB0tPNcXEQ==")
                 .setUrl("https://example.org/~jane.html");
     }
 
+    @Test
+    public void convertsJsonToEquivalentRecord() throws Exception {
+
+        final CommentJson json = prepareJson().build();
+
+        final CommentsRecord record = commentConverter.convertJsonToRecord(json);
+
+        assertThat(record.getId()).isEqualTo(json.getId());
+        assertThat(record.getParentId()).isEqualTo(json.getParentId());
+        assertThat(record.getCreationDate()).isEqualTo(Timestamp.from(json.getCreationDate()));
+        assertThat(record.getLastModificationDate()).isEqualTo(Timestamp.from(json.getLastModificationDate()));
+        assertThat(record.getStatus()).isEqualTo(json.getStatus().toString());
+        assertThat(record.getText()).isEqualTo(json.getText());
+        assertThat(record.getAuthor()).isEqualTo(json.getAuthor());
+        assertThat(record.getEmailHash()).isEqualTo("18385ac57d9b171dc3fe83a5a92b68d9");
+        assertThat(record.getUrl()).isEqualTo(json.getUrl());
+    }
+
+    @Test
+    public void acceptsJsonWithMissingEmailAddress() throws Exception {
+
+        final CommentJson json = prepareJson()
+                .email(null)
+                .build();
+
+        final CommentsRecord record = commentConverter.convertJsonToRecord(json);
+
+        assertThat(record.getEmailHash()).isNull();
+    }
+
+    private CommentJson.CommentJsonBuilder prepareJson() {
+        return CommentJson.builder()
+                .id(15L)
+                .parentId(13L)
+                .creationDate(Instant.now().minusSeconds(53))
+                .lastModificationDate(Instant.now())
+                .status(CommentStatus.PUBLIC)
+                .text("Some text")
+                .author("Jane Doe")
+                .email("jane@example.org")
+                .url("https://example.org/~jane.html");
+    }
 }
