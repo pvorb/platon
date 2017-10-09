@@ -30,7 +30,7 @@ public class CommentFilters {
     private static final Set<CommentStatus> countStatus = EnumSet.of(CommentStatus.PUBLIC);
 
     public boolean doesCommentCount(CommentsRecord comment) {
-        return countStatus.contains(Enum.valueOf(CommentStatus.class, comment.getStatus()));
+        return countStatus.contains(CommentStatus.valueOf(comment.getStatus()));
     }
 
 }

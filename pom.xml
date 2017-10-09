@@ -46,7 +46,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <!-- Compile time dependency versions -->
-        <lombok.version>1.16.14</lombok.version>
+        <lombok.version>1.16.18</lombok.version>
 
         <!-- Dependency versions -->
         <guava.version>21.0</guava.version>
@@ -60,6 +60,7 @@
         <flyway.version>4.1.0</flyway.version>
 
         <!-- Testing -->
+        <assertj.version>3.8.0</assertj.version>
         <openpojo.version>0.8.4</openpojo.version>
         <selenium.version>3.3.1</selenium.version>
 
