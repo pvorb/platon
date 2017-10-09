@@ -16,11 +16,13 @@
 
 package de.vorb.platon.web.api.common;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+
 import javax.xml.bind.DatatypeConverter;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ByteArrayConverter {
-
-    private ByteArrayConverter() {}
 
     public static String bytesToHexString(byte[] bytes) {
         return DatatypeConverter.printHexBinary(bytes).toLowerCase();
