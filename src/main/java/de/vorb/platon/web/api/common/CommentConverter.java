@@ -52,7 +52,7 @@ public class CommentConverter {
 
         final CommentStatus status = record.getStatus() == null
                 ? null
-                : Enum.valueOf(CommentStatus.class, record.getStatus());
+                : CommentStatus.valueOf(record.getStatus());
 
         final CommentJson.CommentJsonBuilder json = CommentJson.builder()
                 .id(record.getId())
