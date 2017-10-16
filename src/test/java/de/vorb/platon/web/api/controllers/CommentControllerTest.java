@@ -17,13 +17,13 @@
 package de.vorb.platon.web.api.controllers;
 
 import de.vorb.platon.jooq.tables.records.CommentsRecord;
-import de.vorb.platon.model.CommentStatus;
 import de.vorb.platon.persistence.CommentRepository;
 import de.vorb.platon.persistence.ThreadRepository;
 import de.vorb.platon.security.RequestVerifier;
 import de.vorb.platon.web.api.common.CommentConverter;
 import de.vorb.platon.web.api.common.CommentFilters;
 import de.vorb.platon.web.api.common.InputSanitizer;
+import de.vorb.platon.web.api.errors.RequestException;
 import de.vorb.platon.web.api.json.CommentJson;
 
 import org.junit.Before;
@@ -31,10 +31,12 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.http.HttpStatus;
 
 import java.time.Clock;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -73,18 +75,38 @@ public class CommentControllerTest {
     public void getCommentByIdReturnsPublicComment() throws Exception {
 
         final long commentId = 4711;
-        final CommentsRecord publicRecord =
+        final CommentsRecord publicComment =
                 new CommentsRecord()
                         .setId(commentId)
                         .setText("Text")
                         .setStatus("PUBLIC");
 
-        when(commentRepository.findById(eq(commentId))).thenReturn(publicRecord);
-        when(commentConverter.convertRecordToJson(eq(publicRecord))).thenReturn(commentJson);
+        when(commentRepository.findById(eq(commentId))).thenReturn(publicComment);
+        when(commentConverter.convertRecordToJson(eq(publicComment))).thenReturn(commentJson);
 
         assertThat(commentController.getCommentById(commentId)).isSameAs(commentJson);
 
         verify(commentRepository).findById(eq(commentId));
-        verify(commentConverter).convertRecordToJson(eq(publicRecord));
+        verify(commentConverter).convertRecordToJson(eq(publicComment));
+    }
+
+    @Test
+    public void getCommentByIdThrowsNotFoundForDeletedComment() throws Exception {
+
+        final long commentId = 1337;
+        final CommentsRecord deletedComment =
+                new CommentsRecord()
+                        .setId(commentId)
+                        .setText("Text")
+                        .setStatus("DELETED");
+
+        when(commentRepository.findById(eq(commentId))).thenReturn(deletedComment);
+
+        assertThatExceptionOfType(RequestException.class)
+                .isThrownBy(() -> commentController.getCommentById(commentId))
+                .matches(exception -> exception.getHttpStatus() == HttpStatus.NOT_FOUND)
+                .withMessage("No comment found with id = " + commentId);
+
+        verify(commentRepository).findById(eq(commentId));
     }
 }
