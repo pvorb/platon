@@ -26,6 +26,7 @@ import org.springframework.context.annotation.PropertySource;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.concurrent.TimeUnit;
 
 @Configuration
 @EnableAutoConfiguration
@@ -34,7 +35,9 @@ public class SpringUiIntegrationTestConfig {
 
     @Bean
     public WebDriver webDriver() throws MalformedURLException {
-        return new RemoteWebDriver(getRemoteUrl(), getDesiredCapabilities());
+        final WebDriver webDriver = new RemoteWebDriver(getRemoteUrl(), getDesiredCapabilities());
+        webDriver.manage().timeouts().implicitlyWait(500, TimeUnit.MILLISECONDS);
+        return webDriver;
     }
 
     private DesiredCapabilities getDesiredCapabilities() {
