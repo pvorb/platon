@@ -18,12 +18,10 @@ package de.vorb.platon.security;
 
 import de.vorb.platon.persistence.PropertyRepository;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.crypto.KeyGenerator;
@@ -31,31 +29,42 @@ import javax.crypto.SecretKey;
 import java.util.Base64;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DatabaseSecretKeyProviderTest {
-
-    @Mock
-    private PropertyRepository propertyRepository;
 
     private static final String SECRET_KEY = "secret_key";
 
     @InjectMocks
     private DatabaseSecretKeyProvider secretKeyProvider;
 
-    @Before
-    public void setUp() throws Exception {
-
-    }
+    @Mock
+    private PropertyRepository propertyRepository;
 
     @Test
     public void noSecretKeyAvailable() throws Exception {
+        final SecretKey secretKey = assertThatSecretKeyIsGenerated();
+        assertThatSecretKeyIsNotRecreated(secretKey);
+    }
 
-        Mockito.when(propertyRepository.findValueByKey(Mockito.eq(SECRET_KEY))).thenReturn(null);
+    private void assertThatSecretKeyIsNotRecreated(SecretKey secretKey) {
+        reset(propertyRepository);
+        assertThat(secretKeyProvider.getSecretKey()).isSameAs(secretKey);
+        verify(propertyRepository, never()).findValueByKey(any());
+    }
 
-        secretKeyProvider.getSecretKey();
+    private SecretKey assertThatSecretKeyIsGenerated() {
+        when(propertyRepository.findValueByKey(eq(SECRET_KEY))).thenReturn(null);
+        final SecretKey secretKey = secretKeyProvider.getSecretKey();
+        verify(propertyRepository).insertValue(eq(SECRET_KEY), any());
 
-        Mockito.verify(propertyRepository).insertValue(Mockito.eq(SECRET_KEY), Mockito.any());
+        return secretKey;
     }
 
     @Test
@@ -64,7 +73,7 @@ public class DatabaseSecretKeyProviderTest {
         final SecretKey storedSecretKey = KeyGenerator.getInstance(
                 HmacRequestVerifier.HMAC_ALGORITHM.toString()).generateKey();
 
-        Mockito.when(propertyRepository.findValueByKey(Mockito.eq(SECRET_KEY)))
+        when(propertyRepository.findValueByKey(eq(SECRET_KEY)))
                 .thenReturn(Base64.getEncoder().encodeToString(storedSecretKey.getEncoded()));
 
         final SecretKey secretKeyFromRepo = secretKeyProvider.getSecretKey();
