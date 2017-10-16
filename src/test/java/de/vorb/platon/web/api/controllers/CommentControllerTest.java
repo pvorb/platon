@@ -25,6 +25,7 @@ import de.vorb.platon.web.api.common.CommentFilters;
 import de.vorb.platon.web.api.common.InputSanitizer;
 import de.vorb.platon.web.api.errors.RequestException;
 import de.vorb.platon.web.api.json.CommentJson;
+import de.vorb.platon.web.api.json.CommentListResultJson;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -34,15 +35,22 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.http.HttpStatus;
 
 import java.time.Clock;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CommentControllerTest {
+
+    private static final String THREAD_URL = "/sample-article.html";
 
     private CommentController commentController;
 
@@ -64,6 +72,8 @@ public class CommentControllerTest {
 
     @Mock
     private CommentJson commentJson;
+    @Mock
+    private CommentJson childCommentJson;
 
     @Before
     public void setUp() throws Exception {
@@ -85,9 +95,6 @@ public class CommentControllerTest {
         when(commentConverter.convertRecordToJson(eq(publicComment))).thenReturn(commentJson);
 
         assertThat(commentController.getCommentById(commentId)).isSameAs(commentJson);
-
-        verify(commentRepository).findById(eq(commentId));
-        verify(commentConverter).convertRecordToJson(eq(publicComment));
     }
 
     @Test
@@ -106,7 +113,49 @@ public class CommentControllerTest {
                 .isThrownBy(() -> commentController.getCommentById(commentId))
                 .matches(exception -> exception.getHttpStatus() == HttpStatus.NOT_FOUND)
                 .withMessage("No comment found with id = " + commentId);
-
-        verify(commentRepository).findById(eq(commentId));
     }
+
+    @Test
+    public void findCommentsByThreadUrlReturnsCommentsAsTree() throws Exception {
+
+        final CommentsRecord comment = new CommentsRecord().setId(4711L);
+        final CommentsRecord childComment = new CommentsRecord().setId(4712L).setParentId(comment.getId());
+
+        final List<CommentsRecord> records = Arrays.asList(comment, childComment);
+
+        when(commentRepository.findByThreadUrl(eq(THREAD_URL))).thenReturn(records);
+        acceptAllComments();
+
+        when(commentConverter.convertRecordToJson(eq(comment))).thenReturn(commentJson);
+        when(commentConverter.convertRecordToJson(eq(childComment))).thenReturn(childCommentJson);
+
+        when(commentJson.getId()).thenReturn(comment.getId());
+        when(commentJson.getReplies()).thenReturn(new ArrayList<>());
+        when(childCommentJson.getId()).thenReturn(childComment.getId());
+
+        final CommentListResultJson resultJson = commentController.findCommentsByThreadUrl(THREAD_URL);
+
+        assertThat(resultJson.getComments()).isEqualTo(Collections.singletonList(commentJson));
+        assertThat(resultJson.getComments().get(0).getReplies()).isEqualTo(Collections.singletonList(childCommentJson));
+        assertThat(resultJson.getTotalCommentCount()).isEqualTo(records.size());
+
+        records.forEach(record -> verify(commentFilters).doesCommentCount(eq(record)));
+    }
+
+    private void acceptAllComments() {
+        when(commentFilters.doesCommentCount(any())).thenReturn(true);
+    }
+
+    @Test
+    public void findCommentsByThreadUrlThrowsNotFoundIfThreadIsEmpty() throws Exception {
+
+        when(commentRepository.findByThreadUrl(any())).thenReturn(Collections.emptyList());
+
+        assertThatExceptionOfType(RequestException.class)
+                .isThrownBy(() -> commentController.findCommentsByThreadUrl(THREAD_URL))
+                .matches(exception -> exception.getHttpStatus() == HttpStatus.NOT_FOUND)
+                .withMessage("No thread found with url = '" + THREAD_URL + "'");
+    }
+
+
 }
