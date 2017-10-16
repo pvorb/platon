@@ -25,6 +25,7 @@ import org.junit.Test;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.Base64;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -37,6 +38,23 @@ public class CommentConverterTest {
 
         final CommentsRecord record = prepareRecord()
                 .setStatus(CommentStatus.PUBLIC.toString());
+
+        final CommentJson json = commentConverter.convertRecordToJson(record);
+
+        assertThatMetaFieldsMatchRecord(json, record);
+        assertThatContentFieldsMatchRecord(json, record);
+    }
+
+    @Test
+    public void convertsMinimalRecordToEquivalentJson() throws Exception {
+
+        final CommentsRecord record = prepareRecord()
+                .setCreationDate(null)
+                .setLastModificationDate(null)
+                .setStatus(null)
+                .setAuthor(null)
+                .setEmailHash(null)
+                .setUrl(null);
 
         final CommentJson json = commentConverter.convertRecordToJson(record);
 
@@ -58,17 +76,35 @@ public class CommentConverterTest {
     }
 
     private void assertThatMetaFieldsMatchRecord(CommentJson json, CommentsRecord record) {
+
         assertThat(json.getId()).isEqualTo(record.getId());
         assertThat(json.getParentId()).isEqualTo(record.getParentId());
-        assertThat(json.getCreationDate()).isEqualTo(record.getCreationDate().toInstant());
-        assertThat(json.getLastModificationDate()).isEqualTo(record.getLastModificationDate().toInstant());
-        assertThat(json.getStatus()).isEqualTo(CommentStatus.valueOf(record.getStatus()));
+
+        assertThat(json.getCreationDate()).isEqualTo(
+                Optional.ofNullable(record.getCreationDate())
+                        .map(Timestamp::toInstant)
+                        .orElse(null));
+
+        assertThat(json.getLastModificationDate()).isEqualTo(
+                Optional.ofNullable(record.getLastModificationDate())
+                        .map(Timestamp::toInstant)
+                        .orElse(null));
+
+        assertThat(json.getStatus()).isEqualTo(
+                Optional.ofNullable(record.getStatus())
+                        .map(CommentStatus::valueOf)
+                        .orElse(null));
     }
 
     private void assertThatContentFieldsMatchRecord(CommentJson json, CommentsRecord record) {
         assertThat(json.getText()).isEqualTo(record.getText());
         assertThat(json.getAuthor()).isEqualTo(record.getAuthor());
-        assertThat(json.getEmailHash()).isEqualTo(Base64.getDecoder().decode(record.getEmailHash()));
+
+        assertThat(json.getEmailHash())
+                .isEqualTo(Optional.ofNullable(record.getEmailHash())
+                        .map(emailHash -> Base64.getDecoder().decode(emailHash))
+                        .orElse(null));
+
         assertThat(json.getUrl()).isEqualTo(record.getUrl());
         assertThat(json.getReplies()).isEmpty();
     }
@@ -108,6 +144,32 @@ public class CommentConverterTest {
         assertThat(record.getAuthor()).isEqualTo(json.getAuthor());
         assertThat(record.getEmailHash()).isEqualTo("18385ac57d9b171dc3fe83a5a92b68d9");
         assertThat(record.getUrl()).isEqualTo(json.getUrl());
+    }
+
+    @Test
+    public void convertsMinimalJsonToEquivalentRecord() throws Exception {
+
+        final CommentJson json = prepareJson()
+                .parentId(null)
+                .creationDate(null)
+                .lastModificationDate(null)
+                .status(null)
+                .author(null)
+                .email(null)
+                .url(null)
+                .build();
+
+        final CommentsRecord record = commentConverter.convertJsonToRecord(json);
+
+        assertThat(record.getId()).isEqualTo(json.getId());
+        assertThat(record.getParentId()).isNull();
+        assertThat(record.getCreationDate()).isNull();
+        assertThat(record.getLastModificationDate()).isNull();
+        assertThat(record.getStatus()).isNull();
+        assertThat(record.getText()).isEqualTo(json.getText());
+        assertThat(record.getAuthor()).isNull();
+        assertThat(record.getEmailHash()).isNull();
+        assertThat(record.getUrl()).isNull();
     }
 
     @Test
