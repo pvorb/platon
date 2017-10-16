@@ -117,9 +117,9 @@ public class CommentController {
 
         final CommentsRecord comment = commentRepository.findById(commentId);
 
-        if (comment == null || Enum.valueOf(CommentStatus.class, comment.getStatus()) != CommentStatus.PUBLIC) {
+        if (comment == null || CommentStatus.valueOf(comment.getStatus()) != CommentStatus.PUBLIC) {
             throw RequestException.notFound()
-                    .message(String.format("No comment found with id = %d", commentId))
+                    .message("No comment found with id = " + commentId)
                     .build();
         } else {
             return commentConverter.convertRecordToJson(comment);
