@@ -14,23 +14,19 @@
  * limitations under the License.
  */
 
-package de.vorb.platon.web.api.common;
+package de.vorb.platon.web.mvc;
 
-import de.vorb.platon.jooq.tables.records.CommentsRecord;
-import de.vorb.platon.model.CommentStatus;
+import org.junit.Test;
 
-import org.springframework.stereotype.Component;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.EnumSet;
-import java.util.Set;
+public class IndexControllerTest {
 
-@Component
-public class CommentFilters {
+    private final IndexController indexController = new IndexController();
 
-    private static final Set<CommentStatus> countStatus = EnumSet.of(CommentStatus.PUBLIC);
-
-    public boolean doesCommentCount(CommentsRecord comment) {
-        return countStatus.contains(CommentStatus.valueOf(comment.getStatus()));
+    @Test
+    public void getIndex() throws Exception {
+        assertThat(indexController.getIndex()).isEqualTo("index");
     }
 
 }

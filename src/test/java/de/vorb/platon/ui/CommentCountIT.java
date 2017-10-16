@@ -16,7 +16,7 @@
 
 package de.vorb.platon.ui;
 
-import de.vorb.platon.app.SpringITConfig;
+import de.vorb.platon.SpringUiIntegrationTestConfig;
 import de.vorb.platon.jooq.tables.records.CommentsRecord;
 import de.vorb.platon.jooq.tables.records.ThreadsRecord;
 import de.vorb.platon.model.CommentStatus;
@@ -51,7 +51,7 @@ import static de.vorb.platon.jooq.Tables.THREADS;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
-@ContextConfiguration(classes = SpringITConfig.class)
+@ContextConfiguration(classes = SpringUiIntegrationTestConfig.class)
 @Slf4j
 public class CommentCountIT {
 

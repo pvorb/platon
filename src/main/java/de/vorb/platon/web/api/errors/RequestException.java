@@ -27,11 +27,7 @@ public class RequestException extends RuntimeException {
     @Getter
     private final int status;
 
-    protected RequestException(int status, String message) {
-        this(status, message, null);
-    }
-
-    protected RequestException(int status, String message, Throwable cause) {
+    RequestException(int status, String message, Throwable cause) {
         super(message, cause);
 
         Preconditions.checkArgument(isHttpErrorStatus(status),

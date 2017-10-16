@@ -14,11 +14,22 @@
  * limitations under the License.
  */
 
-package de.vorb.platon.app;
+package de.vorb.platon;
 
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
+import org.junit.Test;
 
-@Configuration
-@PropertySource(value = "classpath:config/application.properties")
-public class SpringTestConfig {}
+import java.time.Clock;
+import java.time.ZoneId;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+public class PlatonAppTest {
+
+    @Test
+    public void configuredClockIsUtc() throws Exception {
+        final Clock configuredClock = new PlatonApp().clock();
+        final ZoneId utc = ZoneId.of("Z");
+        assertThat(configuredClock.getZone()).isEqualTo(utc);
+    }
+
+}

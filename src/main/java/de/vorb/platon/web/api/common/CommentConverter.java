@@ -100,9 +100,9 @@ public class CommentConverter {
 
     private String calculateEmailHash(String email) {
         if (email == null) {
-            return "";
+            return null;
         }
 
-        return de.vorb.platon.web.api.common.ByteArrayConverter.bytesToHexString(md5.digest(email.getBytes(StandardCharsets.UTF_8)));
+        return ByteArrayConverter.bytesToHexString(md5.digest(email.getBytes(StandardCharsets.UTF_8)));
     }
 }

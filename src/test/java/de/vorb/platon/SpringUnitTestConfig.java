@@ -14,23 +14,11 @@
  * limitations under the License.
  */
 
-package de.vorb.platon.web.api.common;
+package de.vorb.platon;
 
-import de.vorb.platon.jooq.tables.records.CommentsRecord;
-import de.vorb.platon.model.CommentStatus;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
 
-import org.springframework.stereotype.Component;
-
-import java.util.EnumSet;
-import java.util.Set;
-
-@Component
-public class CommentFilters {
-
-    private static final Set<CommentStatus> countStatus = EnumSet.of(CommentStatus.PUBLIC);
-
-    public boolean doesCommentCount(CommentsRecord comment) {
-        return countStatus.contains(CommentStatus.valueOf(comment.getStatus()));
-    }
-
-}
+@Configuration
+@PropertySource(value = "classpath:config/application.properties")
+public class SpringUnitTestConfig {}

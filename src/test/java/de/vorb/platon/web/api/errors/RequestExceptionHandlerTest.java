@@ -14,23 +14,22 @@
  * limitations under the License.
  */
 
-package de.vorb.platon.web.api.common;
+package de.vorb.platon.web.api.errors;
 
-import de.vorb.platon.jooq.tables.records.CommentsRecord;
-import de.vorb.platon.model.CommentStatus;
+import org.junit.Test;
 
-import org.springframework.stereotype.Component;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.EnumSet;
-import java.util.Set;
+public class RequestExceptionHandlerTest {
 
-@Component
-public class CommentFilters {
+    private final RequestExceptionHandler requestExceptionHandler = new RequestExceptionHandler();
 
-    private static final Set<CommentStatus> countStatus = EnumSet.of(CommentStatus.PUBLIC);
+    @Test
+    public void handlesRequestException() throws Exception {
 
-    public boolean doesCommentCount(CommentsRecord comment) {
-        return countStatus.contains(CommentStatus.valueOf(comment.getStatus()));
+        final RequestException requestException = RequestException.badRequest().build();
+
+        assertThat(requestExceptionHandler.handleRequestException(requestException))
+                .isEqualTo(requestException.toResponseEntity());
     }
-
 }
