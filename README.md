@@ -10,7 +10,7 @@ A comment service
 ### Build
 
 ~~~
-mvn clean package
+./mvnw clean package
 ~~~
 
 ### Run
@@ -18,7 +18,7 @@ mvn clean package
 #### Production
 
 ~~~
-mvn package
+./mvnw package
 java -jar target/platon-${version}.jar
 ~~~
 
@@ -27,7 +27,7 @@ where you have to replace `${version}` with the current version in the file `pom
 #### Testing
 
 ~~~
-mvn spring-boot:run
+./mvnw spring-boot:run
 ~~~
 
 By default, the server will start under [localhost:8080](http://localhost:8080/).
@@ -35,7 +35,7 @@ By default, the server will start under [localhost:8080](http://localhost:8080/)
 ### Test
 
 ~~~
-mvn clean verify
+./mvnw clean verify
 ~~~
 
 
