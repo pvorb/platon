@@ -29,6 +29,7 @@ import de.vorb.platon.web.api.errors.RequestException;
 import de.vorb.platon.web.api.json.CommentJson;
 import de.vorb.platon.web.api.json.CommentListResultJson;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import lombok.extern.slf4j.Slf4j;
 import org.jooq.exception.DataAccessException;
@@ -45,7 +46,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -69,11 +69,16 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 
 @RestController
-@RequestMapping(path = "/api/comments")
 @Slf4j
 public class CommentController {
 
-    private static final String SIGNATURE_HEADER = "X-Signature";
+    @VisibleForTesting
+    private static final String PATH_LIST = "/api/comments";
+    private static final String PATH_VAR_COMMENT_ID = "commentId";
+    private static final String PATH_SINGLE = PATH_LIST + "/{" + PATH_VAR_COMMENT_ID + "}";
+
+    @VisibleForTesting
+    static final String SIGNATURE_HEADER = "X-Signature";
     private static final CommentStatus DEFAULT_STATUS = CommentStatus.PUBLIC;
 
     private static final PolicyFactory NO_HTML_POLICY = new HtmlPolicyBuilder().toFactory();
@@ -112,8 +117,8 @@ public class CommentController {
     }
 
 
-    @GetMapping(value = "{id}", produces = APPLICATION_JSON_UTF8_VALUE)
-    public CommentJson getCommentById(@PathVariable("id") long commentId) {
+    @GetMapping(value = PATH_SINGLE, produces = APPLICATION_JSON_UTF8_VALUE)
+    public CommentJson getCommentById(@PathVariable(PATH_VAR_COMMENT_ID) long commentId) {
 
         final CommentsRecord comment = commentRepository.findById(commentId)
                 .filter(c ->
@@ -127,7 +132,7 @@ public class CommentController {
     }
 
 
-    @GetMapping(produces = APPLICATION_JSON_UTF8_VALUE)
+    @GetMapping(value = PATH_LIST, produces = APPLICATION_JSON_UTF8_VALUE)
     public CommentListResultJson findCommentsByThreadUrl(@RequestParam("threadUrl") String threadUrl) {
 
         final List<CommentsRecord> comments = commentRepository.findByThreadUrl(threadUrl);
@@ -166,7 +171,7 @@ public class CommentController {
         return topLevelComments;
     }
 
-    @PostMapping(consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_UTF8_VALUE)
+    @PostMapping(value = PATH_LIST, consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<CommentJson> postComment(
             @RequestParam("threadUrl") String threadUrl,
             @RequestParam("threadTitle") String threadTitle,
@@ -209,12 +214,11 @@ public class CommentController {
 
         final URI commentUri = getUriFromId(comment.getId());
 
-        final String identifier = commentUri.toString();
         final Instant expirationDate = comment.getCreationDate().toInstant().plus(24, ChronoUnit.HOURS);
-        final byte[] signature = requestVerifier.getSignatureToken(identifier, expirationDate);
+        final byte[] signature = requestVerifier.getSignatureToken(commentUri.toString(), expirationDate);
 
         return ResponseEntity.created(commentUri)
-                .header(SIGNATURE_HEADER, String.format("%s|%s|%s", identifier, expirationDate,
+                .header(SIGNATURE_HEADER, String.format("%s|%s|%s", commentUri.toString(), expirationDate,
                         Base64.getEncoder().encodeToString(signature)))
                 .body(commentConverter.convertRecordToJson(comment));
     }
@@ -241,9 +245,9 @@ public class CommentController {
     }
 
 
-    @PutMapping(value = "{id}", consumes = APPLICATION_JSON_VALUE)
+    @PutMapping(value = PATH_SINGLE, consumes = APPLICATION_JSON_VALUE)
     public void updateComment(
-            @PathVariable("id") Long commentId,
+            @PathVariable(PATH_VAR_COMMENT_ID) Long commentId,
             @RequestHeader(SIGNATURE_HEADER) String signature,
             @RequestBody CommentJson commentJson) {
 
@@ -295,9 +299,9 @@ public class CommentController {
     }
 
 
-    @DeleteMapping("{id}")
+    @DeleteMapping(PATH_SINGLE)
     public void deleteComment(
-            @PathVariable("id") Long commentId,
+            @PathVariable(PATH_VAR_COMMENT_ID) Long commentId,
             @RequestHeader(SIGNATURE_HEADER) String signature) {
 
         verifyValidRequest(signature, commentId);
@@ -346,7 +350,8 @@ public class CommentController {
 
     private URI getUriFromId(long commentId) {
         return ServletUriComponentsBuilder.fromCurrentRequest()
-                .pathSegment("{id}")
-                .buildAndExpand(Collections.singletonMap("id", commentId)).toUri();
+                .path(PATH_SINGLE)
+                .replaceQuery(null)
+                .buildAndExpand(Collections.singletonMap(PATH_VAR_COMMENT_ID, commentId)).toUri();
     }
 }
