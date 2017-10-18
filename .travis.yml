@@ -24,7 +24,7 @@ before_install:
 
 install: /bin/true
 
-script: mvn verify -B -Djava.util.logging.config.file="src/test/resources/logging.properties"
+script: ./mvnw verify -B -Djava.util.logging.config.file="src/test/resources/logging.properties"
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
