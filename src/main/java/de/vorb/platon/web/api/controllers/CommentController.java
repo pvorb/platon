@@ -115,15 +115,15 @@ public class CommentController {
     @GetMapping(value = "{id}", produces = APPLICATION_JSON_UTF8_VALUE)
     public CommentJson getCommentById(@PathVariable("id") long commentId) {
 
-        final CommentsRecord comment = commentRepository.findById(commentId);
+        final CommentsRecord comment = commentRepository.findById(commentId)
+                .filter(c ->
+                        CommentStatus.valueOf(c.getStatus()) == CommentStatus.PUBLIC)
+                .orElseThrow(() ->
+                        RequestException.notFound()
+                                .message("No comment found with id = " + commentId)
+                                .build());
 
-        if (comment == null || CommentStatus.valueOf(comment.getStatus()) != CommentStatus.PUBLIC) {
-            throw RequestException.notFound()
-                    .message("No comment found with id = " + commentId)
-                    .build();
-        } else {
-            return commentConverter.convertRecordToJson(comment);
-        }
+        return commentConverter.convertRecordToJson(comment);
     }
 
 
@@ -178,17 +178,18 @@ public class CommentController {
                     .build();
         }
 
-        Long threadId = threadRepository.findThreadIdForUrl(threadUrl);
-        if (threadId == null) {
+        final long threadId = threadRepository.findThreadIdForUrl(threadUrl)
+                .orElseGet(() -> {
+                    final ThreadsRecord thread = new ThreadsRecord()
+                            .setUrl(threadUrl)
+                            .setTitle(threadTitle);
 
-            final ThreadsRecord thread = new ThreadsRecord()
-                    .setUrl(threadUrl)
-                    .setTitle(threadTitle);
+                    final long newThreadId = threadRepository.insert(thread).getId();
 
-            threadId = threadRepository.insert(thread).getId();
+                    log.info("Created new thread for url '{}'", threadUrl);
 
-            log.info("Created new thread for url '{}'", threadUrl);
-        }
+                    return newThreadId;
+                });
 
         commentJson.setStatus(DEFAULT_STATUS);
 
@@ -225,13 +226,11 @@ public class CommentController {
             return;
         }
 
-        final CommentsRecord parentComment = commentRepository.findById(parentId);
-
-        if (parentComment == null) {
-            throw RequestException.badRequest()
-                    .message("Parent comment does not exist")
-                    .build();
-        }
+        final CommentsRecord parentComment = commentRepository.findById(parentId)
+                .orElseThrow(() ->
+                        RequestException.badRequest()
+                                .message("Parent comment does not exist")
+                                .build());
 
         if (!comment.getThreadId().equals(parentComment.getThreadId())) {
             throw RequestException.badRequest()
@@ -256,30 +255,26 @@ public class CommentController {
 
         verifyValidRequest(signature, commentId);
 
-        final CommentsRecord comment = commentRepository.findById(commentId);
+        final CommentsRecord comment = commentRepository.findById(commentId)
+                .orElseThrow(() ->
+                        RequestException.badRequest()
+                                .message(String.format("Comment with id = %d does not exist", commentId))
+                                .build());
 
-        if (comment != null) {
+        comment.setText(commentJson.getText());
+        comment.setAuthor(comment.getAuthor());
+        comment.setUrl(comment.getUrl());
 
-            comment.setText(commentJson.getText());
-            comment.setAuthor(comment.getAuthor());
-            comment.setUrl(comment.getUrl());
+        comment.setLastModificationDate(Timestamp.from(clock.instant()));
 
-            comment.setLastModificationDate(Timestamp.from(clock.instant()));
+        sanitizeComment(comment);
 
-            sanitizeComment(comment);
-
-            try {
-                commentRepository.update(comment);
-            } catch (DataAccessException e) {
-                throw RequestException.withStatus(HttpStatus.CONFLICT)
-                        .message(String.format("Conflict on update of comment with id = %d", commentId))
-                        .cause(e)
-                        .build();
-            }
-
-        } else {
-            throw RequestException.badRequest()
-                    .message(String.format("Comment with id = %d does not exist", commentId))
+        try {
+            commentRepository.update(comment);
+        } catch (DataAccessException e) {
+            throw RequestException.withStatus(HttpStatus.CONFLICT)
+                    .message(String.format("Conflict on update of comment with id = %d", commentId))
+                    .cause(e)
                     .build();
         }
     }

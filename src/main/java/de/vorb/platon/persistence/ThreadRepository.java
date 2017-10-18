@@ -18,9 +18,11 @@ package de.vorb.platon.persistence;
 
 import de.vorb.platon.jooq.tables.records.ThreadsRecord;
 
+import java.util.Optional;
+
 public interface ThreadRepository {
 
-    Long findThreadIdForUrl(String threadUrl);
+    Optional<Long> findThreadIdForUrl(String threadUrl);
 
     ThreadsRecord insert(ThreadsRecord thread);
 

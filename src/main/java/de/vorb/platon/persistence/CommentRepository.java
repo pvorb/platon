@@ -21,13 +21,14 @@ import de.vorb.platon.model.CommentStatus;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 public interface CommentRepository {
 
     List<CommentsRecord> findByThreadUrl(String threadUrl);
 
-    CommentsRecord findById(long id);
+    Optional<CommentsRecord> findById(long id);
 
     CommentsRecord insert(CommentsRecord comment);
 

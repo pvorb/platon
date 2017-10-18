@@ -27,6 +27,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import static de.vorb.platon.jooq.Tables.COMMENTS;
@@ -53,11 +54,12 @@ public class JooqCommentRepository implements CommentRepository {
     }
 
     @Override
-    public CommentsRecord findById(long id) {
-        return dslContext
-                .selectFrom(COMMENTS)
-                .where(COMMENTS.ID.eq(id))
-                .fetchOne();
+    public Optional<CommentsRecord> findById(long id) {
+        return Optional.ofNullable(
+                dslContext
+                        .selectFrom(COMMENTS)
+                        .where(COMMENTS.ID.eq(id))
+                        .fetchOne());
     }
 
     @Override
@@ -75,7 +77,7 @@ public class JooqCommentRepository implements CommentRepository {
                 .from(COMMENTS
                         .join(THREADS).on(COMMENTS.THREAD_ID.eq(THREADS.ID)))
                 .where(THREADS.URL.in(threadUrls)
-                      .and(COMMENTS.STATUS.eq(CommentStatus.PUBLIC.toString())))
+                        .and(COMMENTS.STATUS.eq(CommentStatus.PUBLIC.toString())))
                 .groupBy(THREADS.URL)
                 .fetchMap(THREADS.URL, count());
     }

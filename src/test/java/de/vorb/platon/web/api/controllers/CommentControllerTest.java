@@ -39,6 +39,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -91,7 +92,7 @@ public class CommentControllerTest {
                         .setText("Text")
                         .setStatus("PUBLIC");
 
-        when(commentRepository.findById(eq(commentId))).thenReturn(publicComment);
+        when(commentRepository.findById(eq(commentId))).thenReturn(Optional.of(publicComment));
         when(commentConverter.convertRecordToJson(eq(publicComment))).thenReturn(commentJson);
 
         assertThat(commentController.getCommentById(commentId)).isSameAs(commentJson);
@@ -107,7 +108,7 @@ public class CommentControllerTest {
                         .setText("Text")
                         .setStatus("DELETED");
 
-        when(commentRepository.findById(eq(commentId))).thenReturn(deletedComment);
+        when(commentRepository.findById(eq(commentId))).thenReturn(Optional.of(deletedComment));
 
         assertThatExceptionOfType(RequestException.class)
                 .isThrownBy(() -> commentController.getCommentById(commentId))

@@ -33,6 +33,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.Optional;
 
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
@@ -68,7 +69,7 @@ public class CommentControllerIT {
 
     @Before
     public void setUp() throws Exception {
-        when(commentRepository.findById(eq(SAMPLE_COMMENT.getId()))).thenReturn(SAMPLE_COMMENT);
+        when(commentRepository.findById(eq(SAMPLE_COMMENT.getId()))).thenReturn(Optional.of(SAMPLE_COMMENT));
     }
 
     @Test
