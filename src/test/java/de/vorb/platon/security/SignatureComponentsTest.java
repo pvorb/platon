@@ -19,9 +19,11 @@ package de.vorb.platon.security;
 import org.junit.Test;
 
 import java.time.Instant;
+import java.time.format.DateTimeParseException;
 import java.util.Base64;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 public class SignatureComponentsTest {
 
@@ -35,7 +37,7 @@ public class SignatureComponentsTest {
     };
 
     private static final String SAMPLE_SIGNATURE = SAMPLE_IDENTIFIER + '|' + SAMPLE_EXPIRATION_TIME + '|' +
-            Base64.getEncoder().encodeToString(SAMPLE_SIGNATURE_TOKEN);
+            encodeSignatureToken();
 
     @Test
     public void fromStringParsesComponents() throws Exception {
@@ -57,4 +59,25 @@ public class SignatureComponentsTest {
         assertThat(signature).isEqualTo(SAMPLE_SIGNATURE);
     }
 
+    @Test
+    public void throwsIllegalArgumentExceptionWhenComponentCountInvalid() throws Exception {
+
+        assertThatExceptionOfType(IllegalArgumentException.class)
+                .isThrownBy(() -> SignatureComponents.fromString("a|b"));
+
+        assertThatExceptionOfType(IllegalArgumentException.class)
+                .isThrownBy(() -> SignatureComponents.fromString("a|b|c|d"));
+    }
+
+    @Test
+    public void throwsDateExceptionWhenDateIsNotParsable() throws Exception {
+
+        assertThatExceptionOfType(DateTimeParseException.class)
+                .isThrownBy(() ->
+                        SignatureComponents.fromString(SAMPLE_IDENTIFIER + "|1.2.2017|" + encodeSignatureToken()));
+    }
+
+    private static String encodeSignatureToken() {
+        return Base64.getEncoder().encodeToString(SAMPLE_SIGNATURE_TOKEN);
+    }
 }
