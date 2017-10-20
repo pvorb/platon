@@ -49,7 +49,7 @@ public class SignatureComponents {
         final Instant expirationTime = Instant.parse(signatureComponents[1]);
         final byte[] signatureToken = Base64.getDecoder().decode(signatureComponents[2]);
 
-        return new SignatureComponents(identifier, expirationTime, signatureToken);
+        return of(identifier, expirationTime, signatureToken);
     }
 
     @Override
