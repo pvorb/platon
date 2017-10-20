@@ -151,7 +151,7 @@ public class CommentControllerTest {
         assertThatExceptionOfType(RequestException.class)
                 .isThrownBy(() -> commentController.getCommentById(commentId))
                 .matches(exception -> exception.getHttpStatus() == HttpStatus.NOT_FOUND)
-                .withMessage("No comment found with id = " + commentId);
+                .withMessage("No comment found with ID = " + commentId);
     }
 
     @Test
@@ -181,10 +181,6 @@ public class CommentControllerTest {
         records.forEach(record -> verify(commentFilters).doesCommentCount(eq(record)));
     }
 
-    private void convertCommentRecordToJson(CommentsRecord comment, CommentJson commentJson) {
-        when(commentConverter.convertRecordToJson(eq(comment))).thenReturn(commentJson);
-    }
-
     private void acceptAllComments() {
         when(commentFilters.doesCommentCount(any())).thenReturn(true);
     }
@@ -206,7 +202,7 @@ public class CommentControllerTest {
         when(commentJson.getId()).thenReturn(null);
         when(threadRepository.findThreadIdForUrl(any())).thenReturn(Optional.empty());
         when(threadRepository.insert(any())).thenReturn(new ThreadsRecord().setId(1L));
-        when(commentConverter.convertJsonToRecord(any())).thenReturn(commentsRecord);
+        convertCommentJsonToRecord(commentJson, commentsRecord);
         when(commentsRecord.getParentId()).thenReturn(null);
         when(requestVerifier.getSignatureToken(any(), any())).thenReturn(new byte[0]);
         mockPostCommentRequest();
@@ -277,5 +273,23 @@ public class CommentControllerTest {
 
     private void assertSignatureIsEmpty(String[] signatureHeader) {
         assertThat(signatureHeader[2]).isEqualTo("");
+    }
+
+    @Test
+    public void postCommentWithIdThrowsBadRequestException() throws Exception {
+        when(commentJson.getId()).thenReturn(1337L);
+
+        assertThatExceptionOfType(RequestException.class)
+                .isThrownBy(() -> commentController.postComment(THREAD_URL, THREAD_TITLE, commentJson))
+                .matches(exception -> exception.getHttpStatus() == HttpStatus.BAD_REQUEST)
+                .withMessage("Comment ID is not null");
+    }
+
+    private void convertCommentRecordToJson(CommentsRecord comment, CommentJson commentJson) {
+        when(commentConverter.convertRecordToJson(eq(comment))).thenReturn(commentJson);
+    }
+
+    private void convertCommentJsonToRecord(CommentJson commentJson, CommentsRecord commentsRecord) {
+        when(commentConverter.convertJsonToRecord(eq(commentJson))).thenReturn(commentsRecord);
     }
 }

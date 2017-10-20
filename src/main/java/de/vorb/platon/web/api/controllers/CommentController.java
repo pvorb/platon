@@ -125,7 +125,7 @@ public class CommentController {
                         CommentStatus.valueOf(c.getStatus()) == CommentStatus.PUBLIC)
                 .orElseThrow(() ->
                         RequestException.notFound()
-                                .message("No comment found with id = " + commentId)
+                                .message("No comment found with ID = " + commentId)
                                 .build());
 
         return commentConverter.convertRecordToJson(comment);
@@ -179,7 +179,7 @@ public class CommentController {
 
         if (commentJson.getId() != null) {
             throw RequestException.badRequest()
-                    .message("Comment id is not null")
+                    .message("Comment ID is not null")
                     .build();
         }
 
@@ -253,7 +253,7 @@ public class CommentController {
 
         if (!commentId.equals(commentJson.getId())) {
             throw RequestException.badRequest()
-                    .message(String.format("Comment ids do not match (%d != %d)", commentJson.getId(), commentId))
+                    .message(String.format("Comment IDs do not match (%d != %d)", commentJson.getId(), commentId))
                     .build();
         }
 
@@ -262,7 +262,7 @@ public class CommentController {
         final CommentsRecord comment = commentRepository.findById(commentId)
                 .orElseThrow(() ->
                         RequestException.badRequest()
-                                .message(String.format("Comment with id = %d does not exist", commentId))
+                                .message(String.format("Comment with ID = %d does not exist", commentId))
                                 .build());
 
         comment.setText(commentJson.getText());
@@ -277,7 +277,7 @@ public class CommentController {
             commentRepository.update(comment);
         } catch (DataAccessException e) {
             throw RequestException.withStatus(HttpStatus.CONFLICT)
-                    .message(String.format("Conflict on update of comment with id = %d", commentId))
+                    .message(String.format("Conflict on update of comment with ID = %d", commentId))
                     .cause(e)
                     .build();
         }
@@ -309,10 +309,10 @@ public class CommentController {
         try {
             commentRepository.setStatus(commentId, CommentStatus.DELETED);
 
-            log.info("Marked comment with id = {} as DELETED", commentId);
+            log.info("Marked comment with ID = {} as DELETED", commentId);
         } catch (DataAccessException e) {
             throw RequestException.badRequest()
-                    .message(String.format("Comment with id = %d does not exist", commentId))
+                    .message(String.format("Comment with ID = %d does not exist", commentId))
                     .cause(e)
                     .build();
         }
