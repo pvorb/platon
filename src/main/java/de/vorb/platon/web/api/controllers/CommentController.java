@@ -21,6 +21,7 @@ import de.vorb.platon.jooq.tables.records.ThreadsRecord;
 import de.vorb.platon.model.CommentStatus;
 import de.vorb.platon.persistence.CommentRepository;
 import de.vorb.platon.persistence.ThreadRepository;
+import de.vorb.platon.security.SignatureComponents;
 import de.vorb.platon.security.SignatureTokenValidator;
 import de.vorb.platon.web.api.common.CommentConverter;
 import de.vorb.platon.web.api.common.CommentFilters;
@@ -213,13 +214,12 @@ public class CommentController {
         log.info("Posted new comment to thread '{}'", threadUrl);
 
         final URI commentUri = getUriFromId(comment.getId());
-
         final Instant expirationTime = comment.getCreationDate().toInstant().plus(24, ChronoUnit.HOURS);
-        final byte[] signature = signatureTokenValidator.getSignatureToken(commentUri.toString(), expirationTime);
+        final byte[] signatureToken = signatureTokenValidator.getSignatureToken(commentUri.toString(), expirationTime);
 
         return ResponseEntity.created(commentUri)
-                .header(SIGNATURE_HEADER, String.format("%s|%s|%s", commentUri.toString(), expirationTime,
-                        Base64.getEncoder().encodeToString(signature)))
+                .header(SIGNATURE_HEADER,
+                        SignatureComponents.of(commentUri.toString(), expirationTime, signatureToken).toString())
                 .body(commentConverter.convertRecordToJson(comment));
     }
 
@@ -320,21 +320,14 @@ public class CommentController {
 
     private void verifyValidRequest(String signature, Long commentId) {
 
-        final String[] signatureComponents = signature.split("\\|");
-
         try {
+            final SignatureComponents signatureComponents = SignatureComponents.fromString(signature);
 
-            checkArgument(signatureComponents.length == 3);
-
-            final String identifier = signatureComponents[0];
             final String referenceIdentifier = getUriFromId(commentId).toString();
 
-            checkArgument(identifier.equals(referenceIdentifier));
+            checkArgument(signatureComponents.getIdentifier().equals(referenceIdentifier));
 
-            final Instant expirationTime = Instant.parse(signatureComponents[1]);
-            final byte[] signatureToken = Base64.getDecoder().decode(signatureComponents[2]);
-
-            if (!signatureTokenValidator.isSignatureTokenValid(identifier, expirationTime, signatureToken)) {
+            if (!signatureTokenValidator.isSignatureValid(signatureComponents)) {
                 throw RequestException.badRequest()
                         .message("Authentication signature is invalid or has expired")
                         .build();

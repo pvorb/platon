@@ -22,6 +22,6 @@ public interface SignatureTokenValidator {
 
     byte[] getSignatureToken(String identifier, Instant expirationTime);
 
-    boolean isSignatureTokenValid(String identifier, Instant expirationTime, byte[] signatureToken);
+    boolean isSignatureValid(SignatureComponents signatureComponents);
 
 }

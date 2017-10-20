@@ -86,11 +86,12 @@ public class HmacSignatureTokenValidatorTest {
     private void assertThatRequestIsInvalid(Instant tokenExpirationTime, Instant userProvidedExpirationTime) {
 
         final String identifier = "comment/1";
-
         final byte[] signatureToken = requestVerifier.getSignatureToken(identifier, tokenExpirationTime);
 
-        final boolean validity =
-                requestVerifier.isSignatureTokenValid(identifier, userProvidedExpirationTime, signatureToken);
+        final SignatureComponents signatureComponents =
+                SignatureComponents.of(identifier, userProvidedExpirationTime, signatureToken);
+
+        final boolean validity = requestVerifier.isSignatureValid(signatureComponents);
 
         assertThat(validity).isFalse();
     }

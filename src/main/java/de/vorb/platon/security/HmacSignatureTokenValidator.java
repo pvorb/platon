@@ -32,7 +32,7 @@ import java.util.Arrays;
 @Service
 public class HmacSignatureTokenValidator implements SignatureTokenValidator {
 
-    public static final HmacAlgorithms HMAC_ALGORITHM = HmacAlgorithms.HMAC_SHA_256;
+    static final HmacAlgorithms HMAC_ALGORITHM = HmacAlgorithms.HMAC_SHA_256;
 
     private final Clock clock;
 
@@ -68,14 +68,15 @@ public class HmacSignatureTokenValidator implements SignatureTokenValidator {
     }
 
     @Override
-    public boolean isSignatureTokenValid(String identifier, Instant expirationTime, byte[] signatureToken) {
-        if (currentTime().isAfter(expirationTime)) {
+    public boolean isSignatureValid(SignatureComponents signatureComponents) {
+        if (currentTime().isAfter(signatureComponents.getExpirationTime())) {
             return false;
         }
 
-        final byte[] referenceSignature = getSignatureToken(identifier, expirationTime);
+        final byte[] referenceSignature =
+                getSignatureToken(signatureComponents.getIdentifier(), signatureComponents.getExpirationTime());
 
-        return Arrays.equals(signatureToken, referenceSignature);
+        return Arrays.equals(signatureComponents.getSignatureToken(), referenceSignature);
     }
 
     private Instant currentTime() {
