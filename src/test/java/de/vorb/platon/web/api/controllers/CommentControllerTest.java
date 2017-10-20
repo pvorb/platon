@@ -131,7 +131,7 @@ public class CommentControllerTest {
                         .setStatus("PUBLIC");
 
         when(commentRepository.findById(eq(commentId))).thenReturn(Optional.of(publicComment));
-        when(commentConverter.convertRecordToJson(eq(publicComment))).thenReturn(commentJson);
+        convertCommentRecordToJson(publicComment, commentJson);
 
         assertThat(commentController.getCommentById(commentId)).isSameAs(commentJson);
     }
@@ -165,8 +165,8 @@ public class CommentControllerTest {
         when(commentRepository.findByThreadUrl(eq(THREAD_URL))).thenReturn(records);
         acceptAllComments();
 
-        when(commentConverter.convertRecordToJson(eq(comment))).thenReturn(commentJson);
-        when(commentConverter.convertRecordToJson(eq(childComment))).thenReturn(childCommentJson);
+        convertCommentRecordToJson(comment, commentJson);
+        convertCommentRecordToJson(childComment, childCommentJson);
 
         when(commentJson.getId()).thenReturn(comment.getId());
         when(commentJson.getReplies()).thenReturn(new ArrayList<>());
@@ -179,6 +179,10 @@ public class CommentControllerTest {
         assertThat(resultJson.getTotalCommentCount()).isEqualTo(records.size());
 
         records.forEach(record -> verify(commentFilters).doesCommentCount(eq(record)));
+    }
+
+    private void convertCommentRecordToJson(CommentsRecord comment, CommentJson commentJson) {
+        when(commentConverter.convertRecordToJson(eq(comment))).thenReturn(commentJson);
     }
 
     private void acceptAllComments() {
