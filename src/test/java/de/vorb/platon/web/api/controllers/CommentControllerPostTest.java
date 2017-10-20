@@ -69,7 +69,7 @@ public class CommentControllerPostTest extends CommentControllerTest {
     @Before
     public void setUp() throws Exception {
         commentController = new CommentController(clock, threadRepository, commentRepository, commentConverter,
-                requestVerifier, inputSanitizer, commentFilters);
+                signatureTokenValidator, inputSanitizer, commentFilters);
 
     }
 
@@ -83,7 +83,7 @@ public class CommentControllerPostTest extends CommentControllerTest {
         when(threadRepository.insert(any())).thenReturn(new ThreadsRecord().setId(1L));
         convertCommentJsonToRecord(commentJson, commentsRecord);
         when(commentsRecord.getParentId()).thenReturn(null);
-        when(requestVerifier.getSignatureToken(any(), any())).thenReturn(new byte[0]);
+        when(signatureTokenValidator.getSignatureToken(any(), any())).thenReturn(new byte[0]);
         mockPostCommentRequest();
 
         final ResponseEntity<CommentJson> response =

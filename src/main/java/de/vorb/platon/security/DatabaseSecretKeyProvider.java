@@ -50,7 +50,7 @@ public class DatabaseSecretKeyProvider implements SecretKeyProvider {
             try {
                 initSecretKey();
             } catch (NoSuchAlgorithmException e) {
-                log.error("Unable to generate a secret key for {}", HmacRequestVerifier.HMAC_ALGORITHM, e);
+                log.error("Unable to generate a secret key for {}", HmacSignatureTokenValidator.HMAC_ALGORITHM, e);
             }
         }
 
@@ -63,7 +63,7 @@ public class DatabaseSecretKeyProvider implements SecretKeyProvider {
 
         if (secretKeyStringValue == null) {
 
-            secretKey = KeyGenerator.getInstance(HmacRequestVerifier.HMAC_ALGORITHM.toString()).generateKey();
+            secretKey = KeyGenerator.getInstance(HmacSignatureTokenValidator.HMAC_ALGORITHM.toString()).generateKey();
 
             propertyRepository.insertValue(SECRET_KEY, Base64.getEncoder().encodeToString(secretKey.getEncoded()));
 
@@ -72,7 +72,7 @@ public class DatabaseSecretKeyProvider implements SecretKeyProvider {
             final byte[] secretKeyBytes = Base64.getDecoder().decode(secretKeyStringValue);
 
             secretKey = new SecretKeySpec(secretKeyBytes, 0, secretKeyBytes.length,
-                    HmacRequestVerifier.HMAC_ALGORITHM.toString());
+                    HmacSignatureTokenValidator.HMAC_ALGORITHM.toString());
 
         }
     }

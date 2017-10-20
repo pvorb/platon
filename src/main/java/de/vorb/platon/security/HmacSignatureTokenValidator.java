@@ -30,7 +30,7 @@ import java.time.Instant;
 import java.util.Arrays;
 
 @Service
-public class HmacRequestVerifier implements RequestVerifier {
+public class HmacSignatureTokenValidator implements SignatureTokenValidator {
 
     public static final HmacAlgorithms HMAC_ALGORITHM = HmacAlgorithms.HMAC_SHA_256;
 
@@ -39,7 +39,7 @@ public class HmacRequestVerifier implements RequestVerifier {
     private final Mac mac;
 
     @Autowired
-    public HmacRequestVerifier(SecretKeyProvider keyProvider, Clock clock) {
+    public HmacSignatureTokenValidator(SecretKeyProvider keyProvider, Clock clock) {
 
         this.clock = clock;
 
@@ -57,25 +57,29 @@ public class HmacRequestVerifier implements RequestVerifier {
     }
 
     @Override
-    public byte[] getSignatureToken(String identifier, Instant expirationDate) {
-        final byte[] signatureSource = getSignatureSource(identifier, expirationDate);
+    public byte[] getSignatureToken(String identifier, Instant expirationTime) {
+        final byte[] signatureSource = getSignatureSource(identifier, expirationTime);
 
         return mac.doFinal(signatureSource);
     }
 
-    private byte[] getSignatureSource(String identifier, Instant expirationDate) {
-        return String.format("%s|%s", identifier, expirationDate).getBytes(StandardCharsets.UTF_8);
+    private byte[] getSignatureSource(String identifier, Instant expirationTime) {
+        return String.format("%s|%s", identifier, expirationTime).getBytes(StandardCharsets.UTF_8);
     }
 
     @Override
-    public boolean isRequestValid(String identifier, Instant expirationDate, byte[] signatureToken) {
-        if (clock.instant().isAfter(expirationDate)) {
+    public boolean isSignatureTokenValid(String identifier, Instant expirationTime, byte[] signatureToken) {
+        if (currentTime().isAfter(expirationTime)) {
             return false;
         }
 
-        final byte[] referenceSignature = getSignatureToken(identifier, expirationDate);
+        final byte[] referenceSignature = getSignatureToken(identifier, expirationTime);
 
         return Arrays.equals(signatureToken, referenceSignature);
+    }
+
+    private Instant currentTime() {
+        return clock.instant();
     }
 
 }

@@ -18,10 +18,10 @@ package de.vorb.platon.security;
 
 import java.time.Instant;
 
-public interface RequestVerifier {
+public interface SignatureTokenValidator {
 
-    byte[] getSignatureToken(String identifier, Instant expirationDate);
+    byte[] getSignatureToken(String identifier, Instant expirationTime);
 
-    boolean isRequestValid(String identifier, Instant expirationDate, byte[] signatureToken);
+    boolean isSignatureTokenValid(String identifier, Instant expirationTime, byte[] signatureToken);
 
 }

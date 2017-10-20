@@ -21,7 +21,7 @@ import de.vorb.platon.jooq.tables.records.ThreadsRecord;
 import de.vorb.platon.model.CommentStatus;
 import de.vorb.platon.persistence.CommentRepository;
 import de.vorb.platon.persistence.ThreadRepository;
-import de.vorb.platon.security.RequestVerifier;
+import de.vorb.platon.security.SignatureTokenValidator;
 import de.vorb.platon.web.api.common.CommentConverter;
 import de.vorb.platon.web.api.common.CommentFilters;
 import de.vorb.platon.web.api.common.InputSanitizer;
@@ -30,7 +30,6 @@ import de.vorb.platon.web.api.json.CommentJson;
 import de.vorb.platon.web.api.json.CommentListResultJson;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Preconditions;
 import lombok.extern.slf4j.Slf4j;
 import org.jooq.exception.DataAccessException;
 import org.owasp.encoder.Encode;
@@ -91,7 +90,7 @@ public class CommentController {
     private final CommentRepository commentRepository;
 
     private final CommentConverter commentConverter;
-    private final RequestVerifier requestVerifier;
+    private final SignatureTokenValidator signatureTokenValidator;
     private final InputSanitizer inputSanitizer;
     private final CommentFilters commentFilters;
 
@@ -102,7 +101,7 @@ public class CommentController {
             ThreadRepository threadRepository,
             CommentRepository commentRepository,
             CommentConverter commentConverter,
-            RequestVerifier requestVerifier,
+            SignatureTokenValidator signatureTokenValidator,
             InputSanitizer inputSanitizer,
             CommentFilters commentFilters) {
 
@@ -112,7 +111,7 @@ public class CommentController {
         this.commentRepository = commentRepository;
 
         this.commentConverter = commentConverter;
-        this.requestVerifier = requestVerifier;
+        this.signatureTokenValidator = signatureTokenValidator;
         this.inputSanitizer = inputSanitizer;
         this.commentFilters = commentFilters;
     }
@@ -215,11 +214,11 @@ public class CommentController {
 
         final URI commentUri = getUriFromId(comment.getId());
 
-        final Instant expirationDate = comment.getCreationDate().toInstant().plus(24, ChronoUnit.HOURS);
-        final byte[] signature = requestVerifier.getSignatureToken(commentUri.toString(), expirationDate);
+        final Instant expirationTime = comment.getCreationDate().toInstant().plus(24, ChronoUnit.HOURS);
+        final byte[] signature = signatureTokenValidator.getSignatureToken(commentUri.toString(), expirationTime);
 
         return ResponseEntity.created(commentUri)
-                .header(SIGNATURE_HEADER, String.format("%s|%s|%s", commentUri.toString(), expirationDate,
+                .header(SIGNATURE_HEADER, String.format("%s|%s|%s", commentUri.toString(), expirationTime,
                         Base64.getEncoder().encodeToString(signature)))
                 .body(commentConverter.convertRecordToJson(comment));
     }
@@ -313,7 +312,7 @@ public class CommentController {
             log.info("Marked comment with ID = {} as DELETED", commentId);
         } catch (DataAccessException e) {
             throw RequestException.badRequest()
-                    .message(String.format("Comment with ID = %d does not exist", commentId))
+                    .message(String.format("Unable to delete comment with ID = %d. Does it exist?", commentId))
                     .cause(e)
                     .build();
         }
@@ -332,10 +331,10 @@ public class CommentController {
 
             checkArgument(identifier.equals(referenceIdentifier));
 
-            final Instant expirationDate = Instant.parse(signatureComponents[1]);
+            final Instant expirationTime = Instant.parse(signatureComponents[1]);
             final byte[] signatureToken = Base64.getDecoder().decode(signatureComponents[2]);
 
-            if (!requestVerifier.isRequestValid(identifier, expirationDate, signatureToken)) {
+            if (!signatureTokenValidator.isSignatureTokenValid(identifier, expirationTime, signatureToken)) {
                 throw RequestException.badRequest()
                         .message("Authentication signature is invalid or has expired")
                         .build();

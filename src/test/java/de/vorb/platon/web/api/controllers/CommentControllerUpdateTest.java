@@ -19,7 +19,6 @@ package de.vorb.platon.web.api.controllers;
 import de.vorb.platon.web.api.errors.RequestException;
 import de.vorb.platon.web.api.json.CommentJson;
 
-import org.assertj.core.api.Assertions;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.springframework.http.HttpStatus;

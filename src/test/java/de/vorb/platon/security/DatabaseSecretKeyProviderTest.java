@@ -71,7 +71,7 @@ public class DatabaseSecretKeyProviderTest {
     public void secretKeyExists() throws Exception {
 
         final SecretKey storedSecretKey = KeyGenerator.getInstance(
-                HmacRequestVerifier.HMAC_ALGORITHM.toString()).generateKey();
+                HmacSignatureTokenValidator.HMAC_ALGORITHM.toString()).generateKey();
 
         when(propertyRepository.findValueByKey(eq(SECRET_KEY)))
                 .thenReturn(Base64.getEncoder().encodeToString(storedSecretKey.getEncoded()));
