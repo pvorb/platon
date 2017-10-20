@@ -23,7 +23,6 @@ import de.vorb.platon.web.api.json.CommentListResultJson;
 
 import org.junit.Test;
 import org.mockito.Mock;
-import org.mockito.Spy;
 import org.springframework.http.HttpStatus;
 
 import java.util.ArrayList;
@@ -46,7 +45,7 @@ public class CommentControllerFindByThreadUrlTest extends CommentControllerTest 
     private CommentJson childCommentJson;
 
     @Test
-    public void findCommentsByThreadUrlReturnsCommentsAsTree() throws Exception {
+    public void returnsCommentsAsTree() throws Exception {
 
         final CommentsRecord comment = new CommentsRecord().setId(4711L);
         final CommentsRecord childComment = new CommentsRecord().setId(4712L).setParentId(comment.getId());
@@ -77,7 +76,7 @@ public class CommentControllerFindByThreadUrlTest extends CommentControllerTest 
     }
 
     @Test
-    public void findCommentsByThreadUrlThrowsNotFoundIfThreadIsEmpty() throws Exception {
+    public void throwsNotFoundIfThreadIsEmpty() throws Exception {
 
         when(commentRepository.findByThreadUrl(any())).thenReturn(Collections.emptyList());
 

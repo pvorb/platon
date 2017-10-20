@@ -74,7 +74,7 @@ public class CommentControllerPostTest extends CommentControllerTest {
     }
 
     @Test
-    public void postCommentCreatesNewThreadOnDemand() throws Exception {
+    public void createsNewThreadOnDemand() throws Exception {
 
         insertCommentReturnsCommentWithNextId();
 

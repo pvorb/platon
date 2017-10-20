@@ -37,7 +37,7 @@ public class CommentControllerGetByIdTest extends CommentControllerTest {
     private CommentJson commentJson;
 
     @Test
-    public void getCommentByIdReturnsPublicComment() throws Exception {
+    public void returnsPublicComment() throws Exception {
 
         final long commentId = 4711;
         final CommentsRecord publicComment =
@@ -53,7 +53,7 @@ public class CommentControllerGetByIdTest extends CommentControllerTest {
     }
 
     @Test
-    public void getCommentByIdThrowsNotFoundForDeletedComment() throws Exception {
+    public void throwsNotFoundForDeletedComment() throws Exception {
 
         final long commentId = 1337;
         final CommentsRecord deletedComment =
