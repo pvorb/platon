@@ -64,6 +64,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
@@ -324,12 +325,12 @@ public class CommentController {
 
         try {
 
-            Preconditions.checkArgument(signatureComponents.length == 3);
+            checkArgument(signatureComponents.length == 3);
 
             final String identifier = signatureComponents[0];
             final String referenceIdentifier = getUriFromId(commentId).toString();
 
-            Preconditions.checkArgument(identifier.equals(referenceIdentifier));
+            checkArgument(identifier.equals(referenceIdentifier));
 
             final Instant expirationDate = Instant.parse(signatureComponents[1]);
             final byte[] signatureToken = Base64.getDecoder().decode(signatureComponents[2]);
