@@ -25,17 +25,15 @@ import de.vorb.platon.security.SignatureComponents;
 import de.vorb.platon.security.SignatureTokenValidator;
 import de.vorb.platon.web.api.common.CommentConverter;
 import de.vorb.platon.web.api.common.CommentFilters;
-import de.vorb.platon.web.api.common.InputSanitizer;
+import de.vorb.platon.web.api.common.CommentSanitizer;
 import de.vorb.platon.web.api.errors.RequestException;
 import de.vorb.platon.web.api.json.CommentJson;
 import de.vorb.platon.web.api.json.CommentListResultJson;
 
 import com.google.common.annotations.VisibleForTesting;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.jooq.exception.DataAccessException;
-import org.owasp.encoder.Encode;
-import org.owasp.html.HtmlPolicyBuilder;
-import org.owasp.html.PolicyFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -57,7 +55,6 @@ import java.time.Instant;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -82,8 +79,6 @@ public class CommentController {
     static final String SIGNATURE_HEADER = "X-Signature";
     private static final CommentStatus DEFAULT_STATUS = CommentStatus.PUBLIC;
 
-    private static final PolicyFactory NO_HTML_POLICY = new HtmlPolicyBuilder().toFactory();
-
 
     private final Clock clock;
 
@@ -92,8 +87,8 @@ public class CommentController {
 
     private final CommentConverter commentConverter;
     private final SignatureTokenValidator signatureTokenValidator;
-    private final InputSanitizer inputSanitizer;
     private final CommentFilters commentFilters;
+    private final CommentSanitizer commentSanitizer;
 
 
     @Autowired
@@ -103,8 +98,8 @@ public class CommentController {
             CommentRepository commentRepository,
             CommentConverter commentConverter,
             SignatureTokenValidator signatureTokenValidator,
-            InputSanitizer inputSanitizer,
-            CommentFilters commentFilters) {
+            CommentFilters commentFilters,
+            CommentSanitizer commentSanitizer) {
 
         this.clock = clock;
 
@@ -113,8 +108,8 @@ public class CommentController {
 
         this.commentConverter = commentConverter;
         this.signatureTokenValidator = signatureTokenValidator;
-        this.inputSanitizer = inputSanitizer;
         this.commentFilters = commentFilters;
+        this.commentSanitizer = commentSanitizer;
     }
 
 
@@ -207,13 +202,13 @@ public class CommentController {
 
         assertParentBelongsToSameThread(comment);
 
-        sanitizeComment(comment);
+        commentSanitizer.sanitizeComment(comment);
 
         comment = commentRepository.insert(comment);
 
         log.info("Posted new comment to thread '{}'", threadUrl);
 
-        final URI commentUri = getUriFromId(comment.getId());
+        final URI commentUri = getRelativeCommentUri(comment.getId());
         final Instant expirationTime = comment.getCreationDate().toInstant().plus(24, ChronoUnit.HOURS);
         final byte[] signatureToken = signatureTokenValidator.getSignatureToken(commentUri.toString(), expirationTime);
 
@@ -271,7 +266,7 @@ public class CommentController {
 
         comment.setLastModificationDate(Timestamp.from(clock.instant()));
 
-        sanitizeComment(comment);
+        commentSanitizer.sanitizeComment(comment);
 
         try {
             commentRepository.update(comment);
@@ -282,22 +277,6 @@ public class CommentController {
                     .build();
         }
     }
-
-
-    private void sanitizeComment(CommentsRecord comment) {
-        if (comment.getAuthor() != null) {
-            comment.setAuthor(NO_HTML_POLICY.sanitize(comment.getAuthor()));
-        }
-
-        if (comment.getUrl() != null) {
-            comment.setUrl(Encode.forHtmlAttribute(comment.getUrl()));
-        }
-
-        final String requestText = comment.getText();
-        final String sanitizedText = inputSanitizer.sanitize(requestText);
-        comment.setText(sanitizedText);
-    }
-
 
     @DeleteMapping(PATH_SINGLE)
     public void deleteComment(
@@ -323,7 +302,7 @@ public class CommentController {
         try {
             final SignatureComponents signatureComponents = SignatureComponents.fromString(signature);
 
-            final String referenceIdentifier = getUriFromId(commentId).toString();
+            final String referenceIdentifier = getRelativeCommentUri(commentId).toString();
 
             checkArgument(signatureComponents.getIdentifier().equals(referenceIdentifier));
 
@@ -341,10 +320,12 @@ public class CommentController {
         }
     }
 
-    private URI getUriFromId(long commentId) {
-        return ServletUriComponentsBuilder.fromCurrentRequest()
+    @SneakyThrows
+    private URI getRelativeCommentUri(long commentId) {
+        return new URI(ServletUriComponentsBuilder.fromCurrentRequest()
                 .path(PATH_SINGLE)
                 .replaceQuery(null)
-                .buildAndExpand(Collections.singletonMap(PATH_VAR_COMMENT_ID, commentId)).toUri();
+                .buildAndExpand(Collections.singletonMap(PATH_VAR_COMMENT_ID, commentId))
+                .getPath());
     }
 }

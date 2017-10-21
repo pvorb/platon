@@ -22,16 +22,24 @@ import de.vorb.platon.persistence.ThreadRepository;
 import de.vorb.platon.security.SignatureTokenValidator;
 import de.vorb.platon.web.api.common.CommentConverter;
 import de.vorb.platon.web.api.common.CommentFilters;
-import de.vorb.platon.web.api.common.InputSanitizer;
+import de.vorb.platon.web.api.common.CommentSanitizer;
 import de.vorb.platon.web.api.json.CommentJson;
 
 import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.http.HttpHeaders;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+import org.springframework.web.util.UriComponents;
+import org.springframework.web.util.UriComponentsBuilder;
 
+import javax.servlet.http.HttpServletRequest;
 import java.time.Clock;
 
+import static java.util.Collections.enumeration;
+import static java.util.Collections.singleton;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
 
@@ -58,14 +66,17 @@ public abstract class CommentControllerTest {
     @Mock
     protected SignatureTokenValidator signatureTokenValidator;
     @Mock
-    protected InputSanitizer inputSanitizer;
-    @Mock
     protected CommentFilters commentFilters;
+    @Mock
+    protected CommentSanitizer commentSanitizer;
+
+    @Mock
+    private HttpServletRequest httpServletRequest;
 
     @Before
     public void setUp() throws Exception {
         commentController = new CommentController(clock, threadRepository, commentRepository, commentConverter,
-                signatureTokenValidator, inputSanitizer, commentFilters);
+                signatureTokenValidator, commentFilters, commentSanitizer);
     }
 
     protected void convertCommentRecordToJson(CommentsRecord comment, CommentJson commentJson) {
@@ -74,5 +85,29 @@ public abstract class CommentControllerTest {
 
     protected void convertCommentJsonToRecord(CommentJson commentJson, CommentsRecord commentsRecord) {
         when(commentConverter.convertJsonToRecord(eq(commentJson))).thenReturn(commentsRecord);
+    }
+
+    protected void mockPostOrUpdateCommentRequest() {
+
+        final UriComponents uriComponents = UriComponentsBuilder.newInstance()
+                .scheme(SCHEME)
+                .host(HOST)
+                .path("api/comments")
+                .queryParam("threadUrl", THREAD_URL)
+                .queryParam("threadTitle", THREAD_TITLE)
+                .build();
+
+        final String requestUrl = uriComponents.toUriString();
+        final String requestQueryString = uriComponents.getQuery();
+
+        when(httpServletRequest.getRequestURL())
+                .thenReturn(new StringBuffer(requestUrl));
+        when(httpServletRequest.getQueryString())
+                .thenReturn(requestQueryString);
+        when(httpServletRequest.getHeaderNames())
+                .thenReturn(enumeration(singleton(HttpHeaders.CONTENT_TYPE)));
+        when(httpServletRequest.getHeaders(eq(HttpHeaders.CONTENT_TYPE)))
+                .thenReturn(enumeration(singleton("application/json")));
+        RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(httpServletRequest));
     }
 }

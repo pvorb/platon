@@ -22,12 +22,17 @@ import org.springframework.stereotype.Service;
 
 import javax.crypto.Mac;
 import javax.crypto.SecretKey;
+import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
+import static de.vorb.platon.security.SignatureComponents.COMPONENT_SEPARATOR;
 
 @Service
 public class HmacSignatureTokenValidator implements SignatureTokenValidator {
@@ -54,17 +59,20 @@ public class HmacSignatureTokenValidator implements SignatureTokenValidator {
         } catch (InvalidKeyException e) {
             throw new SecurityException("The supplied key provider returned an invalid key", e);
         }
+
+        final Instant now = Instant.now();
+        System.out.println(now);
+        final ByteArrayInputStream bais = new ByteArrayInputStream(getSignatureToken("/api/comments/1234", now));
+        System.out.println(IntStream.generate(bais::read).limit(bais.available()).mapToObj(b -> "(byte) " + b).collect(
+                Collectors.joining(", ")));
     }
 
     @Override
     public byte[] getSignatureToken(String identifier, Instant expirationTime) {
-        final byte[] signatureSource = getSignatureSource(identifier, expirationTime);
+        final byte[] signatureSource =
+                (identifier + COMPONENT_SEPARATOR + expirationTime).getBytes(StandardCharsets.UTF_8);
 
         return mac.doFinal(signatureSource);
-    }
-
-    private byte[] getSignatureSource(String identifier, Instant expirationTime) {
-        return String.format("%s|%s", identifier, expirationTime).getBytes(StandardCharsets.UTF_8);
     }
 
     @Override

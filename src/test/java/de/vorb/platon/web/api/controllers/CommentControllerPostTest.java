@@ -21,7 +21,6 @@ import de.vorb.platon.jooq.tables.records.ThreadsRecord;
 import de.vorb.platon.web.api.errors.RequestException;
 import de.vorb.platon.web.api.json.CommentJson;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -30,12 +29,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
-import org.springframework.web.util.UriComponents;
-import org.springframework.web.util.UriComponentsBuilder;
 
-import javax.servlet.http.HttpServletRequest;
 import java.net.URI;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -44,8 +38,6 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static de.vorb.platon.web.api.controllers.CommentController.SIGNATURE_HEADER;
-import static java.util.Collections.enumeration;
-import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.Matchers.any;
@@ -63,15 +55,6 @@ public class CommentControllerPostTest extends CommentControllerTest {
 
     @Spy
     private CommentsRecord commentsRecord = new CommentsRecord();
-    @Mock
-    private HttpServletRequest httpServletRequest;
-
-    @Before
-    public void setUp() throws Exception {
-        commentController = new CommentController(clock, threadRepository, commentRepository, commentConverter,
-                signatureTokenValidator, inputSanitizer, commentFilters);
-
-    }
 
     @Test
     public void createsNewThreadOnDemand() throws Exception {
@@ -84,7 +67,7 @@ public class CommentControllerPostTest extends CommentControllerTest {
         convertCommentJsonToRecord(commentJson, commentsRecord);
         when(commentsRecord.getParentId()).thenReturn(null);
         when(signatureTokenValidator.getSignatureToken(any(), any())).thenReturn(new byte[0]);
-        mockPostCommentRequest();
+        mockPostOrUpdateCommentRequest();
 
         final ResponseEntity<CommentJson> response =
                 commentController.postComment(THREAD_URL, THREAD_TITLE, commentJson);
@@ -96,33 +79,10 @@ public class CommentControllerPostTest extends CommentControllerTest {
         assertThatSignatureHeaderIsCorrect(response.getHeaders());
     }
 
-    private void mockPostCommentRequest() {
-
-        final UriComponents uriComponents = UriComponentsBuilder.newInstance()
-                .scheme(SCHEME)
-                .host(HOST)
-                .path("api/comments")
-                .queryParam("threadUrl", THREAD_URL)
-                .queryParam("threadTitle", THREAD_TITLE)
-                .build();
-
-        final String requestUrl = uriComponents.toUriString();
-        final String requestQueryString = uriComponents.getQuery();
-
-        when(httpServletRequest.getRequestURL())
-                .thenReturn(new StringBuffer(requestUrl));
-        when(httpServletRequest.getQueryString())
-                .thenReturn(requestQueryString);
-        when(httpServletRequest.getHeaderNames())
-                .thenReturn(enumeration(singleton(HttpHeaders.CONTENT_TYPE)));
-        when(httpServletRequest.getHeaders(eq(HttpHeaders.CONTENT_TYPE)))
-                .thenReturn(enumeration(singleton("application/json")));
-        RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(httpServletRequest));
-    }
-
     private void assertThatLocationHeaderIsCorrect(URI location) {
-        assertThat(location).hasScheme(SCHEME);
-        assertThat(location).hasHost(HOST);
+        assertThat(location).hasScheme(null);
+        assertThat(location).hasHost(null);
+        assertThat(location).hasNoPort();
         assertThat(location).hasPath("/api/comments/" + commentsRecord.getId());
         assertThat(location).hasNoParameters();
     }

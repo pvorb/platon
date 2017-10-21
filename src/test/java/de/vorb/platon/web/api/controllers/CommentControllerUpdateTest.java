@@ -16,30 +16,85 @@
 
 package de.vorb.platon.web.api.controllers;
 
+import de.vorb.platon.jooq.tables.records.CommentsRecord;
+import de.vorb.platon.security.SignatureComponents;
 import de.vorb.platon.web.api.errors.RequestException;
 import de.vorb.platon.web.api.json.CommentJson;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.springframework.http.HttpStatus;
 
+import java.sql.Timestamp;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.util.Optional;
+
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class CommentControllerUpdateTest extends CommentControllerTest {
 
+    private static final long SAMPLE_ID = 1234L;
+
+    private static final String SAMPLE_IDENTIFIER = "/api/comments/1234";
+    private static final Instant SAMPLE_EXPIRATION_TIME = Instant.parse("2017-10-21T19:19:32.092Z");
+    private static final byte[] SAMPLE_SIGNATURE_TOKEN = new byte[]{
+            (byte) 131, (byte) 167, (byte) 160, (byte) 189, (byte) 140, (byte) 192, (byte) 44, (byte) 244,
+            (byte) 244, (byte) 69, (byte) 155, (byte) 40, (byte) 245, (byte) 148, (byte) 231, (byte) 179, (byte) 218,
+            (byte) 126, (byte) 227, (byte) 101, (byte) 253, (byte) 121, (byte) 27, (byte) 223, (byte) 190, (byte) 82,
+            (byte) 171, (byte) 212, (byte) 245, (byte) 211, (byte) 65, (byte) 166
+    };
+    private static final SignatureComponents SAMPLE_SIGNATURE =
+            SignatureComponents.of(SAMPLE_IDENTIFIER, SAMPLE_EXPIRATION_TIME, SAMPLE_SIGNATURE_TOKEN);
+
     @Mock
     private CommentJson commentJson;
+    @Spy
+    private CommentsRecord commentsRecord = new CommentsRecord();
+
+    @Override
+    @Before
+    public void setUp() throws Exception {
+        clock = Clock.fixed(SAMPLE_EXPIRATION_TIME.minusMillis(1), ZoneId.of("Z"));
+
+        super.setUp();
+
+        when(commentJson.getId()).thenReturn(SAMPLE_ID);
+    }
 
     @Test
     public void idsMustMatch() throws Exception {
 
-        when(commentJson.getId()).thenReturn(1234L);
-
         assertThatExceptionOfType(RequestException.class)
-                .isThrownBy(() -> commentController.updateComment(1L, "", commentJson))
+                .isThrownBy(() -> commentController.updateComment(
+                        SAMPLE_ID + 1, SAMPLE_SIGNATURE.toString(), commentJson))
                 .matches(requestException -> requestException.getHttpStatus() == HttpStatus.BAD_REQUEST)
                 .withMessageStartingWith("Comment IDs do not match");
     }
 
+    @Test
+    public void updatesCommentIfAllChecksPass() throws Exception {
+
+        when(signatureTokenValidator.isSignatureValid(eq(SAMPLE_SIGNATURE))).thenReturn(true);
+        when(commentRepository.findById(eq(SAMPLE_ID))).thenReturn(Optional.of(commentsRecord));
+        mockPostOrUpdateCommentRequest();
+
+        commentController.updateComment(SAMPLE_ID, SAMPLE_SIGNATURE.toString(), commentJson);
+
+        verify(signatureTokenValidator).isSignatureValid(eq(SAMPLE_SIGNATURE));
+
+        verify(commentsRecord).setText(eq(commentJson.getText()));
+        verify(commentsRecord).setAuthor(eq(commentJson.getAuthor()));
+        verify(commentsRecord).setUrl(eq(commentJson.getUrl()));
+
+        verify(commentsRecord).setLastModificationDate(eq(Timestamp.from(clock.instant())));
+
+        verify(commentRepository).update(eq(commentsRecord));
+    }
 }
