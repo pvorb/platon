@@ -22,24 +22,29 @@ import org.springframework.stereotype.Service;
 
 import javax.crypto.Mac;
 import javax.crypto.SecretKey;
+import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
+import static de.vorb.platon.security.SignatureComponents.COMPONENT_SEPARATOR;
 
 @Service
-public class HmacRequestVerifier implements RequestVerifier {
+public class HmacSignatureTokenValidator implements SignatureTokenValidator {
 
-    public static final HmacAlgorithms HMAC_ALGORITHM = HmacAlgorithms.HMAC_SHA_256;
+    static final HmacAlgorithms HMAC_ALGORITHM = HmacAlgorithms.HMAC_SHA_256;
 
     private final Clock clock;
 
     private final Mac mac;
 
     @Autowired
-    public HmacRequestVerifier(SecretKeyProvider keyProvider, Clock clock) {
+    public HmacSignatureTokenValidator(SecretKeyProvider keyProvider, Clock clock) {
 
         this.clock = clock;
 
@@ -54,28 +59,36 @@ public class HmacRequestVerifier implements RequestVerifier {
         } catch (InvalidKeyException e) {
             throw new SecurityException("The supplied key provider returned an invalid key", e);
         }
+
+        final Instant now = Instant.now();
+        System.out.println(now);
+        final ByteArrayInputStream bais = new ByteArrayInputStream(getSignatureToken("/api/comments/1234", now));
+        System.out.println(IntStream.generate(bais::read).limit(bais.available()).mapToObj(b -> "(byte) " + b).collect(
+                Collectors.joining(", ")));
     }
 
     @Override
-    public byte[] getSignatureToken(String identifier, Instant expirationDate) {
-        final byte[] signatureSource = getSignatureSource(identifier, expirationDate);
+    public byte[] getSignatureToken(String identifier, Instant expirationTime) {
+        final byte[] signatureSource =
+                (identifier + COMPONENT_SEPARATOR + expirationTime).getBytes(StandardCharsets.UTF_8);
 
         return mac.doFinal(signatureSource);
     }
 
-    private byte[] getSignatureSource(String identifier, Instant expirationDate) {
-        return String.format("%s|%s", identifier, expirationDate).getBytes(StandardCharsets.UTF_8);
-    }
-
     @Override
-    public boolean isRequestValid(String identifier, Instant expirationDate, byte[] signatureToken) {
-        if (clock.instant().isAfter(expirationDate)) {
+    public boolean isSignatureValid(SignatureComponents signatureComponents) {
+        if (currentTime().isAfter(signatureComponents.getExpirationTime())) {
             return false;
         }
 
-        final byte[] referenceSignature = getSignatureToken(identifier, expirationDate);
+        final byte[] referenceSignature =
+                getSignatureToken(signatureComponents.getIdentifier(), signatureComponents.getExpirationTime());
 
-        return Arrays.equals(signatureToken, referenceSignature);
+        return Arrays.equals(signatureComponents.getSignatureToken(), referenceSignature);
+    }
+
+    private Instant currentTime() {
+        return clock.instant();
     }
 
 }

@@ -29,11 +29,11 @@ import java.time.ZoneOffset;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class HmacRequestVerifierTest {
+public class HmacSignatureTokenValidatorTest {
 
     private static final Instant CURRENT_TIME = Instant.now();
 
-    private HmacRequestVerifier requestVerifier;
+    private HmacSignatureTokenValidator requestVerifier;
 
     private final Clock clock = Clock.fixed(CURRENT_TIME, ZoneOffset.UTC);
     private SecretKeyProvider secretKeyProvider;
@@ -42,11 +42,11 @@ public class HmacRequestVerifierTest {
     public void setUp() throws Exception {
 
         final SecretKey secretKey =
-                KeyGenerator.getInstance(HmacRequestVerifier.HMAC_ALGORITHM.toString()).generateKey();
+                KeyGenerator.getInstance(HmacSignatureTokenValidator.HMAC_ALGORITHM.toString()).generateKey();
         secretKeyProvider = Mockito.mock(SecretKeyProvider.class);
         Mockito.when(secretKeyProvider.getSecretKey()).thenReturn(secretKey);
 
-        requestVerifier = new HmacRequestVerifier(secretKeyProvider, clock);
+        requestVerifier = new HmacSignatureTokenValidator(secretKeyProvider, clock);
 
     }
 
@@ -55,7 +55,7 @@ public class HmacRequestVerifierTest {
 
         Mockito.when(secretKeyProvider.getSecretKey()).thenReturn(null);
 
-        new HmacRequestVerifier(secretKeyProvider, clock);
+        new HmacSignatureTokenValidator(secretKeyProvider, clock);
 
     }
 
@@ -64,40 +64,36 @@ public class HmacRequestVerifierTest {
     public void testGetSignatureTokenIsRepeatable() throws Exception {
 
         final String identifier = "comment/1";
-        final Instant expirationDate = Instant.now();
+        final Instant expirationTime = Instant.now();
 
-        final byte[] firstSignatureToken = requestVerifier.getSignatureToken(identifier, expirationDate);
-        final byte[] secondSignatureToken = requestVerifier.getSignatureToken(identifier, expirationDate);
+        final byte[] firstSignatureToken = requestVerifier.getSignatureToken(identifier, expirationTime);
+        final byte[] secondSignatureToken = requestVerifier.getSignatureToken(identifier, expirationTime);
 
         assertThat(firstSignatureToken).isEqualTo(secondSignatureToken);
     }
 
     @Test
-    public void testTokenExpiration() throws Exception {
-
-        final String identifier = "comment/1";
-
-        final Instant expirationDate = CURRENT_TIME.minusMillis(1); // token expired 1ms ago
-        final byte[] signatureToken = requestVerifier.getSignatureToken(identifier, expirationDate);
-
-        final boolean validity = requestVerifier.isRequestValid(identifier, expirationDate, signatureToken);
-
-        assertThat(validity).isFalse();
+    public void expiredTokenRequestIsInvalid() throws Exception {
+        final Instant expirationTime = CURRENT_TIME.minusMillis(1);
+        assertThatRequestIsInvalid(expirationTime, expirationTime);
     }
 
     @Test
     public void testCannotFakeExpirationDate() throws Exception {
+        assertThatRequestIsInvalid(CURRENT_TIME.minusMillis(1), CURRENT_TIME);
+    }
+
+    private void assertThatRequestIsInvalid(Instant tokenExpirationTime, Instant userProvidedExpirationTime) {
 
         final String identifier = "comment/1";
+        final byte[] signatureToken = requestVerifier.getSignatureToken(identifier, tokenExpirationTime);
 
-        final Instant expirationDate = CURRENT_TIME.minusMillis(1);
-        final byte[] signatureToken = requestVerifier.getSignatureToken(identifier, expirationDate);
+        final SignatureComponents signatureComponents =
+                SignatureComponents.of(identifier, userProvidedExpirationTime, signatureToken);
 
-        // a user attempts to set the expiration date manually (without changing the token)
-        final Instant fakedExpirationDate = CURRENT_TIME;
-
-        final boolean validity = requestVerifier.isRequestValid(identifier, fakedExpirationDate, signatureToken);
+        final boolean validity = requestVerifier.isSignatureValid(signatureComponents);
 
         assertThat(validity).isFalse();
     }
+
 }

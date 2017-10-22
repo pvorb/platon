@@ -23,6 +23,8 @@ import org.jooq.DSLContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 import static de.vorb.platon.jooq.Tables.THREADS;
 
 @Repository
@@ -36,10 +38,11 @@ public class JooqThreadRepository implements ThreadRepository {
     }
 
     @Override
-    public Long findThreadIdForUrl(String threadUrl) {
-        return dslContext.selectFrom(THREADS)
-                .where(THREADS.URL.eq(threadUrl))
-                .fetchOne(THREADS.ID);
+    public Optional<Long> findThreadIdForUrl(String threadUrl) {
+        return Optional.ofNullable(
+                dslContext.selectFrom(THREADS)
+                        .where(THREADS.URL.eq(threadUrl))
+                        .fetchOne(THREADS.ID));
     }
 
     @Override

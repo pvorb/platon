@@ -19,143 +19,95 @@ package de.vorb.platon.web.api.controllers;
 import de.vorb.platon.jooq.tables.records.CommentsRecord;
 import de.vorb.platon.persistence.CommentRepository;
 import de.vorb.platon.persistence.ThreadRepository;
-import de.vorb.platon.security.RequestVerifier;
+import de.vorb.platon.security.SignatureTokenValidator;
 import de.vorb.platon.web.api.common.CommentConverter;
 import de.vorb.platon.web.api.common.CommentFilters;
-import de.vorb.platon.web.api.common.InputSanitizer;
-import de.vorb.platon.web.api.errors.RequestException;
+import de.vorb.platon.web.api.common.CommentSanitizer;
 import de.vorb.platon.web.api.json.CommentJson;
-import de.vorb.platon.web.api.json.CommentListResultJson;
 
 import org.junit.Before;
-import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpHeaders;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+import org.springframework.web.util.UriComponents;
+import org.springframework.web.util.UriComponentsBuilder;
 
+import javax.servlet.http.HttpServletRequest;
 import java.time.Clock;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.mockito.Matchers.any;
+import static java.util.Collections.enumeration;
+import static java.util.Collections.singleton;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class CommentControllerTest {
+@SuppressWarnings("WeakerAccess")
+public abstract class CommentControllerTest {
 
-    private static final String THREAD_URL = "/sample-article.html";
+    protected static final String SCHEME = "https";
+    protected static final String HOST = "example.org";
+    protected static final String THREAD_URL = "/sample-article.html";
+    protected static final String THREAD_TITLE = "Article";
 
-    private CommentController commentController;
+    protected CommentController commentController;
 
-    private Clock clock = Clock.systemUTC();
-
-    @Mock
-    private ThreadRepository threadRepository;
-    @Mock
-    private CommentRepository commentRepository;
-
-    @Mock
-    private CommentConverter commentConverter;
-    @Mock
-    private RequestVerifier requestVerifier;
-    @Mock
-    private InputSanitizer inputSanitizer;
-    @Mock
-    private CommentFilters commentFilters;
+    protected Clock clock = Clock.systemUTC();
 
     @Mock
-    private CommentJson commentJson;
+    protected ThreadRepository threadRepository;
     @Mock
-    private CommentJson childCommentJson;
+    protected CommentRepository commentRepository;
+
+    @Mock
+    protected CommentConverter commentConverter;
+    @Mock
+    protected SignatureTokenValidator signatureTokenValidator;
+    @Mock
+    protected CommentFilters commentFilters;
+    @Mock
+    protected CommentSanitizer commentSanitizer;
+
+    @Mock
+    private HttpServletRequest httpServletRequest;
 
     @Before
     public void setUp() throws Exception {
         commentController = new CommentController(clock, threadRepository, commentRepository, commentConverter,
-                requestVerifier, inputSanitizer, commentFilters);
+                signatureTokenValidator, commentFilters, commentSanitizer);
     }
 
-    @Test
-    public void getCommentByIdReturnsPublicComment() throws Exception {
-
-        final long commentId = 4711;
-        final CommentsRecord publicComment =
-                new CommentsRecord()
-                        .setId(commentId)
-                        .setText("Text")
-                        .setStatus("PUBLIC");
-
-        when(commentRepository.findById(eq(commentId))).thenReturn(publicComment);
-        when(commentConverter.convertRecordToJson(eq(publicComment))).thenReturn(commentJson);
-
-        assertThat(commentController.getCommentById(commentId)).isSameAs(commentJson);
-    }
-
-    @Test
-    public void getCommentByIdThrowsNotFoundForDeletedComment() throws Exception {
-
-        final long commentId = 1337;
-        final CommentsRecord deletedComment =
-                new CommentsRecord()
-                        .setId(commentId)
-                        .setText("Text")
-                        .setStatus("DELETED");
-
-        when(commentRepository.findById(eq(commentId))).thenReturn(deletedComment);
-
-        assertThatExceptionOfType(RequestException.class)
-                .isThrownBy(() -> commentController.getCommentById(commentId))
-                .matches(exception -> exception.getHttpStatus() == HttpStatus.NOT_FOUND)
-                .withMessage("No comment found with id = " + commentId);
-    }
-
-    @Test
-    public void findCommentsByThreadUrlReturnsCommentsAsTree() throws Exception {
-
-        final CommentsRecord comment = new CommentsRecord().setId(4711L);
-        final CommentsRecord childComment = new CommentsRecord().setId(4712L).setParentId(comment.getId());
-
-        final List<CommentsRecord> records = Arrays.asList(comment, childComment);
-
-        when(commentRepository.findByThreadUrl(eq(THREAD_URL))).thenReturn(records);
-        acceptAllComments();
-
+    protected void convertCommentRecordToJson(CommentsRecord comment, CommentJson commentJson) {
         when(commentConverter.convertRecordToJson(eq(comment))).thenReturn(commentJson);
-        when(commentConverter.convertRecordToJson(eq(childComment))).thenReturn(childCommentJson);
-
-        when(commentJson.getId()).thenReturn(comment.getId());
-        when(commentJson.getReplies()).thenReturn(new ArrayList<>());
-        when(childCommentJson.getId()).thenReturn(childComment.getId());
-
-        final CommentListResultJson resultJson = commentController.findCommentsByThreadUrl(THREAD_URL);
-
-        assertThat(resultJson.getComments()).isEqualTo(Collections.singletonList(commentJson));
-        assertThat(resultJson.getComments().get(0).getReplies()).isEqualTo(Collections.singletonList(childCommentJson));
-        assertThat(resultJson.getTotalCommentCount()).isEqualTo(records.size());
-
-        records.forEach(record -> verify(commentFilters).doesCommentCount(eq(record)));
     }
 
-    private void acceptAllComments() {
-        when(commentFilters.doesCommentCount(any())).thenReturn(true);
+    protected void convertCommentJsonToRecord(CommentJson commentJson, CommentsRecord commentsRecord) {
+        when(commentConverter.convertJsonToRecord(eq(commentJson))).thenReturn(commentsRecord);
     }
 
-    @Test
-    public void findCommentsByThreadUrlThrowsNotFoundIfThreadIsEmpty() throws Exception {
+    protected void mockPostOrUpdateCommentRequest() {
 
-        when(commentRepository.findByThreadUrl(any())).thenReturn(Collections.emptyList());
+        final UriComponents uriComponents = UriComponentsBuilder.newInstance()
+                .scheme(SCHEME)
+                .host(HOST)
+                .path("api/comments")
+                .queryParam("threadUrl", THREAD_URL)
+                .queryParam("threadTitle", THREAD_TITLE)
+                .build();
 
-        assertThatExceptionOfType(RequestException.class)
-                .isThrownBy(() -> commentController.findCommentsByThreadUrl(THREAD_URL))
-                .matches(exception -> exception.getHttpStatus() == HttpStatus.NOT_FOUND)
-                .withMessage("No thread found with url = '" + THREAD_URL + "'");
+        final String requestUrl = uriComponents.toUriString();
+        final String requestQueryString = uriComponents.getQuery();
+
+        when(httpServletRequest.getRequestURL())
+                .thenReturn(new StringBuffer(requestUrl));
+        when(httpServletRequest.getQueryString())
+                .thenReturn(requestQueryString);
+        when(httpServletRequest.getHeaderNames())
+                .thenReturn(enumeration(singleton(HttpHeaders.CONTENT_TYPE)));
+        when(httpServletRequest.getHeaders(eq(HttpHeaders.CONTENT_TYPE)))
+                .thenReturn(enumeration(singleton("application/json")));
+        RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(httpServletRequest));
     }
-
-
 }
