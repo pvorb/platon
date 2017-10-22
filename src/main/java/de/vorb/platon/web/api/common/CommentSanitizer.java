@@ -18,14 +18,21 @@ package de.vorb.platon.web.api.common;
 
 import de.vorb.platon.jooq.tables.records.CommentsRecord;
 
+import com.google.common.collect.ImmutableSet;
 import org.owasp.encoder.Encode;
 import org.owasp.html.HtmlPolicyBuilder;
 import org.owasp.html.PolicyFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Set;
+
 @Component
 public class CommentSanitizer {
+
+    private static final Set<String> ACCEPTED_URL_SCHEMES = ImmutableSet.of("http", "https", "mailto");
 
     private static final PolicyFactory NO_HTML_POLICY = new HtmlPolicyBuilder().toFactory();
 
@@ -37,16 +44,35 @@ public class CommentSanitizer {
     }
 
     public void sanitizeComment(CommentsRecord comment) {
+
         if (comment.getAuthor() != null) {
             comment.setAuthor(NO_HTML_POLICY.sanitize(comment.getAuthor()).trim());
         }
 
         if (comment.getUrl() != null) {
-            comment.setUrl(Encode.forHtmlAttribute(comment.getUrl()));
+            String url = comment.getUrl();
+            if (!url.contains("://")) {
+                url = "https://" + url;
+            }
+
+            if (isUrlSchemeAccepted(url)) {
+                comment.setUrl(Encode.forHtmlAttribute(url));
+            } else {
+                comment.setUrl(null);
+            }
         }
 
         final String requestText = comment.getText();
         final String sanitizedText = inputSanitizer.sanitize(requestText);
         comment.setText(sanitizedText);
+    }
+
+    private boolean isUrlSchemeAccepted(String url) {
+        try {
+            final String scheme = new URI(url).getScheme();
+            return ACCEPTED_URL_SCHEMES.contains(scheme);
+        } catch (URISyntaxException e) {
+            return false;
+        }
     }
 }

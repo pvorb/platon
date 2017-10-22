@@ -47,4 +47,36 @@ public class CommentSanitizerTest {
         assertThat(comment.getAuthor()).isEqualTo("Jane Doe");
     }
 
+    @Test
+    public void sanitizesAndEncodesUrls() throws Exception {
+
+        assertThatUrlIsAccepted("http://example.org/article.html");
+        assertThatUrlIsAccepted("https://example.org/secure/profile.php");
+        assertThatUrlIsAccepted("example.org/article.html");
+
+        assertThatUrlIsNotAccepted("irc://example.org/chat");
+        assertThatUrlIsNotAccepted("scp://example.org/file.txt");
+        assertThatUrlIsNotAccepted("ftp://example.org/file.txt");
+
+        assertThatMissingUrlSchemeIsPrepended();
+    }
+
+    private void assertThatUrlIsAccepted(String url) {
+        comment.setUrl(url);
+        commentSanitizer.sanitizeComment(comment);
+        assertThat(comment.getUrl()).isNotNull();
+    }
+
+    private void assertThatUrlIsNotAccepted(String url) {
+        comment.setUrl(url);
+        commentSanitizer.sanitizeComment(comment);
+        assertThat(comment.getUrl()).isNull();
+    }
+
+    private void assertThatMissingUrlSchemeIsPrepended() {
+        comment.setUrl("www.example.org");
+        commentSanitizer.sanitizeComment(comment);
+        assertThat(comment.getUrl()).isEqualTo("https://www.example.org");
+    }
+
 }
