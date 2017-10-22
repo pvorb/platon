@@ -25,6 +25,9 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CommentSanitizerTest {
@@ -38,7 +41,7 @@ public class CommentSanitizerTest {
     private CommentsRecord comment = new CommentsRecord();
 
     @Test
-    public void escapesHtmlInAuthorName() throws Exception {
+    public void removesHtmlInAuthorName() throws Exception {
 
         comment.setAuthor("<i>Jane</i> Doe <script>alert('boo');</script>");
 
@@ -57,26 +60,56 @@ public class CommentSanitizerTest {
         assertThatUrlIsNotAccepted("irc://example.org/chat");
         assertThatUrlIsNotAccepted("scp://example.org/file.txt");
         assertThatUrlIsNotAccepted("ftp://example.org/file.txt");
-
-        assertThatMissingUrlSchemeIsPrepended();
+        assertThatUrlIsNotAccepted("<<<invalid url>>>");
     }
 
     private void assertThatUrlIsAccepted(String url) {
-        comment.setUrl(url);
-        commentSanitizer.sanitizeComment(comment);
+        sanitizeCommentWithUrl(url);
         assertThat(comment.getUrl()).isNotNull();
     }
 
     private void assertThatUrlIsNotAccepted(String url) {
-        comment.setUrl(url);
-        commentSanitizer.sanitizeComment(comment);
+        sanitizeCommentWithUrl(url);
         assertThat(comment.getUrl()).isNull();
     }
 
-    private void assertThatMissingUrlSchemeIsPrepended() {
-        comment.setUrl("www.example.org");
-        commentSanitizer.sanitizeComment(comment);
+    @Test
+    public void encodesSpecialCharactersInUrls() throws Exception {
+        sanitizeCommentWithUrl("https://example.org/a url with spaces");
+        assertThat(comment.getUrl()).isEqualTo("https://example.org/a%20url%20with%20spaces");
+    }
+
+    @Test
+    public void doesNotDoubleEncodeEscapedCharacters() throws Exception {
+        final String url = "https://example.org/a%20url%20with%20spaces";
+        sanitizeCommentWithUrl(url);
+        assertThat(comment.getUrl()).isEqualTo(url);
+    }
+
+    @Test
+    public void prependsHttpsToUrlsWithMissingScheme() throws Exception {
+        sanitizeCommentWithUrl("www.example.org");
         assertThat(comment.getUrl()).isEqualTo("https://www.example.org");
+    }
+
+    private void sanitizeCommentWithUrl(String url) {
+        comment.setUrl(url);
+        commentSanitizer.sanitizeComment(comment);
+    }
+
+    @Test
+    public void sanitizesCommentTextUsingInputSanitizer() throws Exception {
+
+        final String text = "Text";
+        final String sanitizedText = "Sanitized text";
+
+        when(inputSanitizer.sanitize(eq(text))).thenReturn(sanitizedText);
+        comment.setText(text);
+
+        commentSanitizer.sanitizeComment(comment);
+
+        verify(inputSanitizer).sanitize(eq(text));
+        assertThat(comment.getText()).isEqualTo(sanitizedText);
     }
 
 }

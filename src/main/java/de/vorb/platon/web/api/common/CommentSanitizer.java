@@ -19,14 +19,19 @@ package de.vorb.platon.web.api.common;
 import de.vorb.platon.jooq.tables.records.CommentsRecord;
 
 import com.google.common.collect.ImmutableSet;
-import org.owasp.encoder.Encode;
 import org.owasp.html.HtmlPolicyBuilder;
 import org.owasp.html.PolicyFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+import java.util.Optional;
 import java.util.Set;
 
 @Component
@@ -55,11 +60,11 @@ public class CommentSanitizer {
                 url = "https://" + url;
             }
 
-            if (isUrlSchemeAccepted(url)) {
-                comment.setUrl(Encode.forHtmlAttribute(url));
-            } else {
-                comment.setUrl(null);
-            }
+            comment.setUrl(
+                    validateUrl(url)
+                            .map(URI::toASCIIString)
+                            .orElse(null)
+            );
         }
 
         final String requestText = comment.getText();
@@ -67,12 +72,28 @@ public class CommentSanitizer {
         comment.setText(sanitizedText);
     }
 
-    private boolean isUrlSchemeAccepted(String url) {
+    private Optional<URI> validateUrl(String urlAsString) {
         try {
-            final String scheme = new URI(url).getScheme();
-            return ACCEPTED_URL_SCHEMES.contains(scheme);
-        } catch (URISyntaxException e) {
-            return false;
+            final String decodedUrl = URLDecoder.decode(urlAsString, StandardCharsets.UTF_8.name());
+            final URL url = new URL(decodedUrl);
+
+            if (!ACCEPTED_URL_SCHEMES.contains(url.getProtocol())) {
+                return Optional.empty();
+            }
+
+            final URI uri = new URI(
+                    url.getProtocol(),
+                    url.getUserInfo(),
+                    url.getHost(),
+                    url.getPort(),
+                    url.getPath(),
+                    url.getQuery(),
+                    url.getRef()
+            );
+
+            return Optional.of(uri);
+        } catch (UnsupportedEncodingException | MalformedURLException | URISyntaxException e) {
+            return Optional.empty();
         }
     }
 }
