@@ -27,4 +27,5 @@ public class RequestExceptionHandler {
     public ResponseEntity<RequestExceptionJson> handleRequestException(RequestException requestException) {
         return requestException.toResponseEntity();
     }
+
 }

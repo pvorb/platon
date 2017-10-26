@@ -31,10 +31,10 @@ import de.vorb.platon.web.api.json.CommentJson;
 import de.vorb.platon.web.api.json.CommentListResultJson;
 
 import com.google.common.annotations.VisibleForTesting;
+import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.jooq.exception.DataAccessException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -67,6 +67,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 
 @RestController
+@RequiredArgsConstructor
 @Slf4j
 public class CommentController {
 
@@ -89,28 +90,6 @@ public class CommentController {
     private final SignatureTokenValidator signatureTokenValidator;
     private final CommentFilters commentFilters;
     private final CommentSanitizer commentSanitizer;
-
-
-    @Autowired
-    public CommentController(
-            Clock clock,
-            ThreadRepository threadRepository,
-            CommentRepository commentRepository,
-            CommentConverter commentConverter,
-            SignatureTokenValidator signatureTokenValidator,
-            CommentFilters commentFilters,
-            CommentSanitizer commentSanitizer) {
-
-        this.clock = clock;
-
-        this.threadRepository = threadRepository;
-        this.commentRepository = commentRepository;
-
-        this.commentConverter = commentConverter;
-        this.signatureTokenValidator = signatureTokenValidator;
-        this.commentFilters = commentFilters;
-        this.commentSanitizer = commentSanitizer;
-    }
 
 
     @GetMapping(value = PATH_SINGLE, produces = APPLICATION_JSON_UTF8_VALUE)
