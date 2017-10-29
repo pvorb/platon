@@ -18,8 +18,8 @@ package de.vorb.platon.security;
 
 import de.vorb.platon.persistence.PropertyRepository;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.KeyGenerator;
@@ -29,6 +29,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 
 @Component
+@RequiredArgsConstructor
 @Slf4j
 public class DatabaseSecretKeyProvider implements SecretKeyProvider {
 
@@ -37,11 +38,6 @@ public class DatabaseSecretKeyProvider implements SecretKeyProvider {
     private final PropertyRepository propertyRepository;
 
     private SecretKey secretKey;
-
-    @Autowired
-    public DatabaseSecretKeyProvider(PropertyRepository propertyRepository) {
-        this.propertyRepository = propertyRepository;
-    }
 
     @Override
     public SecretKey getSecretKey() {

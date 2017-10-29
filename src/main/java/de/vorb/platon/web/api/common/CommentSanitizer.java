@@ -19,9 +19,9 @@ package de.vorb.platon.web.api.common;
 import de.vorb.platon.jooq.tables.records.CommentsRecord;
 
 import com.google.common.collect.ImmutableSet;
+import lombok.RequiredArgsConstructor;
 import org.owasp.html.HtmlPolicyBuilder;
 import org.owasp.html.PolicyFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.UnsupportedEncodingException;
@@ -35,6 +35,7 @@ import java.util.Optional;
 import java.util.Set;
 
 @Component
+@RequiredArgsConstructor
 public class CommentSanitizer {
 
     private static final Set<String> ACCEPTED_URL_SCHEMES = ImmutableSet.of("http", "https", "mailto");
@@ -42,11 +43,6 @@ public class CommentSanitizer {
     private static final PolicyFactory NO_HTML_POLICY = new HtmlPolicyBuilder().toFactory();
 
     private final InputSanitizer inputSanitizer;
-
-    @Autowired
-    public CommentSanitizer(InputSanitizer inputSanitizer) {
-        this.inputSanitizer = inputSanitizer;
-    }
 
     public void sanitizeComment(CommentsRecord comment) {
 
@@ -96,4 +92,5 @@ public class CommentSanitizer {
             return Optional.empty();
         }
     }
+
 }

@@ -24,6 +24,8 @@ import java.util.List;
 @Data
 @Builder
 public class CommentListResultJson {
+
     private final Long totalCommentCount;
     private final List<CommentJson> comments;
+
 }

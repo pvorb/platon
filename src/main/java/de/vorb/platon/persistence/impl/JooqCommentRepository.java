@@ -20,9 +20,9 @@ import de.vorb.platon.jooq.tables.records.CommentsRecord;
 import de.vorb.platon.model.CommentStatus;
 import de.vorb.platon.persistence.CommentRepository;
 
+import lombok.RequiredArgsConstructor;
 import org.jooq.DSLContext;
 import org.jooq.exception.DataAccessException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -35,14 +35,10 @@ import static de.vorb.platon.jooq.Tables.THREADS;
 import static org.jooq.impl.DSL.count;
 
 @Repository
+@RequiredArgsConstructor
 public class JooqCommentRepository implements CommentRepository {
 
     private final DSLContext dslContext;
-
-    @Autowired
-    public JooqCommentRepository(DSLContext dslContext) {
-        this.dslContext = dslContext;
-    }
 
     @Override
     public List<CommentsRecord> findByThreadUrl(String threadUrl) {

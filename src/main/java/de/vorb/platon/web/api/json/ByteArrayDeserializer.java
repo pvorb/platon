@@ -25,8 +25,10 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import java.io.IOException;
 
 class ByteArrayDeserializer extends JsonDeserializer<byte[]> {
+
     @Override
     public byte[] deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
         return ByteArrayConverter.hexStringToBytes(p.getValueAsString());
     }
+
 }

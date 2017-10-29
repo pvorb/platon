@@ -25,6 +25,8 @@ import java.util.Map;
 @Data
 @Builder
 public class CommentCountsJson {
+
     @Singular
     private final Map<String, Long> commentCounts;
+
 }

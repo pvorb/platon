@@ -19,8 +19,8 @@ package de.vorb.platon.persistence.impl;
 import de.vorb.platon.jooq.tables.records.ThreadsRecord;
 import de.vorb.platon.persistence.ThreadRepository;
 
+import lombok.RequiredArgsConstructor;
 import org.jooq.DSLContext;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
@@ -28,14 +28,10 @@ import java.util.Optional;
 import static de.vorb.platon.jooq.Tables.THREADS;
 
 @Repository
+@RequiredArgsConstructor
 public class JooqThreadRepository implements ThreadRepository {
 
     private final DSLContext dslContext;
-
-    @Autowired
-    public JooqThreadRepository(DSLContext dslContext) {
-        this.dslContext = dslContext;
-    }
 
     @Override
     public Optional<Long> findThreadIdForUrl(String threadUrl) {

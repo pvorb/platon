@@ -105,4 +105,5 @@ public class CommentConverter {
 
         return ByteArrayConverter.bytesToHexString(md5.digest(email.getBytes(StandardCharsets.UTF_8)));
     }
+
 }
