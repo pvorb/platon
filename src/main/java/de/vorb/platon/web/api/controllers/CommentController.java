@@ -32,7 +32,6 @@ import de.vorb.platon.web.api.errors.RequestException;
 import de.vorb.platon.web.api.json.CommentJson;
 import de.vorb.platon.web.api.json.CommentListResultJson;
 
-import com.google.common.annotations.VisibleForTesting;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jooq.exception.DataAccessException;
@@ -70,13 +69,11 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @Slf4j
 public class CommentController {
 
-    @VisibleForTesting
     private static final String PATH_LIST = "/api/comments";
     public static final String PATH_VAR_COMMENT_ID = "commentId";
     public static final String PATH_SINGLE = PATH_LIST + "/{" + PATH_VAR_COMMENT_ID + "}";
 
-    @VisibleForTesting
-    static final String SIGNATURE_HEADER = "X-Signature";
+    private static final String SIGNATURE_HEADER = "X-Signature";
     private static final CommentStatus DEFAULT_STATUS = PUBLIC;
 
 
