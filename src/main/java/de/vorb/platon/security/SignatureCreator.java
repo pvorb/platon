@@ -17,13 +17,13 @@
 package de.vorb.platon.security;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import java.time.Instant;
 
-@Service
+@Component
 @RequiredArgsConstructor
-public class SignatureService {
+public class SignatureCreator {
 
     private final SignatureTokenValidator signatureTokenValidator;
 

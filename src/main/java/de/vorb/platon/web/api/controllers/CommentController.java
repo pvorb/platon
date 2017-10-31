@@ -22,7 +22,7 @@ import de.vorb.platon.model.CommentStatus;
 import de.vorb.platon.persistence.CommentRepository;
 import de.vorb.platon.persistence.ThreadRepository;
 import de.vorb.platon.security.SignatureComponents;
-import de.vorb.platon.security.SignatureService;
+import de.vorb.platon.security.SignatureCreator;
 import de.vorb.platon.web.api.common.CommentConverter;
 import de.vorb.platon.web.api.common.CommentFilters;
 import de.vorb.platon.web.api.common.CommentSanitizer;
@@ -86,7 +86,7 @@ public class CommentController {
 
     private final ThreadRepository threadRepository;
     private final CommentRepository commentRepository;
-    private final SignatureService signatureService;
+    private final SignatureCreator signatureCreator;
 
     private final CommentConverter commentConverter;
     private final RequestValidator requestValidator;
@@ -192,7 +192,7 @@ public class CommentController {
         final URI commentUri = createRelativeCommentUri(comment.getId());
         final Instant expirationTime = comment.getCreationDate().toInstant().plus(24, HOURS);
         final SignatureComponents signatureComponents =
-                signatureService.createSignatureComponents(commentUri.toString(), expirationTime);
+                signatureCreator.createSignatureComponents(commentUri.toString(), expirationTime);
 
         return ResponseEntity.created(commentUri)
                 .header(SIGNATURE_HEADER, signatureComponents.toString())

@@ -63,7 +63,7 @@ public class CommentControllerPostTest extends CommentControllerTest {
         when(threadRepository.insert(any())).thenReturn(new ThreadsRecord().setId(1L));
         convertCommentJsonToRecord(commentJson, commentsRecord);
         when(commentsRecord.getParentId()).thenReturn(null);
-        when(signatureService.createSignatureComponents(any(), any())).thenReturn(mock(SignatureComponents.class));
+        when(signatureCreator.createSignatureComponents(any(), any())).thenReturn(mock(SignatureComponents.class));
         mockPostOrUpdateCommentRequest();
 
         final ResponseEntity<CommentJson> response =

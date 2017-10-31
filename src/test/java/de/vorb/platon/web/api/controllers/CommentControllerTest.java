@@ -19,7 +19,7 @@ package de.vorb.platon.web.api.controllers;
 import de.vorb.platon.jooq.tables.records.CommentsRecord;
 import de.vorb.platon.persistence.CommentRepository;
 import de.vorb.platon.persistence.ThreadRepository;
-import de.vorb.platon.security.SignatureService;
+import de.vorb.platon.security.SignatureCreator;
 import de.vorb.platon.web.api.common.CommentConverter;
 import de.vorb.platon.web.api.common.CommentFilters;
 import de.vorb.platon.web.api.common.CommentSanitizer;
@@ -62,7 +62,7 @@ public abstract class CommentControllerTest {
     @Mock
     protected CommentRepository commentRepository;
     @Mock
-    protected SignatureService signatureService;
+    protected SignatureCreator signatureCreator;
 
     @Mock
     protected CommentConverter commentConverter;
@@ -78,7 +78,7 @@ public abstract class CommentControllerTest {
 
     @Before
     public void setUp() throws Exception {
-        commentController = new CommentController(clock, threadRepository, commentRepository, signatureService,
+        commentController = new CommentController(clock, threadRepository, commentRepository, signatureCreator,
                 commentConverter, requestValidator, commentFilters, commentSanitizer);
     }
 

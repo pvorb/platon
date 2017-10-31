@@ -30,10 +30,10 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class SignatureServiceTest {
+public class SignatureCreatorTest {
 
     @InjectMocks
-    private SignatureService signatureService;
+    private SignatureCreator signatureCreator;
 
     @Mock
     private SignatureTokenValidator signatureTokenValidator;
@@ -47,7 +47,7 @@ public class SignatureServiceTest {
 
         when(signatureTokenValidator.getSignatureToken(eq(commentUri), eq(expirationTime))).thenReturn(signatureToken);
 
-        assertThat(signatureService.createSignatureComponents(commentUri, expirationTime))
+        assertThat(signatureCreator.createSignatureComponents(commentUri, expirationTime))
                 .isEqualTo(SignatureComponents.of(commentUri, expirationTime, signatureToken));
     }
 
