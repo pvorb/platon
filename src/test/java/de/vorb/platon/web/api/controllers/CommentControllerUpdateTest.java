@@ -21,6 +21,7 @@ import de.vorb.platon.security.SignatureComponents;
 import de.vorb.platon.web.api.errors.RequestException;
 import de.vorb.platon.web.api.json.CommentJson;
 
+import org.jooq.exception.DataAccessException;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -34,7 +35,9 @@ import java.time.ZoneId;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -97,4 +100,32 @@ public class CommentControllerUpdateTest extends CommentControllerTest {
 
         verify(commentRepository).update(eq(commentsRecord));
     }
+
+    @Test
+    public void throwsBadRequestIfCommentDoesNotExist() throws Exception {
+
+        when(signatureTokenValidator.isSignatureValid(eq(SAMPLE_SIGNATURE))).thenReturn(true);
+        when(commentRepository.findById(eq(SAMPLE_ID))).thenReturn(Optional.empty());
+        mockPostOrUpdateCommentRequest();
+
+        assertThatExceptionOfType(RequestException.class)
+                .isThrownBy(() -> commentController.updateComment(SAMPLE_ID, SAMPLE_SIGNATURE.toString(), commentJson))
+                .matches(requestException -> requestException.getHttpStatus() == HttpStatus.BAD_REQUEST)
+                .withMessageMatching("Comment .* does not exist");
+    }
+
+    @Test
+    public void throwsConflictExceptionWhenUpdateFails() throws Exception {
+
+        when(signatureTokenValidator.isSignatureValid(eq(SAMPLE_SIGNATURE))).thenReturn(true);
+        when(commentRepository.findById(eq(SAMPLE_ID))).thenReturn(Optional.of(commentsRecord));
+        mockPostOrUpdateCommentRequest();
+        doThrow(DataAccessException.class).when(commentRepository).update(any());
+
+        assertThatExceptionOfType(RequestException.class)
+                .isThrownBy(() -> commentController.updateComment(SAMPLE_ID, SAMPLE_SIGNATURE.toString(), commentJson))
+                .matches(requestException -> requestException.getHttpStatus() == HttpStatus.CONFLICT)
+                .withMessageMatching("Conflict .* comment.*");
+    }
+
 }
