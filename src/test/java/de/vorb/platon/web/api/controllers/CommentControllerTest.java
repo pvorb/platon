@@ -20,7 +20,6 @@ import de.vorb.platon.jooq.tables.records.CommentsRecord;
 import de.vorb.platon.persistence.CommentRepository;
 import de.vorb.platon.persistence.ThreadRepository;
 import de.vorb.platon.security.SignatureService;
-import de.vorb.platon.security.SignatureTokenValidator;
 import de.vorb.platon.web.api.common.CommentConverter;
 import de.vorb.platon.web.api.common.CommentFilters;
 import de.vorb.platon.web.api.common.CommentSanitizer;

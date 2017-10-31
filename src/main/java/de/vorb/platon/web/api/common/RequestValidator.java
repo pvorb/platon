@@ -23,7 +23,6 @@ import de.vorb.platon.web.api.errors.RequestException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import java.time.Instant;
 import java.time.format.DateTimeParseException;
 
 import static com.google.common.base.Preconditions.checkArgument;

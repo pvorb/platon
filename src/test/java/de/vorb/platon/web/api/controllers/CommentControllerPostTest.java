@@ -27,18 +27,13 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.net.URI;
-import java.time.Instant;
-import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
 
-import static de.vorb.platon.web.api.controllers.CommentController.SIGNATURE_HEADER;
-import static java.time.temporal.ChronoUnit.HOURS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.Matchers.any;
