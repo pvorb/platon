@@ -35,6 +35,7 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
@@ -90,6 +91,13 @@ public class CommentControllerPostTest extends CommentControllerTest {
                 .withMessage("Parent comment does not belong to same thread");
 
         verify(commentRepository, never()).insert(any());
+
+        when(parentComment.getThreadId()).thenReturn(1L);
+
+        assertThatCode(() -> commentController.postComment(THREAD_URL, THREAD_TITLE, commentJson))
+                .doesNotThrowAnyException();
+
+        verify(commentRepository).insert(eq(comment));
     }
 
     @Test
