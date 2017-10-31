@@ -35,7 +35,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.jooq.exception.DataAccessException;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -53,7 +52,6 @@ import java.sql.Timestamp;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.format.DateTimeParseException;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -62,6 +60,10 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static de.vorb.platon.model.CommentStatus.DELETED;
+import static de.vorb.platon.model.CommentStatus.PUBLIC;
+import static java.time.temporal.ChronoUnit.HOURS;
+import static org.springframework.http.HttpStatus.CONFLICT;
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
@@ -78,7 +80,7 @@ public class CommentController {
 
     @VisibleForTesting
     static final String SIGNATURE_HEADER = "X-Signature";
-    private static final CommentStatus DEFAULT_STATUS = CommentStatus.PUBLIC;
+    private static final CommentStatus DEFAULT_STATUS = PUBLIC;
 
 
     private final Clock clock;
@@ -97,7 +99,7 @@ public class CommentController {
 
         final CommentsRecord comment = commentRepository.findById(commentId)
                 .filter(c ->
-                        CommentStatus.valueOf(c.getStatus()) == CommentStatus.PUBLIC)
+                        CommentStatus.valueOf(c.getStatus()) == PUBLIC)
                 .orElseThrow(() ->
                         RequestException.notFound()
                                 .message("No comment found with ID = " + commentId)
@@ -188,7 +190,7 @@ public class CommentController {
         log.info("Posted new comment to thread '{}'", threadUrl);
 
         final URI commentUri = getRelativeCommentUri(comment.getId());
-        final Instant expirationTime = comment.getCreationDate().toInstant().plus(24, ChronoUnit.HOURS);
+        final Instant expirationTime = comment.getCreationDate().toInstant().plus(24, HOURS);
         final byte[] signatureToken = signatureTokenValidator.getSignatureToken(commentUri.toString(), expirationTime);
 
         return ResponseEntity.created(commentUri)
@@ -250,7 +252,7 @@ public class CommentController {
         try {
             commentRepository.update(comment);
         } catch (DataAccessException e) {
-            throw RequestException.withStatus(HttpStatus.CONFLICT)
+            throw RequestException.withStatus(CONFLICT)
                     .message(String.format("Conflict on update of comment with ID = %d", commentId))
                     .cause(e)
                     .build();
@@ -265,9 +267,9 @@ public class CommentController {
         verifyValidRequest(signature, commentId);
 
         try {
-            commentRepository.setStatus(commentId, CommentStatus.DELETED);
+            commentRepository.setStatus(commentId, DELETED);
 
-            log.info("Marked comment with ID = {} as DELETED", commentId);
+            log.info("Marked comment with ID = {} as {}", commentId, DELETED);
         } catch (DataAccessException e) {
             throw RequestException.badRequest()
                     .message(String.format("Unable to delete comment with ID = %d. Does it exist?", commentId))
