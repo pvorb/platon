@@ -39,8 +39,10 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CommentControllerPostTest extends CommentControllerTest {
@@ -51,19 +53,16 @@ public class CommentControllerPostTest extends CommentControllerTest {
     private CommentJson commentJson;
 
     @Spy
-    private CommentsRecord commentsRecord = new CommentsRecord();
+    private CommentsRecord comment = new CommentsRecord();
+    @Spy
+    private CommentsRecord parentComment = new CommentsRecord();
 
     @Test
     public void createsNewThreadOnDemand() throws Exception {
 
         insertCommentReturnsCommentWithNextId();
-
-        when(commentJson.getId()).thenReturn(null);
-        when(threadRepository.findThreadIdForUrl(any())).thenReturn(Optional.empty());
-        when(threadRepository.insert(any())).thenReturn(new ThreadsRecord().setId(1L));
-        convertCommentJsonToRecord(commentJson, commentsRecord);
-        when(commentsRecord.getParentId()).thenReturn(null);
-        when(signatureCreator.createSignatureComponents(any(), any())).thenReturn(mock(SignatureComponents.class));
+        prepareMocksForPostRequest();
+        when(comment.getParentId()).thenReturn(null);
 
         final ResponseEntity<CommentJson> response =
                 commentController.postComment(THREAD_URL, THREAD_TITLE, commentJson);
@@ -73,11 +72,59 @@ public class CommentControllerPostTest extends CommentControllerTest {
         assertThatLocationHeaderIsCorrect(response.getHeaders().getLocation());
     }
 
+    @Test
+    public void verifiesParentBelongsToSameThread() throws Exception {
+
+        insertCommentReturnsCommentWithNextId();
+        prepareMocksForPostRequest();
+
+        final long parentId = 1L;
+        when(comment.getParentId()).thenReturn(parentId);
+        when(commentRepository.findById(eq(parentId))).thenReturn(Optional.of(parentComment));
+        when(comment.getThreadId()).thenReturn(1L);
+        when(parentComment.getThreadId()).thenReturn(2L);
+
+        assertThatExceptionOfType(RequestException.class)
+                .isThrownBy(() -> commentController.postComment(THREAD_URL, THREAD_TITLE, commentJson))
+                .matches(requestException -> requestException.getHttpStatus() == BAD_REQUEST)
+                .withMessage("Parent comment does not belong to same thread");
+
+        verify(commentRepository, never()).insert(any());
+    }
+
+    @Test
+    public void verifiesParentCommentExists() throws Exception {
+
+        insertCommentReturnsCommentWithNextId();
+        prepareMocksForPostRequest();
+
+        final long parentId = 1L;
+        when(comment.getParentId()).thenReturn(parentId);
+        when(commentRepository.findById(eq(parentId))).thenReturn(Optional.empty());
+        when(comment.getThreadId()).thenReturn(1L);
+        when(parentComment.getThreadId()).thenReturn(1L);
+
+        assertThatExceptionOfType(RequestException.class)
+                .isThrownBy(() -> commentController.postComment(THREAD_URL, THREAD_TITLE, commentJson))
+                .matches(requestException -> requestException.getHttpStatus() == BAD_REQUEST)
+                .withMessage("Parent comment does not exist");
+
+        verify(commentRepository, never()).insert(any());
+    }
+
+    private void prepareMocksForPostRequest() {
+        when(commentJson.getId()).thenReturn(null);
+        when(threadRepository.findThreadIdForUrl(any())).thenReturn(Optional.empty());
+        when(threadRepository.insert(any())).thenReturn(new ThreadsRecord().setId(1L));
+        convertCommentJsonToRecord(commentJson, comment);
+        when(signatureCreator.createSignatureComponents(any(), any())).thenReturn(mock(SignatureComponents.class));
+    }
+
     private void assertThatLocationHeaderIsCorrect(URI location) {
         assertThat(location).hasScheme(null);
         assertThat(location).hasHost(null);
         assertThat(location).hasNoPort();
-        assertThat(location).hasPath("/api/comments/" + commentsRecord.getId());
+        assertThat(location).hasPath("/api/comments/" + comment.getId());
         assertThat(location).hasNoParameters();
     }
 
@@ -87,7 +134,7 @@ public class CommentControllerPostTest extends CommentControllerTest {
 
         assertThatExceptionOfType(RequestException.class)
                 .isThrownBy(() -> commentController.postComment(THREAD_URL, THREAD_TITLE, commentJson))
-                .matches(exception -> exception.getHttpStatus() == HttpStatus.BAD_REQUEST)
+                .matches(exception -> exception.getHttpStatus() == BAD_REQUEST)
                 .withMessage("Comment ID is not null");
     }
 
