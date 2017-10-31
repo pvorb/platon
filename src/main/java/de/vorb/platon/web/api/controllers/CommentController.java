@@ -22,10 +22,11 @@ import de.vorb.platon.model.CommentStatus;
 import de.vorb.platon.persistence.CommentRepository;
 import de.vorb.platon.persistence.ThreadRepository;
 import de.vorb.platon.security.SignatureComponents;
-import de.vorb.platon.security.SignatureTokenValidator;
+import de.vorb.platon.security.SignatureService;
 import de.vorb.platon.web.api.common.CommentConverter;
 import de.vorb.platon.web.api.common.CommentFilters;
 import de.vorb.platon.web.api.common.CommentSanitizer;
+import de.vorb.platon.web.api.common.RequestValidator;
 import de.vorb.platon.web.api.errors.RequestException;
 import de.vorb.platon.web.api.json.CommentJson;
 import de.vorb.platon.web.api.json.CommentListResultJson;
@@ -51,7 +52,6 @@ import java.net.URI;
 import java.sql.Timestamp;
 import java.time.Clock;
 import java.time.Instant;
-import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -59,7 +59,6 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static de.vorb.platon.model.CommentStatus.DELETED;
 import static de.vorb.platon.model.CommentStatus.PUBLIC;
 import static java.time.temporal.ChronoUnit.HOURS;
@@ -87,9 +86,10 @@ public class CommentController {
 
     private final ThreadRepository threadRepository;
     private final CommentRepository commentRepository;
+    private final SignatureService signatureService;
 
     private final CommentConverter commentConverter;
-    private final SignatureTokenValidator signatureTokenValidator;
+    private final RequestValidator requestValidator;
     private final CommentFilters commentFilters;
     private final CommentSanitizer commentSanitizer;
 
@@ -189,13 +189,13 @@ public class CommentController {
 
         log.info("Posted new comment to thread '{}'", threadUrl);
 
-        final URI commentUri = getRelativeCommentUri(comment.getId());
+        final URI commentUri = createRelativeCommentUri(comment.getId());
         final Instant expirationTime = comment.getCreationDate().toInstant().plus(24, HOURS);
-        final byte[] signatureToken = signatureTokenValidator.getSignatureToken(commentUri.toString(), expirationTime);
+        final SignatureComponents signatureComponents =
+                signatureService.createSignatureComponents(commentUri.toString(), expirationTime);
 
         return ResponseEntity.created(commentUri)
-                .header(SIGNATURE_HEADER,
-                        SignatureComponents.of(commentUri.toString(), expirationTime, signatureToken).toString())
+                .header(SIGNATURE_HEADER, signatureComponents.toString())
                 .body(commentConverter.convertRecordToJson(comment));
     }
 
@@ -233,7 +233,8 @@ public class CommentController {
                     .build();
         }
 
-        verifyValidRequest(signature, commentId);
+        final String commentUri = createRelativeCommentUri(commentId).toString();
+        requestValidator.verifyValidRequest(signature, commentUri);
 
         final CommentsRecord comment = commentRepository.findById(commentId)
                 .orElseThrow(() ->
@@ -264,7 +265,9 @@ public class CommentController {
             @PathVariable(PATH_VAR_COMMENT_ID) Long commentId,
             @RequestHeader(SIGNATURE_HEADER) String signature) {
 
-        verifyValidRequest(signature, commentId);
+        final URI commentUri = createRelativeCommentUri(commentId);
+
+        requestValidator.verifyValidRequest(signature, commentUri.toString());
 
         try {
             commentRepository.setStatus(commentId, DELETED);
@@ -278,26 +281,8 @@ public class CommentController {
         }
     }
 
-    private void verifyValidRequest(String signature, Long commentId) {
-
-        try {
-            final SignatureComponents signatureComponents = SignatureComponents.fromString(signature);
-
-            final String referenceIdentifier = getRelativeCommentUri(commentId).toString();
-
-            checkArgument(signatureComponents.getIdentifier().equals(referenceIdentifier), "Identifiers do not match");
-            checkArgument(signatureTokenValidator.isSignatureValid(signatureComponents));
-
-        } catch (IllegalArgumentException | DateTimeParseException e) {
-            throw RequestException.badRequest()
-                    .message("Authentication signature is invalid or has expired")
-                    .cause(e)
-                    .build();
-        }
-    }
-
     @SneakyThrows
-    private URI getRelativeCommentUri(long commentId) {
+    private URI createRelativeCommentUri(long commentId) {
         return new URI(ServletUriComponentsBuilder.fromCurrentRequest()
                 .path(PATH_SINGLE)
                 .replaceQuery(null)

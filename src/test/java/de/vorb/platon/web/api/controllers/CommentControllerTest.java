@@ -19,10 +19,12 @@ package de.vorb.platon.web.api.controllers;
 import de.vorb.platon.jooq.tables.records.CommentsRecord;
 import de.vorb.platon.persistence.CommentRepository;
 import de.vorb.platon.persistence.ThreadRepository;
+import de.vorb.platon.security.SignatureService;
 import de.vorb.platon.security.SignatureTokenValidator;
 import de.vorb.platon.web.api.common.CommentConverter;
 import de.vorb.platon.web.api.common.CommentFilters;
 import de.vorb.platon.web.api.common.CommentSanitizer;
+import de.vorb.platon.web.api.common.RequestValidator;
 import de.vorb.platon.web.api.json.CommentJson;
 
 import org.junit.Before;
@@ -60,11 +62,13 @@ public abstract class CommentControllerTest {
     protected ThreadRepository threadRepository;
     @Mock
     protected CommentRepository commentRepository;
+    @Mock
+    protected SignatureService signatureService;
 
     @Mock
     protected CommentConverter commentConverter;
     @Mock
-    protected SignatureTokenValidator signatureTokenValidator;
+    protected RequestValidator requestValidator;
     @Mock
     protected CommentFilters commentFilters;
     @Mock
@@ -75,8 +79,8 @@ public abstract class CommentControllerTest {
 
     @Before
     public void setUp() throws Exception {
-        commentController = new CommentController(clock, threadRepository, commentRepository, commentConverter,
-                signatureTokenValidator, commentFilters, commentSanitizer);
+        commentController = new CommentController(clock, threadRepository, commentRepository, signatureService,
+                commentConverter, requestValidator, commentFilters, commentSanitizer);
     }
 
     protected void convertCommentRecordToJson(CommentsRecord comment, CommentJson commentJson) {

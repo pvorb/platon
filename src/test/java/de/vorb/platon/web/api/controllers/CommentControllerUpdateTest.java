@@ -38,6 +38,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -84,13 +85,12 @@ public class CommentControllerUpdateTest extends CommentControllerTest {
     @Test
     public void updatesCommentIfAllChecksPass() throws Exception {
 
-        when(signatureTokenValidator.isSignatureValid(eq(SAMPLE_SIGNATURE))).thenReturn(true);
         when(commentRepository.findById(eq(SAMPLE_ID))).thenReturn(Optional.of(commentsRecord));
         mockPostOrUpdateCommentRequest();
 
         commentController.updateComment(SAMPLE_ID, SAMPLE_SIGNATURE.toString(), commentJson);
 
-        verify(signatureTokenValidator).isSignatureValid(eq(SAMPLE_SIGNATURE));
+        verify(requestValidator).verifyValidRequest(eq(SAMPLE_SIGNATURE.toString()), eq(SAMPLE_IDENTIFIER));
 
         verify(commentsRecord).setText(eq(commentJson.getText()));
         verify(commentsRecord).setAuthor(eq(commentJson.getAuthor()));
@@ -104,7 +104,6 @@ public class CommentControllerUpdateTest extends CommentControllerTest {
     @Test
     public void throwsBadRequestIfCommentDoesNotExist() throws Exception {
 
-        when(signatureTokenValidator.isSignatureValid(eq(SAMPLE_SIGNATURE))).thenReturn(true);
         when(commentRepository.findById(eq(SAMPLE_ID))).thenReturn(Optional.empty());
         mockPostOrUpdateCommentRequest();
 
@@ -115,24 +114,23 @@ public class CommentControllerUpdateTest extends CommentControllerTest {
     }
 
     @Test
-    public void throwsBadRequestIfSignatureIsInvalid() throws Exception {
+    public void doesNotUpdateCommentIfRequestValidationFails() throws Exception {
 
-        when(signatureTokenValidator.isSignatureValid(eq(SAMPLE_SIGNATURE))).thenReturn(false);
+        doThrow(RequestException.class)
+                .when(requestValidator)
+                .verifyValidRequest(eq(SAMPLE_SIGNATURE.toString()), eq(SAMPLE_IDENTIFIER));
         when(commentRepository.findById(eq(SAMPLE_ID))).thenReturn(Optional.of(commentsRecord));
         mockPostOrUpdateCommentRequest();
 
         assertThatExceptionOfType(RequestException.class)
-                .isThrownBy(() -> commentController.updateComment(SAMPLE_ID, SAMPLE_SIGNATURE.toString(), commentJson))
-                .matches(requestException -> requestException.getHttpStatus() == HttpStatus.BAD_REQUEST)
-                .withMessageContaining("signature")
-                .withMessageContaining("invalid")
-                .withMessageContaining("expired");
+                .isThrownBy(() -> commentController.updateComment(SAMPLE_ID, SAMPLE_SIGNATURE.toString(), commentJson));
+
+        verify(commentRepository, never()).update(any());
     }
 
     @Test
     public void throwsConflictExceptionWhenUpdateFails() throws Exception {
 
-        when(signatureTokenValidator.isSignatureValid(eq(SAMPLE_SIGNATURE))).thenReturn(true);
         when(commentRepository.findById(eq(SAMPLE_ID))).thenReturn(Optional.of(commentsRecord));
         mockPostOrUpdateCommentRequest();
         doThrow(DataAccessException.class).when(commentRepository).update(any());
