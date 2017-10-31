@@ -32,8 +32,10 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.net.URI;
 import java.time.Clock;
 
+import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
 
@@ -70,6 +72,9 @@ public abstract class CommentControllerTest {
     public void setUp() throws Exception {
         commentController = new CommentController(clock, threadRepository, commentRepository, signatureCreator,
                 commentConverter, commentUriResolver, requestValidator, commentFilters, commentSanitizer);
+
+        when(commentUriResolver.createRelativeCommentUriForId(anyLong()))
+                .thenAnswer(invocation -> new URI("/api/comments/" + invocation.getArgumentAt(0, long.class)));
     }
 
     protected void convertCommentRecordToJson(CommentsRecord comment, CommentJson commentJson) {

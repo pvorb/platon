@@ -28,7 +28,6 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.springframework.http.HttpStatus;
 
-import java.net.URI;
 import java.sql.Timestamp;
 import java.time.Clock;
 import java.time.Instant;
@@ -71,8 +70,6 @@ public class CommentControllerUpdateTest extends CommentControllerTest {
         super.setUp();
 
         when(commentJson.getId()).thenReturn(SAMPLE_ID);
-        when(commentUriResolver.createRelativeCommentUriForId(eq(SAMPLE_ID)))
-                .thenReturn(new URI("/api/comments/" + SAMPLE_ID));
     }
 
     @Test

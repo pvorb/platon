@@ -37,7 +37,6 @@ import java.util.concurrent.atomic.AtomicLong;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -65,9 +64,6 @@ public class CommentControllerPostTest extends CommentControllerTest {
         convertCommentJsonToRecord(commentJson, commentsRecord);
         when(commentsRecord.getParentId()).thenReturn(null);
         when(signatureCreator.createSignatureComponents(any(), any())).thenReturn(mock(SignatureComponents.class));
-
-        when(commentUriResolver.createRelativeCommentUriForId(anyLong()))
-                .thenAnswer(invocation -> new URI("/api/comments/" + invocation.getArgumentAt(0, long.class)));
 
         final ResponseEntity<CommentJson> response =
                 commentController.postComment(THREAD_URL, THREAD_TITLE, commentJson);
