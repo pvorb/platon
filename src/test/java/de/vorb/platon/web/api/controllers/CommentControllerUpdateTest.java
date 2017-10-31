@@ -115,6 +115,21 @@ public class CommentControllerUpdateTest extends CommentControllerTest {
     }
 
     @Test
+    public void throwsBadRequestIfSignatureIsInvalid() throws Exception {
+
+        when(signatureTokenValidator.isSignatureValid(eq(SAMPLE_SIGNATURE))).thenReturn(false);
+        when(commentRepository.findById(eq(SAMPLE_ID))).thenReturn(Optional.of(commentsRecord));
+        mockPostOrUpdateCommentRequest();
+
+        assertThatExceptionOfType(RequestException.class)
+                .isThrownBy(() -> commentController.updateComment(SAMPLE_ID, SAMPLE_SIGNATURE.toString(), commentJson))
+                .matches(requestException -> requestException.getHttpStatus() == HttpStatus.BAD_REQUEST)
+                .withMessageContaining("signature")
+                .withMessageContaining("invalid")
+                .withMessageContaining("expired");
+    }
+
+    @Test
     public void throwsConflictExceptionWhenUpdateFails() throws Exception {
 
         when(signatureTokenValidator.isSignatureValid(eq(SAMPLE_SIGNATURE))).thenReturn(true);

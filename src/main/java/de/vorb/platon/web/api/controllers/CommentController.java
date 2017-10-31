@@ -285,17 +285,12 @@ public class CommentController {
 
             final String referenceIdentifier = getRelativeCommentUri(commentId).toString();
 
-            checkArgument(signatureComponents.getIdentifier().equals(referenceIdentifier));
-
-            if (!signatureTokenValidator.isSignatureValid(signatureComponents)) {
-                throw RequestException.badRequest()
-                        .message("Authentication signature is invalid or has expired")
-                        .build();
-            }
+            checkArgument(signatureComponents.getIdentifier().equals(referenceIdentifier), "Identifiers do not match");
+            checkArgument(signatureTokenValidator.isSignatureValid(signatureComponents));
 
         } catch (IllegalArgumentException | DateTimeParseException e) {
             throw RequestException.badRequest()
-                    .message("Illegal authentication signature provided")
+                    .message("Authentication signature is invalid or has expired")
                     .cause(e)
                     .build();
         }
