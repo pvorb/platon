@@ -72,7 +72,7 @@ public class CommentControllerUpdateTest extends CommentControllerTest {
     }
 
     @Test
-    public void idsMustMatch() throws Exception {
+    public void comparesCommentIds() throws Exception {
 
         assertThatExceptionOfType(RequestException.class)
                 .isThrownBy(() -> commentController.updateComment(
