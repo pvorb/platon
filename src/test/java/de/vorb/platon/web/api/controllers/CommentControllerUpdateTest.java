@@ -28,6 +28,7 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.springframework.http.HttpStatus;
 
+import java.net.URI;
 import java.sql.Timestamp;
 import java.time.Clock;
 import java.time.Instant;
@@ -70,6 +71,8 @@ public class CommentControllerUpdateTest extends CommentControllerTest {
         super.setUp();
 
         when(commentJson.getId()).thenReturn(SAMPLE_ID);
+        when(commentUriResolver.createRelativeCommentUriForId(eq(SAMPLE_ID)))
+                .thenReturn(new URI("/api/comments/" + SAMPLE_ID));
     }
 
     @Test
@@ -86,7 +89,6 @@ public class CommentControllerUpdateTest extends CommentControllerTest {
     public void updatesCommentIfAllChecksPass() throws Exception {
 
         when(commentRepository.findById(eq(SAMPLE_ID))).thenReturn(Optional.of(commentsRecord));
-        mockPostOrUpdateCommentRequest();
 
         commentController.updateComment(SAMPLE_ID, SAMPLE_SIGNATURE.toString(), commentJson);
 
@@ -105,7 +107,6 @@ public class CommentControllerUpdateTest extends CommentControllerTest {
     public void throwsBadRequestIfCommentDoesNotExist() throws Exception {
 
         when(commentRepository.findById(eq(SAMPLE_ID))).thenReturn(Optional.empty());
-        mockPostOrUpdateCommentRequest();
 
         assertThatExceptionOfType(RequestException.class)
                 .isThrownBy(() -> commentController.updateComment(SAMPLE_ID, SAMPLE_SIGNATURE.toString(), commentJson))
@@ -120,7 +121,6 @@ public class CommentControllerUpdateTest extends CommentControllerTest {
                 .when(requestValidator)
                 .verifyValidRequest(eq(SAMPLE_SIGNATURE.toString()), eq(SAMPLE_IDENTIFIER));
         when(commentRepository.findById(eq(SAMPLE_ID))).thenReturn(Optional.of(commentsRecord));
-        mockPostOrUpdateCommentRequest();
 
         assertThatExceptionOfType(RequestException.class)
                 .isThrownBy(() -> commentController.updateComment(SAMPLE_ID, SAMPLE_SIGNATURE.toString(), commentJson));
@@ -132,7 +132,6 @@ public class CommentControllerUpdateTest extends CommentControllerTest {
     public void throwsConflictExceptionWhenUpdateFails() throws Exception {
 
         when(commentRepository.findById(eq(SAMPLE_ID))).thenReturn(Optional.of(commentsRecord));
-        mockPostOrUpdateCommentRequest();
         doThrow(DataAccessException.class).when(commentRepository).update(any());
 
         assertThatExceptionOfType(RequestException.class)
