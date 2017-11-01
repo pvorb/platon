@@ -22,20 +22,19 @@ import de.vorb.platon.model.CommentStatus;
 import de.vorb.platon.persistence.CommentRepository;
 import de.vorb.platon.persistence.ThreadRepository;
 import de.vorb.platon.security.SignatureComponents;
-import de.vorb.platon.security.SignatureTokenValidator;
+import de.vorb.platon.security.SignatureCreator;
 import de.vorb.platon.web.api.common.CommentConverter;
 import de.vorb.platon.web.api.common.CommentFilters;
 import de.vorb.platon.web.api.common.CommentSanitizer;
+import de.vorb.platon.web.api.common.CommentUriResolver;
+import de.vorb.platon.web.api.common.RequestValidator;
 import de.vorb.platon.web.api.errors.RequestException;
 import de.vorb.platon.web.api.json.CommentJson;
 import de.vorb.platon.web.api.json.CommentListResultJson;
 
-import com.google.common.annotations.VisibleForTesting;
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.jooq.exception.DataAccessException;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -46,22 +45,21 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 import java.sql.Timestamp;
 import java.time.Clock;
 import java.time.Instant;
-import java.time.format.DateTimeParseException;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static com.google.common.base.Preconditions.checkArgument;
+import static de.vorb.platon.model.CommentStatus.DELETED;
+import static de.vorb.platon.model.CommentStatus.PUBLIC;
+import static java.time.temporal.ChronoUnit.HOURS;
+import static org.springframework.http.HttpStatus.CONFLICT;
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
@@ -71,23 +69,23 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @Slf4j
 public class CommentController {
 
-    @VisibleForTesting
     private static final String PATH_LIST = "/api/comments";
-    private static final String PATH_VAR_COMMENT_ID = "commentId";
-    private static final String PATH_SINGLE = PATH_LIST + "/{" + PATH_VAR_COMMENT_ID + "}";
+    public static final String PATH_VAR_COMMENT_ID = "commentId";
+    public static final String PATH_SINGLE = PATH_LIST + "/{" + PATH_VAR_COMMENT_ID + "}";
 
-    @VisibleForTesting
-    static final String SIGNATURE_HEADER = "X-Signature";
-    private static final CommentStatus DEFAULT_STATUS = CommentStatus.PUBLIC;
+    private static final String SIGNATURE_HEADER = "X-Signature";
+    private static final CommentStatus DEFAULT_STATUS = PUBLIC;
 
 
     private final Clock clock;
 
     private final ThreadRepository threadRepository;
     private final CommentRepository commentRepository;
+    private final SignatureCreator signatureCreator;
 
     private final CommentConverter commentConverter;
-    private final SignatureTokenValidator signatureTokenValidator;
+    private final CommentUriResolver commentUriResolver;
+    private final RequestValidator requestValidator;
     private final CommentFilters commentFilters;
     private final CommentSanitizer commentSanitizer;
 
@@ -97,7 +95,7 @@ public class CommentController {
 
         final CommentsRecord comment = commentRepository.findById(commentId)
                 .filter(c ->
-                        CommentStatus.valueOf(c.getStatus()) == CommentStatus.PUBLIC)
+                        CommentStatus.valueOf(c.getStatus()) == PUBLIC)
                 .orElseThrow(() ->
                         RequestException.notFound()
                                 .message("No comment found with ID = " + commentId)
@@ -187,13 +185,13 @@ public class CommentController {
 
         log.info("Posted new comment to thread '{}'", threadUrl);
 
-        final URI commentUri = getRelativeCommentUri(comment.getId());
-        final Instant expirationTime = comment.getCreationDate().toInstant().plus(24, ChronoUnit.HOURS);
-        final byte[] signatureToken = signatureTokenValidator.getSignatureToken(commentUri.toString(), expirationTime);
+        final URI commentUri = commentUriResolver.createRelativeCommentUriForId(comment.getId());
+        final Instant expirationTime = comment.getCreationDate().toInstant().plus(24, HOURS);
+        final SignatureComponents signatureComponents =
+                signatureCreator.createSignatureComponents(commentUri.toString(), expirationTime);
 
         return ResponseEntity.created(commentUri)
-                .header(SIGNATURE_HEADER,
-                        SignatureComponents.of(commentUri.toString(), expirationTime, signatureToken).toString())
+                .header(SIGNATURE_HEADER, signatureComponents.toString())
                 .body(commentConverter.convertRecordToJson(comment));
     }
 
@@ -231,7 +229,8 @@ public class CommentController {
                     .build();
         }
 
-        verifyValidRequest(signature, commentId);
+        final String commentUri = commentUriResolver.createRelativeCommentUriForId(commentId).toString();
+        requestValidator.verifyValidRequest(signature, commentUri);
 
         final CommentsRecord comment = commentRepository.findById(commentId)
                 .orElseThrow(() ->
@@ -250,7 +249,7 @@ public class CommentController {
         try {
             commentRepository.update(comment);
         } catch (DataAccessException e) {
-            throw RequestException.withStatus(HttpStatus.CONFLICT)
+            throw RequestException.withStatus(CONFLICT)
                     .message(String.format("Conflict on update of comment with ID = %d", commentId))
                     .cause(e)
                     .build();
@@ -262,12 +261,14 @@ public class CommentController {
             @PathVariable(PATH_VAR_COMMENT_ID) Long commentId,
             @RequestHeader(SIGNATURE_HEADER) String signature) {
 
-        verifyValidRequest(signature, commentId);
+        final URI commentUri = commentUriResolver.createRelativeCommentUriForId(commentId);
+
+        requestValidator.verifyValidRequest(signature, commentUri.toString());
 
         try {
-            commentRepository.setStatus(commentId, CommentStatus.DELETED);
+            commentRepository.setStatus(commentId, DELETED);
 
-            log.info("Marked comment with ID = {} as DELETED", commentId);
+            log.info("Marked comment with ID = {} as {}", commentId, DELETED);
         } catch (DataAccessException e) {
             throw RequestException.badRequest()
                     .message(String.format("Unable to delete comment with ID = %d. Does it exist?", commentId))
@@ -276,35 +277,4 @@ public class CommentController {
         }
     }
 
-    private void verifyValidRequest(String signature, Long commentId) {
-
-        try {
-            final SignatureComponents signatureComponents = SignatureComponents.fromString(signature);
-
-            final String referenceIdentifier = getRelativeCommentUri(commentId).toString();
-
-            checkArgument(signatureComponents.getIdentifier().equals(referenceIdentifier));
-
-            if (!signatureTokenValidator.isSignatureValid(signatureComponents)) {
-                throw RequestException.badRequest()
-                        .message("Authentication signature is invalid or has expired")
-                        .build();
-            }
-
-        } catch (IllegalArgumentException | DateTimeParseException e) {
-            throw RequestException.badRequest()
-                    .message("Illegal authentication signature provided")
-                    .cause(e)
-                    .build();
-        }
-    }
-
-    @SneakyThrows
-    private URI getRelativeCommentUri(long commentId) {
-        return new URI(ServletUriComponentsBuilder.fromCurrentRequest()
-                .path(PATH_SINGLE)
-                .replaceQuery(null)
-                .buildAndExpand(Collections.singletonMap(PATH_VAR_COMMENT_ID, commentId))
-                .getPath());
-    }
 }

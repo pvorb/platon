@@ -17,10 +17,10 @@
 package de.vorb.platon.ui;
 
 import de.vorb.platon.SpringUiIntegrationTestConfig;
-import de.vorb.platon.ui.pages.CommentListPage;
 import de.vorb.platon.jooq.tables.records.CommentsRecord;
 import de.vorb.platon.jooq.tables.records.ThreadsRecord;
 import de.vorb.platon.model.CommentStatus;
+import de.vorb.platon.ui.pages.CommentListPage;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.MessageDigestAlgorithms;
