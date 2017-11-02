@@ -16,7 +16,7 @@
 
 package de.vorb.platon.web.api.common;
 
-import de.vorb.platon.jooq.tables.records.CommentRecord;
+import de.vorb.platon.jooq.tables.pojos.Comment;
 import de.vorb.platon.model.CommentStatus;
 import de.vorb.platon.web.api.json.CommentJson;
 
@@ -25,8 +25,6 @@ import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
-import java.sql.Timestamp;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Base64;
 
@@ -40,58 +38,37 @@ public class CommentConverter {
         this.md5 = MessageDigest.getInstance("MD5");
     }
 
-    public CommentJson convertRecordToJson(CommentRecord record) {
-
-        final Instant creationDate = record.getCreationDate() == null
-                ? null
-                : record.getCreationDate().toInstant();
-
-        final Instant lastModificationDate = record.getLastModificationDate() == null
-                ? null
-                : record.getLastModificationDate().toInstant();
-
-        final CommentStatus status = record.getStatus() == null
-                ? null
-                : CommentStatus.valueOf(record.getStatus());
+    public CommentJson convertPojoToJson(Comment comment) {
 
         final CommentJson.CommentJsonBuilder json = CommentJson.builder()
-                .id(record.getId())
-                .parentId(record.getParentId())
-                .creationDate(creationDate)
-                .lastModificationDate(lastModificationDate)
-                .status(status)
+                .id(comment.getId())
+                .parentId(comment.getParentId())
+                .creationDate(comment.getCreationDate())
+                .lastModificationDate(comment.getLastModificationDate())
+                .status(comment.getStatus())
                 .replies(new ArrayList<>());
 
-        if (status != CommentStatus.DELETED) {
+        if (comment.getStatus() != CommentStatus.DELETED) {
 
-            json.text(record.getText());
-            json.author(record.getAuthor());
-            json.url(record.getUrl());
+            json.text(comment.getText());
+            json.author(comment.getAuthor());
+            json.url(comment.getUrl());
 
-            if (record.getEmailHash() != null) {
-                json.emailHash(Base64.getDecoder().decode(record.getEmailHash()));
+            if (comment.getEmailHash() != null) {
+                json.emailHash(Base64.getDecoder().decode(comment.getEmailHash()));
             }
         }
 
         return json.build();
     }
 
-    public CommentRecord convertJsonToRecord(CommentJson json) {
-        return new CommentRecord()
+    public Comment convertJsonToPojo(CommentJson json) {
+        return new Comment()
                 .setId(json.getId())
                 .setParentId(json.getParentId())
-                .setCreationDate(
-                        json.getCreationDate() == null
-                                ? null
-                                : Timestamp.from(json.getCreationDate()))
-                .setLastModificationDate(
-                        json.getLastModificationDate() == null
-                                ? null
-                                : Timestamp.from(json.getLastModificationDate()))
-                .setStatus(
-                        json.getStatus() == null
-                                ? null
-                                : json.getStatus().toString())
+                .setCreationDate(json.getCreationDate())
+                .setLastModificationDate(json.getLastModificationDate())
+                .setStatus(json.getStatus())
                 .setText(json.getText())
                 .setAuthor(json.getAuthor())
                 .setEmailHash(calculateEmailHash(json.getEmail()))

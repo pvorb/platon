@@ -14,23 +14,34 @@
  * limitations under the License.
  */
 
-package de.vorb.platon.web.api.common;
+package de.vorb.platon.persistence.conversion;
 
-import de.vorb.platon.jooq.tables.pojos.Comment;
 import de.vorb.platon.model.CommentStatus;
 
-import org.springframework.stereotype.Component;
+import org.jooq.Converter;
 
-import java.util.EnumSet;
-import java.util.Set;
+import java.util.Objects;
 
-@Component
-public class CommentFilters {
+public class CommentStatusConverter implements Converter<String, CommentStatus> {
 
-    private static final Set<CommentStatus> countStatus = EnumSet.of(CommentStatus.PUBLIC);
+    @Override
+    public CommentStatus from(String databaseObject) {
+        return databaseObject == null ? null : CommentStatus.valueOf(databaseObject);
+    }
 
-    public boolean doesCommentCount(Comment comment) {
-        return countStatus.contains(comment.getStatus());
+    @Override
+    public String to(CommentStatus userObject) {
+        return Objects.toString(userObject);
+    }
+
+    @Override
+    public Class<String> fromType() {
+        return String.class;
+    }
+
+    @Override
+    public Class<CommentStatus> toType() {
+        return CommentStatus.class;
     }
 
 }

@@ -16,7 +16,7 @@
 
 package de.vorb.platon.persistence;
 
-import de.vorb.platon.jooq.tables.records.ThreadRecord;
+import de.vorb.platon.jooq.tables.pojos.CommentThread;
 
 import java.util.Optional;
 
@@ -24,6 +24,6 @@ public interface ThreadRepository {
 
     Optional<Long> findThreadIdForUrl(String threadUrl);
 
-    ThreadRecord insert(ThreadRecord thread);
+    CommentThread insert(CommentThread thread);
 
 }

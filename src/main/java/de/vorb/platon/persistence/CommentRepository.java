@@ -16,7 +16,7 @@
 
 package de.vorb.platon.persistence;
 
-import de.vorb.platon.jooq.tables.records.CommentRecord;
+import de.vorb.platon.jooq.tables.pojos.Comment;
 import de.vorb.platon.model.CommentStatus;
 
 import java.util.List;
@@ -26,15 +26,15 @@ import java.util.Set;
 
 public interface CommentRepository {
 
-    List<CommentRecord> findByThreadUrl(String threadUrl);
+    List<Comment> findByThreadUrl(String threadUrl);
 
-    Optional<CommentRecord> findById(long id);
+    Optional<Comment> findById(long id);
 
-    CommentRecord insert(CommentRecord comment);
+    Comment insert(Comment comment);
 
     Map<String, Integer> countByThreadUrls(Set<String> threadUrls);
 
-    void update(CommentRecord comment);
+    void update(Comment comment);
 
     void setStatus(long id, CommentStatus status);
 

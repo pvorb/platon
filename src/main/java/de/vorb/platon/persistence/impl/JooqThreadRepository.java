@@ -16,7 +16,8 @@
 
 package de.vorb.platon.persistence.impl;
 
-import de.vorb.platon.jooq.tables.records.ThreadRecord;
+import de.vorb.platon.jooq.tables.pojos.CommentThread;
+import de.vorb.platon.jooq.tables.records.CommentThreadRecord;
 import de.vorb.platon.persistence.ThreadRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -25,7 +26,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
-import static de.vorb.platon.jooq.Tables.THREAD;
+import static de.vorb.platon.jooq.Tables.COMMENT_THREAD;
 
 @Repository
 @RequiredArgsConstructor
@@ -36,17 +37,22 @@ public class JooqThreadRepository implements ThreadRepository {
     @Override
     public Optional<Long> findThreadIdForUrl(String threadUrl) {
         return Optional.ofNullable(
-                dslContext.selectFrom(THREAD)
-                        .where(THREAD.URL.eq(threadUrl))
-                        .fetchOne(THREAD.ID));
+                dslContext.selectFrom(COMMENT_THREAD)
+                        .where(COMMENT_THREAD.URL.eq(threadUrl))
+                        .fetchOne(COMMENT_THREAD.ID));
     }
 
     @Override
-    public ThreadRecord insert(ThreadRecord thread) {
-        return dslContext.insertInto(THREAD)
-                .set(thread)
-                .returning(THREAD.ID)
-                .fetchOne();
+    public CommentThread insert(CommentThread thread) {
+        return dslContext.insertInto(COMMENT_THREAD)
+                .set(convertPojoToRecord(thread))
+                .returning(COMMENT_THREAD.ID)
+                .fetchOne()
+                .into(CommentThread.class);
+    }
+
+    private CommentThreadRecord convertPojoToRecord(CommentThread thread) {
+        return dslContext.newRecord(COMMENT_THREAD, thread);
     }
 
 }
