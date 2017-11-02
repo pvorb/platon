@@ -16,7 +16,7 @@
 
 package de.vorb.platon.web.api.controllers;
 
-import de.vorb.platon.jooq.tables.records.CommentRecord;
+import de.vorb.platon.jooq.tables.pojos.Comment;
 import de.vorb.platon.security.SignatureComponents;
 import de.vorb.platon.web.api.errors.RequestException;
 import de.vorb.platon.web.api.json.CommentJson;
@@ -28,7 +28,6 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.springframework.http.HttpStatus;
 
-import java.sql.Timestamp;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -60,7 +59,7 @@ public class CommentControllerUpdateTest extends CommentControllerTest {
     @Mock
     private CommentJson commentJson;
     @Spy
-    private CommentRecord commentRecord = new CommentRecord();
+    private Comment comment = new Comment();
 
     @Override
     @Before
@@ -85,19 +84,19 @@ public class CommentControllerUpdateTest extends CommentControllerTest {
     @Test
     public void updatesCommentIfAllChecksPass() throws Exception {
 
-        when(commentRepository.findById(eq(SAMPLE_ID))).thenReturn(Optional.of(commentRecord));
+        when(commentRepository.findById(eq(SAMPLE_ID))).thenReturn(Optional.of(comment));
 
         commentController.updateComment(SAMPLE_ID, SAMPLE_SIGNATURE.toString(), commentJson);
 
         verify(requestValidator).verifyValidRequest(eq(SAMPLE_SIGNATURE.toString()), eq(SAMPLE_IDENTIFIER));
 
-        verify(commentRecord).setText(eq(commentJson.getText()));
-        verify(commentRecord).setAuthor(eq(commentJson.getAuthor()));
-        verify(commentRecord).setUrl(eq(commentJson.getUrl()));
+        verify(comment).setText(eq(commentJson.getText()));
+        verify(comment).setAuthor(eq(commentJson.getAuthor()));
+        verify(comment).setUrl(eq(commentJson.getUrl()));
 
-        verify(commentRecord).setLastModificationDate(eq(Timestamp.from(clock.instant())));
+        verify(comment).setLastModificationDate(eq(clock.instant()));
 
-        verify(commentRepository).update(eq(commentRecord));
+        verify(commentRepository).update(eq(comment));
     }
 
     @Test
@@ -117,7 +116,7 @@ public class CommentControllerUpdateTest extends CommentControllerTest {
         doThrow(RequestException.class)
                 .when(requestValidator)
                 .verifyValidRequest(eq(SAMPLE_SIGNATURE.toString()), eq(SAMPLE_IDENTIFIER));
-        when(commentRepository.findById(eq(SAMPLE_ID))).thenReturn(Optional.of(commentRecord));
+        when(commentRepository.findById(eq(SAMPLE_ID))).thenReturn(Optional.of(comment));
 
         assertThatExceptionOfType(RequestException.class)
                 .isThrownBy(() -> commentController.updateComment(SAMPLE_ID, SAMPLE_SIGNATURE.toString(), commentJson));
@@ -128,7 +127,7 @@ public class CommentControllerUpdateTest extends CommentControllerTest {
     @Test
     public void throwsConflictExceptionWhenUpdateFails() throws Exception {
 
-        when(commentRepository.findById(eq(SAMPLE_ID))).thenReturn(Optional.of(commentRecord));
+        when(commentRepository.findById(eq(SAMPLE_ID))).thenReturn(Optional.of(comment));
         doThrow(DataAccessException.class).when(commentRepository).update(any());
 
         assertThatExceptionOfType(RequestException.class)

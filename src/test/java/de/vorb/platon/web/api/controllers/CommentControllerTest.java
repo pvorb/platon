@@ -16,7 +16,7 @@
 
 package de.vorb.platon.web.api.controllers;
 
-import de.vorb.platon.jooq.tables.records.CommentRecord;
+import de.vorb.platon.jooq.tables.pojos.Comment;
 import de.vorb.platon.persistence.CommentRepository;
 import de.vorb.platon.persistence.ThreadRepository;
 import de.vorb.platon.security.SignatureCreator;
@@ -77,12 +77,12 @@ public abstract class CommentControllerTest {
                 .thenAnswer(invocation -> new URI("/api/comments/" + invocation.getArgumentAt(0, long.class)));
     }
 
-    protected void convertCommentRecordToJson(CommentRecord record, CommentJson json) {
-        when(commentConverter.convertRecordToJson(eq(record))).thenReturn(json);
+    protected void convertCommentToJson(Comment comment, CommentJson json) {
+        when(commentConverter.convertPojoToJson(eq(comment))).thenReturn(json);
     }
 
-    protected void convertCommentJsonToRecord(CommentJson json, CommentRecord record) {
-        when(commentConverter.convertJsonToRecord(eq(json))).thenReturn(record);
+    protected void convertCommentJsonToComment(CommentJson json, Comment comment) {
+        when(commentConverter.convertJsonToPojo(eq(json))).thenReturn(comment);
     }
 
 }

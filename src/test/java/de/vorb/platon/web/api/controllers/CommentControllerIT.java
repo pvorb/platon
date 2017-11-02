@@ -16,7 +16,7 @@
 
 package de.vorb.platon.web.api.controllers;
 
-import de.vorb.platon.jooq.tables.records.CommentRecord;
+import de.vorb.platon.jooq.tables.pojos.Comment;
 import de.vorb.platon.model.CommentStatus;
 import de.vorb.platon.persistence.CommentRepository;
 
@@ -31,7 +31,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.Optional;
 
@@ -49,13 +48,13 @@ public class CommentControllerIT {
     private static final String SAMPLE_CREATION_DATE = "2017-10-06T19:45:23.751Z";
     private static final String SAMPLE_LAST_MODIFICATION_DATE = "2017-10-06T19:48:51.179Z";
 
-    private static final CommentRecord SAMPLE_COMMENT = new CommentRecord()
+    private static final Comment SAMPLE_COMMENT = new Comment()
             .setId(4711L)
             .setThreadId(25L)
             .setParentId(1336L)
-            .setCreationDate(Timestamp.from(Instant.parse(SAMPLE_CREATION_DATE)))
-            .setLastModificationDate(Timestamp.from(Instant.parse(SAMPLE_LAST_MODIFICATION_DATE)))
-            .setStatus(CommentStatus.PUBLIC.toString())
+            .setCreationDate(Instant.parse(SAMPLE_CREATION_DATE))
+            .setLastModificationDate(Instant.parse(SAMPLE_LAST_MODIFICATION_DATE))
+            .setStatus(CommentStatus.PUBLIC)
             .setText("Sample text")
             .setAuthor("John Doe")
             .setEmailHash("DBe/ZuZJBwFncB0tPNcXEQ==")

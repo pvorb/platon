@@ -16,12 +16,15 @@
 
 package de.vorb.platon.web.api.common;
 
-import de.vorb.platon.jooq.tables.records.CommentRecord;
+import de.vorb.platon.jooq.tables.pojos.Comment;
+import de.vorb.platon.model.CommentStatus;
 
 import org.junit.Test;
 
+import static de.vorb.platon.model.CommentStatus.AWAITING_MODERATION;
+import static de.vorb.platon.model.CommentStatus.DELETED;
+import static de.vorb.platon.model.CommentStatus.PUBLIC;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 public class CommentFiltersTest {
 
@@ -29,14 +32,13 @@ public class CommentFiltersTest {
 
     @Test
     public void doesCommentCount() throws Exception {
-        assertThat(commentFilters.doesCommentCount(commentWithStatus("DELETED"))).isFalse();
-        assertThat(commentFilters.doesCommentCount(commentWithStatus("PUBLIC"))).isTrue();
-        assertThat(commentFilters.doesCommentCount(commentWithStatus("AWAITING_MODERATION"))).isFalse();
-        assertThatExceptionOfType(IllegalArgumentException.class)
-                .isThrownBy(() -> commentFilters.doesCommentCount(commentWithStatus("UNKNOWN")));
+        assertThat(commentFilters.doesCommentCount(commentWithStatus(DELETED))).isFalse();
+        assertThat(commentFilters.doesCommentCount(commentWithStatus(PUBLIC))).isTrue();
+        assertThat(commentFilters.doesCommentCount(commentWithStatus(AWAITING_MODERATION))).isFalse();
     }
 
-    private CommentRecord commentWithStatus(String status) {
-        return new CommentRecord().setStatus(status);
+    private Comment commentWithStatus(CommentStatus status) {
+        return new Comment().setStatus(status);
     }
+
 }
