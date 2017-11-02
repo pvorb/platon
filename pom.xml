@@ -358,6 +358,7 @@
                             <generatedAnnotation>true</generatedAnnotation>
                             <records>true</records>
                             <pojos>true</pojos>
+                            <pojosEqualsAndHashCode>true</pojosEqualsAndHashCode>
                             <immutablePojos>false</immutablePojos>
                             <interfaces>false</interfaces>
                             <daos>false</daos>
