@@ -134,9 +134,9 @@ public class CommentConverterTest {
 
         assertThat(comment.getId()).isEqualTo(json.getId());
         assertThat(comment.getParentId()).isEqualTo(json.getParentId());
-        assertThat(comment.getCreationDate()).isEqualTo(Timestamp.from(json.getCreationDate()));
-        assertThat(comment.getLastModificationDate()).isEqualTo(Timestamp.from(json.getLastModificationDate()));
-        assertThat(comment.getStatus()).isEqualTo(json.getStatus().toString());
+        assertThat(comment.getCreationDate()).isEqualTo(json.getCreationDate());
+        assertThat(comment.getLastModificationDate()).isEqualTo(json.getLastModificationDate());
+        assertThat(comment.getStatus()).isEqualTo(json.getStatus());
         assertThat(comment.getText()).isEqualTo(json.getText());
         assertThat(comment.getAuthor()).isEqualTo(json.getAuthor());
         assertThat(comment.getEmailHash()).isEqualTo("18385ac57d9b171dc3fe83a5a92b68d9");
