@@ -17,8 +17,8 @@
 package de.vorb.platon.ui;
 
 import de.vorb.platon.SpringUiIntegrationTestConfig;
-import de.vorb.platon.jooq.tables.records.CommentsRecord;
-import de.vorb.platon.jooq.tables.records.ThreadsRecord;
+import de.vorb.platon.jooq.tables.records.CommentRecord;
+import de.vorb.platon.jooq.tables.records.ThreadRecord;
 import de.vorb.platon.model.CommentStatus;
 import de.vorb.platon.ui.pages.CommentCountPage;
 
@@ -46,8 +46,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static de.vorb.platon.jooq.Tables.COMMENTS;
-import static de.vorb.platon.jooq.Tables.THREADS;
+import static de.vorb.platon.jooq.Tables.COMMENT;
+import static de.vorb.platon.jooq.Tables.THREAD;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
@@ -68,59 +68,59 @@ public class CommentCountIT {
     private static final String URL_THREAD_2 = "/comment-count-thread-2.html";
 
     private Long thread1Id;
-    private List<CommentsRecord> commentsThread1 = new ArrayList<>();
-    private List<CommentsRecord> commentsThread2 = Collections.emptyList();
+    private List<CommentRecord> commentsThread1 = new ArrayList<>();
+    private List<CommentRecord> commentsThread2 = Collections.emptyList();
 
     @Before
     public void setUp() throws Exception {
-        ThreadsRecord thread = new ThreadsRecord();
+        ThreadRecord thread = new ThreadRecord();
         thread.setUrl(URL_THREAD_1);
         thread.setTitle("Thread Count 1");
-        thread = dslContext.insertInto(THREADS).set(thread).returning(THREADS.ID).fetchOne();
+        thread = dslContext.insertInto(THREAD).set(thread).returning(THREAD.ID).fetchOne();
         thread1Id = thread.getId();
 
-        CommentsRecord comment = new CommentsRecord();
+        CommentRecord comment = new CommentRecord();
         comment.setThreadId(thread1Id);
         comment.setCreationDate(Timestamp.from(Instant.now()));
         comment.setLastModificationDate(comment.getCreationDate());
         comment.setStatus(CommentStatus.PUBLIC.toString());
         comment.setText("Comment 1");
-        comment = dslContext.insertInto(COMMENTS).set(comment).returning(COMMENTS.ID, COMMENTS.STATUS).fetchOne();
+        comment = dslContext.insertInto(COMMENT).set(comment).returning(COMMENT.ID, COMMENT.STATUS).fetchOne();
         commentsThread1.add(comment);
 
-        comment = new CommentsRecord();
+        comment = new CommentRecord();
         comment.setThreadId(thread1Id);
         comment.setCreationDate(Timestamp.from(Instant.now()));
         comment.setLastModificationDate(comment.getCreationDate());
         comment.setStatus(CommentStatus.AWAITING_MODERATION.toString());
         comment.setText("Comment 2");
-        comment = dslContext.insertInto(COMMENTS).set(comment).returning(COMMENTS.ID, COMMENTS.STATUS).fetchOne();
+        comment = dslContext.insertInto(COMMENT).set(comment).returning(COMMENT.ID, COMMENT.STATUS).fetchOne();
         commentsThread1.add(comment);
 
-        comment = new CommentsRecord();
+        comment = new CommentRecord();
         comment.setThreadId(thread1Id);
         comment.setCreationDate(Timestamp.from(Instant.now()));
         comment.setLastModificationDate(comment.getCreationDate());
         comment.setStatus(CommentStatus.DELETED.toString());
         comment.setText("Comment 1");
-        comment = dslContext.insertInto(COMMENTS).set(comment).returning(COMMENTS.ID, COMMENTS.STATUS).fetchOne();
+        comment = dslContext.insertInto(COMMENT).set(comment).returning(COMMENT.ID, COMMENT.STATUS).fetchOne();
         commentsThread1.add(comment);
 
-        comment = new CommentsRecord();
+        comment = new CommentRecord();
         comment.setThreadId(thread1Id);
         comment.setParentId(comment.getId());
         comment.setCreationDate(Timestamp.from(Instant.now()));
         comment.setLastModificationDate(comment.getCreationDate());
         comment.setStatus(CommentStatus.PUBLIC.toString());
         comment.setText("Comment 1");
-        comment = dslContext.insertInto(COMMENTS).set(comment).returning(COMMENTS.ID, COMMENTS.STATUS).fetchOne();
+        comment = dslContext.insertInto(COMMENT).set(comment).returning(COMMENT.ID, COMMENT.STATUS).fetchOne();
         commentsThread1.add(comment);
     }
 
     @After
     public void tearDown() throws Exception {
-        dslContext.deleteFrom(COMMENTS).where(COMMENTS.THREAD_ID.eq(thread1Id)).execute();
-        dslContext.deleteFrom(THREADS).where(THREADS.ID.eq(thread1Id)).execute();
+        dslContext.deleteFrom(COMMENT).where(COMMENT.THREAD_ID.eq(thread1Id)).execute();
+        dslContext.deleteFrom(THREAD).where(THREAD.ID.eq(thread1Id)).execute();
     }
 
     @Test

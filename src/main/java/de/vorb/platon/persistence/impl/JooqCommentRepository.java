@@ -16,7 +16,7 @@
 
 package de.vorb.platon.persistence.impl;
 
-import de.vorb.platon.jooq.tables.records.CommentsRecord;
+import de.vorb.platon.jooq.tables.records.CommentRecord;
 import de.vorb.platon.model.CommentStatus;
 import de.vorb.platon.persistence.CommentRepository;
 
@@ -30,8 +30,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import static de.vorb.platon.jooq.Tables.COMMENTS;
-import static de.vorb.platon.jooq.Tables.THREADS;
+import static de.vorb.platon.jooq.Tables.COMMENT;
+import static de.vorb.platon.jooq.Tables.THREAD;
 import static org.jooq.impl.DSL.count;
 
 @Repository
@@ -41,26 +41,26 @@ public class JooqCommentRepository implements CommentRepository {
     private final DSLContext dslContext;
 
     @Override
-    public List<CommentsRecord> findByThreadUrl(String threadUrl) {
+    public List<CommentRecord> findByThreadUrl(String threadUrl) {
         return dslContext
-                .selectFrom(COMMENTS
-                        .join(THREADS).on(COMMENTS.THREAD_ID.eq(THREADS.ID)))
-                .where(THREADS.URL.eq(threadUrl))
-                .fetchInto(CommentsRecord.class);
+                .selectFrom(COMMENT
+                        .join(THREAD).on(COMMENT.THREAD_ID.eq(THREAD.ID)))
+                .where(THREAD.URL.eq(threadUrl))
+                .fetchInto(CommentRecord.class);
     }
 
     @Override
-    public Optional<CommentsRecord> findById(long id) {
+    public Optional<CommentRecord> findById(long id) {
         return Optional.ofNullable(
                 dslContext
-                        .selectFrom(COMMENTS)
-                        .where(COMMENTS.ID.eq(id))
+                        .selectFrom(COMMENT)
+                        .where(COMMENT.ID.eq(id))
                         .fetchOne());
     }
 
     @Override
-    public CommentsRecord insert(CommentsRecord comment) {
-        return dslContext.insertInto(COMMENTS)
+    public CommentRecord insert(CommentRecord comment) {
+        return dslContext.insertInto(COMMENT)
                 .set(comment)
                 .returning()
                 .fetchOne();
@@ -69,21 +69,21 @@ public class JooqCommentRepository implements CommentRepository {
     @Override
     public Map<String, Integer> countByThreadUrls(Set<String> threadUrls) {
 
-        return dslContext.select(THREADS.URL, count())
-                .from(COMMENTS
-                        .join(THREADS).on(COMMENTS.THREAD_ID.eq(THREADS.ID)))
-                .where(THREADS.URL.in(threadUrls)
-                        .and(COMMENTS.STATUS.eq(CommentStatus.PUBLIC.toString())))
-                .groupBy(THREADS.URL)
-                .fetchMap(THREADS.URL, count());
+        return dslContext.select(THREAD.URL, count())
+                .from(COMMENT
+                        .join(THREAD).on(COMMENT.THREAD_ID.eq(THREAD.ID)))
+                .where(THREAD.URL.in(threadUrls)
+                        .and(COMMENT.STATUS.eq(CommentStatus.PUBLIC.toString())))
+                .groupBy(THREAD.URL)
+                .fetchMap(THREAD.URL, count());
     }
 
     @Override
-    public void update(CommentsRecord comment) {
+    public void update(CommentRecord comment) {
         final int affectedRows =
-                dslContext.update(COMMENTS)
+                dslContext.update(COMMENT)
                         .set(comment)
-                        .where(COMMENTS.ID.eq(comment.getId()))
+                        .where(COMMENT.ID.eq(comment.getId()))
                         .execute();
 
         if (affectedRows == 0) {
@@ -94,9 +94,9 @@ public class JooqCommentRepository implements CommentRepository {
     @Override
     public void setStatus(long id, CommentStatus status) {
         final int affectedRows =
-                dslContext.update(COMMENTS)
-                        .set(COMMENTS.STATUS, status.toString())
-                        .where(COMMENTS.ID.eq(id))
+                dslContext.update(COMMENT)
+                        .set(COMMENT.STATUS, status.toString())
+                        .where(COMMENT.ID.eq(id))
                         .execute();
 
         if (affectedRows == 0) {

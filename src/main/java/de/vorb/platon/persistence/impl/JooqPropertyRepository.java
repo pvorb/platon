@@ -16,14 +16,14 @@
 
 package de.vorb.platon.persistence.impl;
 
-import de.vorb.platon.jooq.tables.records.PropertiesRecord;
+import de.vorb.platon.jooq.tables.records.PropertyRecord;
 import de.vorb.platon.persistence.PropertyRepository;
 
 import lombok.RequiredArgsConstructor;
 import org.jooq.DSLContext;
 import org.springframework.stereotype.Repository;
 
-import static de.vorb.platon.jooq.tables.Properties.PROPERTIES;
+import static de.vorb.platon.jooq.tables.Property.PROPERTY;
 
 @Repository
 @RequiredArgsConstructor
@@ -33,15 +33,15 @@ public class JooqPropertyRepository implements PropertyRepository {
 
     @Override
     public String findValueByKey(String key) {
-        return dslContext.selectFrom(PROPERTIES)
-                .where(PROPERTIES.KEY.eq(key))
-                .fetchOne(PROPERTIES.VALUE);
+        return dslContext.selectFrom(PROPERTY)
+                .where(PROPERTY.KEY.eq(key))
+                .fetchOne(PROPERTY.VALUE);
     }
 
     @Override
     public void insertValue(String key, String value) {
-        dslContext.insertInto(PROPERTIES)
-                .set(new PropertiesRecord(key, value))
+        dslContext.insertInto(PROPERTY)
+                .set(new PropertyRecord(key, value))
                 .execute();
     }
 

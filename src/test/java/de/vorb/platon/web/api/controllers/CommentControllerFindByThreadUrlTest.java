@@ -16,7 +16,7 @@
 
 package de.vorb.platon.web.api.controllers;
 
-import de.vorb.platon.jooq.tables.records.CommentsRecord;
+import de.vorb.platon.jooq.tables.records.CommentRecord;
 import de.vorb.platon.web.api.errors.RequestException;
 import de.vorb.platon.web.api.json.CommentJson;
 import de.vorb.platon.web.api.json.CommentListResultJson;
@@ -47,10 +47,10 @@ public class CommentControllerFindByThreadUrlTest extends CommentControllerTest 
     @Test
     public void returnsCommentsAsTree() throws Exception {
 
-        final CommentsRecord comment = new CommentsRecord().setId(4711L);
-        final CommentsRecord childComment = new CommentsRecord().setId(4712L).setParentId(comment.getId());
+        final CommentRecord comment = new CommentRecord().setId(4711L);
+        final CommentRecord childComment = new CommentRecord().setId(4712L).setParentId(comment.getId());
 
-        final List<CommentsRecord> records = Arrays.asList(comment, childComment);
+        final List<CommentRecord> records = Arrays.asList(comment, childComment);
 
         when(commentRepository.findByThreadUrl(eq(THREAD_URL))).thenReturn(records);
         acceptAllComments();

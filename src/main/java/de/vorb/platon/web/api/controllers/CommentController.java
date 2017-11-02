@@ -16,8 +16,8 @@
 
 package de.vorb.platon.web.api.controllers;
 
-import de.vorb.platon.jooq.tables.records.CommentsRecord;
-import de.vorb.platon.jooq.tables.records.ThreadsRecord;
+import de.vorb.platon.jooq.tables.records.CommentRecord;
+import de.vorb.platon.jooq.tables.records.ThreadRecord;
 import de.vorb.platon.model.CommentStatus;
 import de.vorb.platon.persistence.CommentRepository;
 import de.vorb.platon.persistence.ThreadRepository;
@@ -93,7 +93,7 @@ public class CommentController {
     @GetMapping(value = PATH_SINGLE, produces = APPLICATION_JSON_UTF8_VALUE)
     public CommentJson getCommentById(@PathVariable(PATH_VAR_COMMENT_ID) long commentId) {
 
-        final CommentsRecord comment = commentRepository.findById(commentId)
+        final CommentRecord comment = commentRepository.findById(commentId)
                 .filter(c ->
                         CommentStatus.valueOf(c.getStatus()) == PUBLIC)
                 .orElseThrow(() ->
@@ -108,7 +108,7 @@ public class CommentController {
     @GetMapping(value = PATH_LIST, produces = APPLICATION_JSON_UTF8_VALUE)
     public CommentListResultJson findCommentsByThreadUrl(@RequestParam("threadUrl") String threadUrl) {
 
-        final List<CommentsRecord> comments = commentRepository.findByThreadUrl(threadUrl);
+        final List<CommentRecord> comments = commentRepository.findByThreadUrl(threadUrl);
         if (comments.isEmpty()) {
             throw RequestException.notFound()
                     .message(String.format("No thread found with url = '%s'", threadUrl))
@@ -124,14 +124,14 @@ public class CommentController {
         }
     }
 
-    private List<CommentJson> transformFlatCommentListToTree(List<CommentsRecord> comments) {
+    private List<CommentJson> transformFlatCommentListToTree(List<CommentRecord> comments) {
 
         final Map<Long, CommentJson> lookupMap = comments.stream()
                 .map(commentConverter::convertRecordToJson)
                 .collect(Collectors.toMap(CommentJson::getId, Function.identity()));
 
         final List<CommentJson> topLevelComments = new ArrayList<>();
-        for (CommentsRecord comment : comments) {
+        for (CommentRecord comment : comments) {
             final List<CommentJson> commentList;
             if (comment.getParentId() == null) {
                 commentList = topLevelComments;
@@ -158,7 +158,7 @@ public class CommentController {
 
         final long threadId = threadRepository.findThreadIdForUrl(threadUrl)
                 .orElseGet(() -> {
-                    final ThreadsRecord thread = new ThreadsRecord()
+                    final ThreadRecord thread = new ThreadRecord()
                             .setUrl(threadUrl)
                             .setTitle(threadTitle);
 
@@ -171,7 +171,7 @@ public class CommentController {
 
         commentJson.setStatus(DEFAULT_STATUS);
 
-        CommentsRecord comment = commentConverter.convertJsonToRecord(commentJson);
+        CommentRecord comment = commentConverter.convertJsonToRecord(commentJson);
 
         comment.setThreadId(threadId);
         comment.setCreationDate(Timestamp.from(clock.instant()));
@@ -195,14 +195,14 @@ public class CommentController {
                 .body(commentConverter.convertRecordToJson(comment));
     }
 
-    private void assertParentBelongsToSameThread(CommentsRecord comment) {
+    private void assertParentBelongsToSameThread(CommentRecord comment) {
 
         final Long parentId = comment.getParentId();
         if (parentId == null) {
             return;
         }
 
-        final CommentsRecord parentComment = commentRepository.findById(parentId)
+        final CommentRecord parentComment = commentRepository.findById(parentId)
                 .orElseThrow(() ->
                         RequestException.badRequest()
                                 .message("Parent comment does not exist")
@@ -232,7 +232,7 @@ public class CommentController {
         final String commentUri = commentUriResolver.createRelativeCommentUriForId(commentId).toString();
         requestValidator.verifyValidRequest(signature, commentUri);
 
-        final CommentsRecord comment = commentRepository.findById(commentId)
+        final CommentRecord comment = commentRepository.findById(commentId)
                 .orElseThrow(() ->
                         RequestException.badRequest()
                                 .message(String.format("Comment with ID = %d does not exist", commentId))

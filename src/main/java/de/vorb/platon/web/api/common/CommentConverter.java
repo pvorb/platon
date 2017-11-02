@@ -16,7 +16,7 @@
 
 package de.vorb.platon.web.api.common;
 
-import de.vorb.platon.jooq.tables.records.CommentsRecord;
+import de.vorb.platon.jooq.tables.records.CommentRecord;
 import de.vorb.platon.model.CommentStatus;
 import de.vorb.platon.web.api.json.CommentJson;
 
@@ -40,7 +40,7 @@ public class CommentConverter {
         this.md5 = MessageDigest.getInstance("MD5");
     }
 
-    public CommentJson convertRecordToJson(CommentsRecord record) {
+    public CommentJson convertRecordToJson(CommentRecord record) {
 
         final Instant creationDate = record.getCreationDate() == null
                 ? null
@@ -76,8 +76,8 @@ public class CommentConverter {
         return json.build();
     }
 
-    public CommentsRecord convertJsonToRecord(CommentJson json) {
-        return new CommentsRecord()
+    public CommentRecord convertJsonToRecord(CommentJson json) {
+        return new CommentRecord()
                 .setId(json.getId())
                 .setParentId(json.getParentId())
                 .setCreationDate(

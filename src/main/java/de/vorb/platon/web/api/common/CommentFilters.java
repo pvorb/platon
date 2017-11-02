@@ -16,7 +16,7 @@
 
 package de.vorb.platon.web.api.common;
 
-import de.vorb.platon.jooq.tables.records.CommentsRecord;
+import de.vorb.platon.jooq.tables.records.CommentRecord;
 import de.vorb.platon.model.CommentStatus;
 
 import org.springframework.stereotype.Component;
@@ -29,7 +29,7 @@ public class CommentFilters {
 
     private static final Set<CommentStatus> countStatus = EnumSet.of(CommentStatus.PUBLIC);
 
-    public boolean doesCommentCount(CommentsRecord comment) {
+    public boolean doesCommentCount(CommentRecord comment) {
         return countStatus.contains(CommentStatus.valueOf(comment.getStatus()));
     }
 

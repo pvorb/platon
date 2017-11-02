@@ -16,7 +16,7 @@
 
 package de.vorb.platon.web.api.common;
 
-import de.vorb.platon.jooq.tables.records.CommentsRecord;
+import de.vorb.platon.jooq.tables.records.CommentRecord;
 import de.vorb.platon.model.CommentStatus;
 import de.vorb.platon.web.api.json.CommentJson;
 
@@ -36,7 +36,7 @@ public class CommentConverterTest {
     @Test
     public void convertsRegularRecordToEquivalentJson() throws Exception {
 
-        final CommentsRecord record = prepareRecord()
+        final CommentRecord record = prepareRecord()
                 .setStatus(CommentStatus.PUBLIC.toString());
 
         final CommentJson json = commentConverter.convertRecordToJson(record);
@@ -48,7 +48,7 @@ public class CommentConverterTest {
     @Test
     public void convertsMinimalRecordToEquivalentJson() throws Exception {
 
-        final CommentsRecord record = prepareRecord()
+        final CommentRecord record = prepareRecord()
                 .setCreationDate(null)
                 .setLastModificationDate(null)
                 .setStatus(null)
@@ -65,7 +65,7 @@ public class CommentConverterTest {
     @Test
     public void convertsDeletedRecordToJsonWithoutContent() throws Exception {
 
-        final CommentsRecord record = prepareRecord()
+        final CommentRecord record = prepareRecord()
                 .setStatus(CommentStatus.DELETED.toString());
 
         final CommentJson json = commentConverter.convertRecordToJson(record);
@@ -75,7 +75,7 @@ public class CommentConverterTest {
         assertThat(json.getReplies()).isEmpty();
     }
 
-    private void assertThatMetaFieldsMatchRecord(CommentJson json, CommentsRecord record) {
+    private void assertThatMetaFieldsMatchRecord(CommentJson json, CommentRecord record) {
 
         assertThat(json.getId()).isEqualTo(record.getId());
         assertThat(json.getParentId()).isEqualTo(record.getParentId());
@@ -96,7 +96,7 @@ public class CommentConverterTest {
                         .orElse(null));
     }
 
-    private void assertThatContentFieldsMatchRecord(CommentJson json, CommentsRecord record) {
+    private void assertThatContentFieldsMatchRecord(CommentJson json, CommentRecord record) {
         assertThat(json.getText()).isEqualTo(record.getText());
         assertThat(json.getAuthor()).isEqualTo(record.getAuthor());
 
@@ -116,8 +116,8 @@ public class CommentConverterTest {
         assertThat(json.getUrl()).isNull();
     }
 
-    private CommentsRecord prepareRecord() {
-        return new CommentsRecord()
+    private CommentRecord prepareRecord() {
+        return new CommentRecord()
                 .setId(15L)
                 .setParentId(13L)
                 .setCreationDate(Timestamp.from(Instant.now().minusSeconds(53)))
@@ -133,7 +133,7 @@ public class CommentConverterTest {
 
         final CommentJson json = prepareJson().build();
 
-        final CommentsRecord record = commentConverter.convertJsonToRecord(json);
+        final CommentRecord record = commentConverter.convertJsonToRecord(json);
 
         assertThat(record.getId()).isEqualTo(json.getId());
         assertThat(record.getParentId()).isEqualTo(json.getParentId());
@@ -159,7 +159,7 @@ public class CommentConverterTest {
                 .url(null)
                 .build();
 
-        final CommentsRecord record = commentConverter.convertJsonToRecord(json);
+        final CommentRecord record = commentConverter.convertJsonToRecord(json);
 
         assertThat(record.getId()).isEqualTo(json.getId());
         assertThat(record.getParentId()).isNull();
@@ -179,7 +179,7 @@ public class CommentConverterTest {
                 .email(null)
                 .build();
 
-        final CommentsRecord record = commentConverter.convertJsonToRecord(json);
+        final CommentRecord record = commentConverter.convertJsonToRecord(json);
 
         assertThat(record.getEmailHash()).isNull();
     }

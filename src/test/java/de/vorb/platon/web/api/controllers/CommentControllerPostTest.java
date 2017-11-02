@@ -16,8 +16,8 @@
 
 package de.vorb.platon.web.api.controllers;
 
-import de.vorb.platon.jooq.tables.records.CommentsRecord;
-import de.vorb.platon.jooq.tables.records.ThreadsRecord;
+import de.vorb.platon.jooq.tables.records.CommentRecord;
+import de.vorb.platon.jooq.tables.records.ThreadRecord;
 import de.vorb.platon.security.SignatureComponents;
 import de.vorb.platon.web.api.errors.RequestException;
 import de.vorb.platon.web.api.json.CommentJson;
@@ -54,9 +54,9 @@ public class CommentControllerPostTest extends CommentControllerTest {
     private CommentJson commentJson;
 
     @Spy
-    private CommentsRecord comment = new CommentsRecord();
+    private CommentRecord comment = new CommentRecord();
     @Spy
-    private CommentsRecord parentComment = new CommentsRecord();
+    private CommentRecord parentComment = new CommentRecord();
 
     @Test
     public void createsNewThreadOnDemand() throws Exception {
@@ -67,7 +67,7 @@ public class CommentControllerPostTest extends CommentControllerTest {
 
         final ResponseEntity<CommentJson> response =
                 commentController.postComment(THREAD_URL, THREAD_TITLE, commentJson);
-        verify(threadRepository).insert(eq(new ThreadsRecord(null, THREAD_URL, THREAD_TITLE)));
+        verify(threadRepository).insert(eq(new ThreadRecord(null, THREAD_URL, THREAD_TITLE)));
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
         assertThatLocationHeaderIsCorrect(response.getHeaders().getLocation());
@@ -123,7 +123,7 @@ public class CommentControllerPostTest extends CommentControllerTest {
     private void prepareMocksForPostRequest() {
         when(commentJson.getId()).thenReturn(null);
         when(threadRepository.findThreadIdForUrl(any())).thenReturn(Optional.empty());
-        when(threadRepository.insert(any())).thenReturn(new ThreadsRecord().setId(1L));
+        when(threadRepository.insert(any())).thenReturn(new ThreadRecord().setId(1L));
         convertCommentJsonToRecord(commentJson, comment);
         when(signatureCreator.createSignatureComponents(any(), any())).thenReturn(mock(SignatureComponents.class));
     }
@@ -149,7 +149,7 @@ public class CommentControllerPostTest extends CommentControllerTest {
     private void insertCommentReturnsCommentWithNextId() {
         when(commentRepository.insert(any()))
                 .then(invocation -> {
-                    final CommentsRecord insertedComment = (CommentsRecord) invocation.getArguments()[0];
+                    final CommentRecord insertedComment = (CommentRecord) invocation.getArguments()[0];
                     final long nextCommentId = COMMENT_ID_SEQUENCE.incrementAndGet();
                     return insertedComment.setId(nextCommentId);
                 });

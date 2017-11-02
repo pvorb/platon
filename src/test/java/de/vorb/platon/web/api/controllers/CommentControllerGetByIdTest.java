@@ -16,7 +16,7 @@
 
 package de.vorb.platon.web.api.controllers;
 
-import de.vorb.platon.jooq.tables.records.CommentsRecord;
+import de.vorb.platon.jooq.tables.records.CommentRecord;
 import de.vorb.platon.web.api.errors.RequestException;
 import de.vorb.platon.web.api.json.CommentJson;
 
@@ -40,8 +40,8 @@ public class CommentControllerGetByIdTest extends CommentControllerTest {
     public void returnsPublicComment() throws Exception {
 
         final long commentId = 4711;
-        final CommentsRecord publicComment =
-                new CommentsRecord()
+        final CommentRecord publicComment =
+                new CommentRecord()
                         .setId(commentId)
                         .setText("Text")
                         .setStatus("PUBLIC");
@@ -56,8 +56,8 @@ public class CommentControllerGetByIdTest extends CommentControllerTest {
     public void throwsNotFoundForDeletedComment() throws Exception {
 
         final long commentId = 1337;
-        final CommentsRecord deletedComment =
-                new CommentsRecord()
+        final CommentRecord deletedComment =
+                new CommentRecord()
                         .setId(commentId)
                         .setText("Text")
                         .setStatus("DELETED");

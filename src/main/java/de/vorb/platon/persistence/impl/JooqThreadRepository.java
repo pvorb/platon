@@ -16,7 +16,7 @@
 
 package de.vorb.platon.persistence.impl;
 
-import de.vorb.platon.jooq.tables.records.ThreadsRecord;
+import de.vorb.platon.jooq.tables.records.ThreadRecord;
 import de.vorb.platon.persistence.ThreadRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -25,7 +25,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
-import static de.vorb.platon.jooq.Tables.THREADS;
+import static de.vorb.platon.jooq.Tables.THREAD;
 
 @Repository
 @RequiredArgsConstructor
@@ -36,16 +36,16 @@ public class JooqThreadRepository implements ThreadRepository {
     @Override
     public Optional<Long> findThreadIdForUrl(String threadUrl) {
         return Optional.ofNullable(
-                dslContext.selectFrom(THREADS)
-                        .where(THREADS.URL.eq(threadUrl))
-                        .fetchOne(THREADS.ID));
+                dslContext.selectFrom(THREAD)
+                        .where(THREAD.URL.eq(threadUrl))
+                        .fetchOne(THREAD.ID));
     }
 
     @Override
-    public ThreadsRecord insert(ThreadsRecord thread) {
-        return dslContext.insertInto(THREADS)
+    public ThreadRecord insert(ThreadRecord thread) {
+        return dslContext.insertInto(THREAD)
                 .set(thread)
-                .returning(THREADS.ID)
+                .returning(THREAD.ID)
                 .fetchOne();
     }
 
