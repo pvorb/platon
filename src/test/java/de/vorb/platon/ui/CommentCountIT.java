@@ -118,8 +118,8 @@ public class CommentCountIT {
 
     @After
     public void tearDown() throws Exception {
-        dslContext.deleteFrom(COMMENT).where(COMMENT.THREAD_ID.eq(thread1Id)).execute();
-        dslContext.deleteFrom(COMMENT_THREAD).where(COMMENT_THREAD.ID.eq(thread1Id)).execute();
+        dslContext.deleteFrom(COMMENT).execute();
+        dslContext.deleteFrom(COMMENT_THREAD).execute();
     }
 
     @Test
