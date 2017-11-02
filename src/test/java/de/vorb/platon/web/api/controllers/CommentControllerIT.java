@@ -81,7 +81,7 @@ public class CommentControllerIT {
                 .andExpect(jsonPath("$.parentId").value(SAMPLE_COMMENT.getParentId()))
                 .andExpect(jsonPath("$.creationDate").value(SAMPLE_CREATION_DATE))
                 .andExpect(jsonPath("$.lastModificationDate").value(SAMPLE_LAST_MODIFICATION_DATE))
-                .andExpect(jsonPath("$.status").value(SAMPLE_COMMENT.getStatus()))
+                .andExpect(jsonPath("$.status").value(SAMPLE_COMMENT.getStatus().toString()))
                 .andExpect(jsonPath("$.text").value(SAMPLE_COMMENT.getText()))
                 .andExpect(jsonPath("$.author").value(SAMPLE_COMMENT.getAuthor()))
                 .andExpect(jsonPath("$.emailHash").value("0c17bf66e649070167701d2d3cd71711"))

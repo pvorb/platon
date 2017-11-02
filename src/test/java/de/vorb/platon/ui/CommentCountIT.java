@@ -90,7 +90,7 @@ public class CommentCountIT {
         comment = new CommentRecord()
                 .setThreadId(thread1Id)
                 .setCreationDate(Instant.now())
-                .setLastModificationDate(comment.getCreationDate())
+                .setLastModificationDate(Instant.now())
                 .setStatus(CommentStatus.AWAITING_MODERATION)
                 .setText("Comment 2");
         comment = dslContext.insertInto(COMMENT).set(comment).returning(COMMENT.ID, COMMENT.STATUS).fetchOne();
@@ -99,7 +99,7 @@ public class CommentCountIT {
         comment = new CommentRecord()
                 .setThreadId(thread1Id)
                 .setCreationDate(Instant.now())
-                .setLastModificationDate(comment.getCreationDate())
+                .setLastModificationDate(Instant.now())
                 .setStatus(CommentStatus.DELETED)
                 .setText("Comment 1");
         comment = dslContext.insertInto(COMMENT).set(comment).returning(COMMENT.ID, COMMENT.STATUS).fetchOne();
@@ -109,7 +109,7 @@ public class CommentCountIT {
                 .setThreadId(thread1Id)
                 .setParentId(comment.getId())
                 .setCreationDate(Instant.now())
-                .setLastModificationDate(comment.getCreationDate())
+                .setLastModificationDate(Instant.now())
                 .setStatus(CommentStatus.PUBLIC)
                 .setText("Comment 1");
         comment = dslContext.insertInto(COMMENT).set(comment).returning(COMMENT.ID, COMMENT.STATUS).fetchOne();
@@ -139,14 +139,16 @@ public class CommentCountIT {
         commentCountsByThread.values().forEach(commentCounts -> assertThat(commentCounts).hasSize(1));
 
         final long countThread1 = commentCountsByThread.get(URL_THREAD_1).iterator().next();
-        final long expectedCountThread1 = commentsThread1.stream().filter(
-                comment -> comment.getStatus() == CommentStatus.PUBLIC).count();
+        final long expectedCountThread1 = commentsThread1.stream()
+                .filter(comment -> comment.getStatus() == CommentStatus.PUBLIC)
+                .count();
 
         assertThat(countThread1).isEqualTo(expectedCountThread1);
 
         final long countThread2 = commentCountsByThread.get(URL_THREAD_2).iterator().next();
-        final long expectedCountThread2 = commentsThread2.stream().filter(
-                comment -> comment.getStatus() == CommentStatus.PUBLIC).count();
+        final long expectedCountThread2 = commentsThread2.stream()
+                .filter(comment -> comment.getStatus() == CommentStatus.PUBLIC)
+                .count();
 
         assertThat(countThread2).isEqualTo(expectedCountThread2);
     }
