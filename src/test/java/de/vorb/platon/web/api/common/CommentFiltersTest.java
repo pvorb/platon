@@ -16,7 +16,7 @@
 
 package de.vorb.platon.web.api.common;
 
-import de.vorb.platon.jooq.tables.records.CommentsRecord;
+import de.vorb.platon.jooq.tables.records.CommentRecord;
 
 import org.junit.Test;
 
@@ -36,7 +36,7 @@ public class CommentFiltersTest {
                 .isThrownBy(() -> commentFilters.doesCommentCount(commentWithStatus("UNKNOWN")));
     }
 
-    private CommentsRecord commentWithStatus(String status) {
-        return new CommentsRecord().setStatus(status);
+    private CommentRecord commentWithStatus(String status) {
+        return new CommentRecord().setStatus(status);
     }
 }

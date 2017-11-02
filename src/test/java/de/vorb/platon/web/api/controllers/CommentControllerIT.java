@@ -16,7 +16,7 @@
 
 package de.vorb.platon.web.api.controllers;
 
-import de.vorb.platon.jooq.tables.records.CommentsRecord;
+import de.vorb.platon.jooq.tables.records.CommentRecord;
 import de.vorb.platon.model.CommentStatus;
 import de.vorb.platon.persistence.CommentRepository;
 
@@ -49,7 +49,7 @@ public class CommentControllerIT {
     private static final String SAMPLE_CREATION_DATE = "2017-10-06T19:45:23.751Z";
     private static final String SAMPLE_LAST_MODIFICATION_DATE = "2017-10-06T19:48:51.179Z";
 
-    private static final CommentsRecord SAMPLE_COMMENT = new CommentsRecord()
+    private static final CommentRecord SAMPLE_COMMENT = new CommentRecord()
             .setId(4711L)
             .setThreadId(25L)
             .setParentId(1336L)

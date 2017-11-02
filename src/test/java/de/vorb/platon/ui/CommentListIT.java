@@ -17,8 +17,8 @@
 package de.vorb.platon.ui;
 
 import de.vorb.platon.SpringUiIntegrationTestConfig;
-import de.vorb.platon.jooq.tables.records.CommentsRecord;
-import de.vorb.platon.jooq.tables.records.ThreadsRecord;
+import de.vorb.platon.jooq.tables.records.CommentRecord;
+import de.vorb.platon.jooq.tables.records.ThreadRecord;
 import de.vorb.platon.model.CommentStatus;
 import de.vorb.platon.ui.pages.CommentListPage;
 
@@ -44,8 +44,8 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.Base64;
 
-import static de.vorb.platon.jooq.Tables.COMMENTS;
-import static de.vorb.platon.jooq.Tables.THREADS;
+import static de.vorb.platon.jooq.Tables.COMMENT;
+import static de.vorb.platon.jooq.Tables.THREAD;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
@@ -64,17 +64,17 @@ public class CommentListIT {
     @Value("http://localhost:${server.port}" + THREAD_URL)
     private String testUrl;
 
-    private ThreadsRecord thread;
-    private CommentsRecord topLevelComment;
-    private CommentsRecord childComment;
-    private CommentsRecord deletedComment;
+    private ThreadRecord thread;
+    private CommentRecord topLevelComment;
+    private CommentRecord childComment;
+    private CommentRecord deletedComment;
 
     @Before
     public void setUp() throws Exception {
-        thread = new ThreadsRecord();
+        thread = new ThreadRecord();
         thread.setUrl(THREAD_URL);
         thread.setTitle("Thread");
-        thread = dslContext.insertInto(THREADS).set(thread).returning(THREADS.ID).fetchOne();
+        thread = dslContext.insertInto(THREAD).set(thread).returning(THREAD.ID).fetchOne();
 
         topLevelComment = createComment(null, CommentStatus.PUBLIC, "Sample text", "A", "a@example.org",
                 "http://example.org");
@@ -86,14 +86,14 @@ public class CommentListIT {
 
     @After
     public void tearDown() throws Exception {
-        dslContext.deleteFrom(COMMENTS).execute();
-        dslContext.deleteFrom(THREADS).execute();
+        dslContext.deleteFrom(COMMENT).execute();
+        dslContext.deleteFrom(THREAD).execute();
     }
 
-    private CommentsRecord createComment(Long parentId, CommentStatus status, String text, String author, String email,
+    private CommentRecord createComment(Long parentId, CommentStatus status, String text, String author, String email,
             String url) throws NoSuchAlgorithmException {
 
-        CommentsRecord comment = new CommentsRecord();
+        CommentRecord comment = new CommentRecord();
 
         comment.setThreadId(thread.getId());
         comment.setParentId(parentId);
@@ -108,9 +108,9 @@ public class CommentListIT {
 
         comment.setUrl(url);
 
-        comment = dslContext.insertInto(COMMENTS)
+        comment = dslContext.insertInto(COMMENT)
                 .set(comment)
-                .returning(COMMENTS.ID, COMMENTS.STATUS)
+                .returning(COMMENT.ID, COMMENT.STATUS)
                 .fetchOne();
 
         return comment;
