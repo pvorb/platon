@@ -37,7 +37,7 @@ public class ApiConfigIT {
     private ObjectMapper objectMapper;
 
     @Test
-    public void writeDatesAsTimestampsIsDisabled() throws Exception {
+    public void writeDatesAsTimestampsIsDisabled() {
         assertThatSerializationFeatureIsDisabled(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
     }
 

@@ -26,7 +26,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class PlatonAppTest {
 
     @Test
-    public void configuredClockIsUtc() throws Exception {
+    public void configuredClockIsUtc() {
         final Clock configuredClock = new PlatonApp().clock();
         final ZoneId utc = ZoneId.of("Z");
         assertThat(configuredClock.getZone()).isEqualTo(utc);

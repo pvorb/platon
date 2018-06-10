@@ -30,7 +30,7 @@ import static de.vorb.platon.model.CommentStatus.DELETED;
 import static de.vorb.platon.model.CommentStatus.PUBLIC;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 public class CommentControllerGetByIdTest extends CommentControllerTest {
@@ -39,7 +39,7 @@ public class CommentControllerGetByIdTest extends CommentControllerTest {
     private CommentJson commentJson;
 
     @Test
-    public void returnsPublicComment() throws Exception {
+    public void returnsPublicComment() {
 
         final long commentId = 4711;
         final Comment publicComment =
@@ -55,7 +55,7 @@ public class CommentControllerGetByIdTest extends CommentControllerTest {
     }
 
     @Test
-    public void throwsNotFoundForDeletedComment() throws Exception {
+    public void throwsNotFoundForDeletedComment() {
 
         final long commentId = 1337;
         final Comment deletedComment =

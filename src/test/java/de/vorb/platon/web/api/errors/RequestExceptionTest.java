@@ -28,7 +28,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 public class RequestExceptionTest {
 
     @Test
-    public void acceptOnlyStatusCodesGreaterThan400() throws Exception {
+    public void acceptOnlyStatusCodesGreaterThan400() {
 
         assertThatIllegalArgumentException().isThrownBy(creatingResultException(100));
         assertThatIllegalArgumentException().isThrownBy(creatingResultException(200));
@@ -42,12 +42,12 @@ public class RequestExceptionTest {
     }
 
     @Test
-    public void returnsOriginalStatus() throws Exception {
+    public void returnsOriginalStatus() {
         assertThat(RequestException.withStatus(400).build().getStatus()).isEqualTo(400);
     }
 
     @Test
-    public void convertsToJson() throws Exception {
+    public void convertsToJson() {
 
         final String notFoundMessage = "Not Found";
         final RequestException notFound =
@@ -70,7 +70,7 @@ public class RequestExceptionTest {
     }
 
     @Test
-    public void toResponseEntity() throws Exception {
+    public void toResponseEntity() {
 
         final RequestException requestException = RequestException.badRequest().build();
         final ResponseEntity<RequestExceptionJson> response = requestException.toResponseEntity();
@@ -80,27 +80,27 @@ public class RequestExceptionTest {
     }
 
     @Test
-    public void badRequest() throws Exception {
+    public void badRequest() {
         assertThat(RequestException.badRequest().build().getHttpStatus()).isEqualTo(HttpStatus.BAD_REQUEST);
     }
 
     @Test
-    public void unauthorized() throws Exception {
+    public void unauthorized() {
         assertThat(RequestException.unauthorized().build().getHttpStatus()).isEqualTo(HttpStatus.UNAUTHORIZED);
     }
 
     @Test
-    public void forbidden() throws Exception {
+    public void forbidden() {
         assertThat(RequestException.forbidden().build().getHttpStatus()).isEqualTo(HttpStatus.FORBIDDEN);
     }
 
     @Test
-    public void notFound() throws Exception {
+    public void notFound() {
         assertThat(RequestException.notFound().build().getHttpStatus()).isEqualTo(HttpStatus.NOT_FOUND);
     }
 
     @Test
-    public void internalServerError() throws Exception {
+    public void internalServerError() {
         assertThat(RequestException.internalServerError().build().getHttpStatus())
                 .isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
     }

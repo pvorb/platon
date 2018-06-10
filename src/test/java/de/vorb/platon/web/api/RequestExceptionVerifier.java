@@ -23,7 +23,7 @@ import org.springframework.http.HttpStatus;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
 
-public class RequestExceptionVerifier {
+class RequestExceptionVerifier {
 
     public static void assertRequestExceptionWithStatus(HttpStatus expectedStatus, Runnable task) {
         try {

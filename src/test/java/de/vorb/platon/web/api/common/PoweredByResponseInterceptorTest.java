@@ -23,18 +23,18 @@ import org.mockito.Mockito;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 public class PoweredByResponseInterceptorTest {
 
-    private PoweredByResponseInterceptor poweredByResponseInterceptor = new PoweredByResponseInterceptor();
+    private final PoweredByResponseInterceptor poweredByResponseInterceptor = new PoweredByResponseInterceptor();
 
     private HttpServletResponse response;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         response = Mockito.spy(HttpServletResponse.class);
     }
 

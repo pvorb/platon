@@ -35,7 +35,7 @@ public class ByteArraySerializerTest {
     private SerializerProvider serializerProvider;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         MockitoAnnotations.initMocks(this);
     }
 

@@ -26,7 +26,7 @@ public class PoweredByResponseInterceptor extends HandlerInterceptorAdapter {
 
     @Override
     public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler,
-            ModelAndView modelAndView) throws Exception {
+            ModelAndView modelAndView) {
         response.addHeader("X-Powered-By", "Platon");
     }
 }

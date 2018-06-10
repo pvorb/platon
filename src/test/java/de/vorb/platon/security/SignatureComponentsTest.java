@@ -40,7 +40,7 @@ public class SignatureComponentsTest {
             encodeSignatureToken();
 
     @Test
-    public void fromStringParsesComponents() throws Exception {
+    public void fromStringParsesComponents() {
 
         final SignatureComponents signatureComponents = SignatureComponents.fromString(SAMPLE_SIGNATURE);
 
@@ -50,7 +50,7 @@ public class SignatureComponentsTest {
     }
 
     @Test
-    public void toStringConcatenatesComponentsUsingPipe() throws Exception {
+    public void toStringConcatenatesComponentsUsingPipe() {
 
         final SignatureComponents signatureComponents = SignatureComponents.fromString(SAMPLE_SIGNATURE);
 
@@ -60,7 +60,7 @@ public class SignatureComponentsTest {
     }
 
     @Test
-    public void throwsIllegalArgumentExceptionWhenComponentCountInvalid() throws Exception {
+    public void throwsIllegalArgumentExceptionWhenComponentCountInvalid() {
 
         assertThatExceptionOfType(IllegalArgumentException.class)
                 .isThrownBy(() -> SignatureComponents.fromString("a|b"));
@@ -70,7 +70,7 @@ public class SignatureComponentsTest {
     }
 
     @Test
-    public void throwsDateExceptionWhenDateIsNotParsable() throws Exception {
+    public void throwsDateExceptionWhenDateIsNotParsable() {
 
         assertThatExceptionOfType(DateTimeParseException.class)
                 .isThrownBy(() ->

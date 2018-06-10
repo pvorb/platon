@@ -34,8 +34,8 @@ import java.time.ZoneId;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -72,7 +72,7 @@ public class CommentControllerUpdateTest extends CommentControllerTest {
     }
 
     @Test
-    public void comparesCommentIds() throws Exception {
+    public void comparesCommentIds() {
 
         assertThatExceptionOfType(RequestException.class)
                 .isThrownBy(() -> commentController.updateComment(
@@ -82,7 +82,7 @@ public class CommentControllerUpdateTest extends CommentControllerTest {
     }
 
     @Test
-    public void updatesCommentIfAllChecksPass() throws Exception {
+    public void updatesCommentIfAllChecksPass() {
 
         when(commentRepository.findById(eq(SAMPLE_ID))).thenReturn(Optional.of(comment));
 
@@ -100,7 +100,7 @@ public class CommentControllerUpdateTest extends CommentControllerTest {
     }
 
     @Test
-    public void throwsBadRequestIfCommentDoesNotExist() throws Exception {
+    public void throwsBadRequestIfCommentDoesNotExist() {
 
         when(commentRepository.findById(eq(SAMPLE_ID))).thenReturn(Optional.empty());
 
@@ -111,7 +111,7 @@ public class CommentControllerUpdateTest extends CommentControllerTest {
     }
 
     @Test
-    public void doesNotUpdateCommentIfRequestValidationFails() throws Exception {
+    public void doesNotUpdateCommentIfRequestValidationFails() {
 
         doThrow(RequestException.class)
                 .when(requestValidator)
@@ -125,7 +125,7 @@ public class CommentControllerUpdateTest extends CommentControllerTest {
     }
 
     @Test
-    public void throwsConflictExceptionWhenUpdateFails() throws Exception {
+    public void throwsConflictExceptionWhenUpdateFails() {
 
         when(commentRepository.findById(eq(SAMPLE_ID))).thenReturn(Optional.of(comment));
         doThrow(DataAccessException.class).when(commentRepository).update(any());

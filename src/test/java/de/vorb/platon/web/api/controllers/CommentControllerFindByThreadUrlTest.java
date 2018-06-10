@@ -32,8 +32,8 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -45,7 +45,7 @@ public class CommentControllerFindByThreadUrlTest extends CommentControllerTest 
     private CommentJson childCommentJson;
 
     @Test
-    public void returnsCommentsAsTree() throws Exception {
+    public void returnsCommentsAsTree() {
 
         final Comment comment = new Comment().setId(4711L);
         final Comment childComment = new Comment().setId(4712L).setParentId(comment.getId());
@@ -76,7 +76,7 @@ public class CommentControllerFindByThreadUrlTest extends CommentControllerTest 
     }
 
     @Test
-    public void throwsNotFoundIfThreadIsEmpty() throws Exception {
+    public void throwsNotFoundIfThreadIsEmpty() {
 
         when(commentRepository.findByThreadUrl(any())).thenReturn(Collections.emptyList());
 

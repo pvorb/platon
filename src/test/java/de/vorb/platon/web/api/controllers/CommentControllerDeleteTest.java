@@ -24,7 +24,7 @@ import org.junit.Test;
 import static de.vorb.platon.model.CommentStatus.DELETED;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
@@ -32,7 +32,7 @@ import static org.springframework.http.HttpStatus.BAD_REQUEST;
 public class CommentControllerDeleteTest extends CommentControllerTest {
 
     @Test
-    public void setsCommentStatusToDeletedIfRequestIsValid() throws Exception {
+    public void setsCommentStatusToDeletedIfRequestIsValid() {
 
         final long commentId = 1234;
         final String signature = "signature";
@@ -44,7 +44,7 @@ public class CommentControllerDeleteTest extends CommentControllerTest {
     }
 
     @Test
-    public void throwsBadRequestIfErrorOccursDuringSaving() throws Exception {
+    public void throwsBadRequestIfErrorOccursDuringSaving() {
 
         final long commentId = 1234;
         final String signature = "signature";

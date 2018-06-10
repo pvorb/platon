@@ -22,10 +22,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -38,10 +38,10 @@ public class CommentSanitizerTest {
     @Mock
     private InputSanitizer inputSanitizer;
 
-    private Comment comment = new Comment();
+    private final Comment comment = new Comment();
 
     @Test
-    public void removesHtmlInAuthorName() throws Exception {
+    public void removesHtmlInAuthorName() {
 
         comment.setAuthor("<i>Jane</i> Doe <script>alert('boo');</script>");
 
@@ -51,7 +51,7 @@ public class CommentSanitizerTest {
     }
 
     @Test
-    public void sanitizesAndEncodesUrls() throws Exception {
+    public void sanitizesAndEncodesUrls() {
 
         assertThatUrlIsAccepted("http://example.org/article.html");
         assertThatUrlIsAccepted("https://example.org/secure/profile.php");
@@ -74,20 +74,20 @@ public class CommentSanitizerTest {
     }
 
     @Test
-    public void encodesSpecialCharactersInUrls() throws Exception {
+    public void encodesSpecialCharactersInUrls() {
         sanitizeCommentWithUrl("https://example.org/a url with spaces");
         assertThat(comment.getUrl()).isEqualTo("https://example.org/a%20url%20with%20spaces");
     }
 
     @Test
-    public void doesNotDoubleEncodeEscapedCharacters() throws Exception {
+    public void doesNotDoubleEncodeEscapedCharacters() {
         final String url = "https://example.org/a%20url%20with%20spaces";
         sanitizeCommentWithUrl(url);
         assertThat(comment.getUrl()).isEqualTo(url);
     }
 
     @Test
-    public void prependsHttpsToUrlsWithMissingScheme() throws Exception {
+    public void prependsHttpsToUrlsWithMissingScheme() {
         sanitizeCommentWithUrl("www.example.org");
         assertThat(comment.getUrl()).isEqualTo("https://www.example.org");
     }
@@ -98,7 +98,7 @@ public class CommentSanitizerTest {
     }
 
     @Test
-    public void sanitizesCommentTextUsingInputSanitizer() throws Exception {
+    public void sanitizesCommentTextUsingInputSanitizer() {
 
         final String text = "Text";
         final String sanitizedText = "Sanitized text";

@@ -28,12 +28,12 @@ public class HtmlInputSanitizerTest {
     private HtmlInputSanitizer htmlInputSanitizer;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         htmlInputSanitizer = new HtmlInputSanitizer("p,br");
     }
 
     @Test
-    public void htmlWithScriptTag() throws Exception {
+    public void htmlWithScriptTag() {
 
         final String sanitizedHtml = htmlInputSanitizer.sanitize("<p>Text</p><script>alert('boo!');</script>");
 
@@ -44,7 +44,7 @@ public class HtmlInputSanitizerTest {
     }
 
     @Test
-    public void worksWithMultipleTags() throws Exception {
+    public void worksWithMultipleTags() {
 
         final String sanitizedHtml = htmlInputSanitizer.sanitize("<p>First line<br />Second line</p>");
 

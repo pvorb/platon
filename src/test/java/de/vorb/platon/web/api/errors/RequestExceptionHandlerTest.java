@@ -25,7 +25,7 @@ public class RequestExceptionHandlerTest {
     private final RequestExceptionHandler requestExceptionHandler = new RequestExceptionHandler();
 
     @Test
-    public void handlesRequestException() throws Exception {
+    public void handlesRequestException() {
 
         final RequestException requestException = RequestException.badRequest().build();
 

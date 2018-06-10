@@ -31,7 +31,7 @@ public class CommentFiltersTest {
     private final CommentFilters commentFilters = new CommentFilters();
 
     @Test
-    public void doesCommentCount() throws Exception {
+    public void doesCommentCount() {
         assertThat(commentFilters.doesCommentCount(commentWithStatus(DELETED))).isFalse();
         assertThat(commentFilters.doesCommentCount(commentWithStatus(PUBLIC))).isTrue();
         assertThat(commentFilters.doesCommentCount(commentWithStatus(AWAITING_MODERATION))).isFalse();

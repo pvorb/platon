@@ -28,17 +28,17 @@ public class ByteArrayConverterTest {
     private static final String HEX_STRING = "ff00a3";
 
     @Test
-    public void shortBytesToHexString() throws Exception {
+    public void shortBytesToHexString() {
         assertThat(ByteArrayConverter.bytesToHexString(BYTES)).isEqualTo(HEX_STRING);
     }
 
     @Test
-    public void shortHexStringToBytes() throws Exception {
+    public void shortHexStringToBytes() {
         assertThat(ByteArrayConverter.hexStringToBytes(HEX_STRING)).isEqualTo(BYTES);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void unevenLengthHexToBytes() throws Exception {
+    public void unevenLengthHexToBytes() {
         ByteArrayConverter.hexStringToBytes("ff00a");
     }
 }

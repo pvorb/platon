@@ -24,7 +24,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.http.HttpStatus;
 
 import java.time.Instant;
@@ -32,7 +32,7 @@ import java.time.Instant;
 import static java.time.temporal.ChronoUnit.DAYS;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -46,7 +46,7 @@ public class RequestValidatorTest {
     private SignatureTokenValidator signatureTokenValidator;
 
     @Test
-    public void doesNotThrowIfRequestWasValid() throws Exception {
+    public void doesNotThrowIfRequestWasValid() {
 
         final String identifier = "/api/comments/1234";
         final Instant expirationTime = Instant.now().plus(1, DAYS);
@@ -61,7 +61,7 @@ public class RequestValidatorTest {
     }
 
     @Test
-    public void throwsBadRequestIfRequestWasInvalid() throws Exception {
+    public void throwsBadRequestIfRequestWasInvalid() {
 
         assertThatExceptionOfType(RequestException.class)
                 .isThrownBy(() -> requestValidator.verifyValidRequest("invalid signature", "/api/comments/1234"))

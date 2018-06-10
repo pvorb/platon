@@ -20,13 +20,13 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.time.Instant;
 
 import static java.time.temporal.ChronoUnit.HOURS;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -39,7 +39,7 @@ public class SignatureCreatorTest {
     private SignatureTokenValidator signatureTokenValidator;
 
     @Test
-    public void usesSignatureTokenToCreateSignatureComponents() throws Exception {
+    public void usesSignatureTokenToCreateSignatureComponents() {
 
         final String commentUri = "/api/comments/1234";
         final Instant expirationTime = Instant.now().plus(3, HOURS);

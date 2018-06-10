@@ -80,7 +80,7 @@ public class RequestException extends RuntimeException {
         return withStatus(HttpStatus.NOT_FOUND);
     }
 
-    public static Builder internalServerError() {
+    static Builder internalServerError() {
         return withStatus(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
@@ -90,7 +90,7 @@ public class RequestException extends RuntimeException {
         private String message;
         private Throwable cause;
 
-        public Builder(int status) {
+        Builder(int status) {
             this.status = status;
         }
 

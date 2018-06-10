@@ -70,7 +70,7 @@ public class PojoTest {
     }
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         validator = ValidatorBuilder.create()
                 .with(new NoPrimitivesRule())
                 .with(new NoStaticExceptFinalRule())
@@ -83,7 +83,7 @@ public class PojoTest {
     }
 
     @Test
-    public void validate() throws Exception {
+    public void validate() {
         validator.validate(pojoClass);
     }
 

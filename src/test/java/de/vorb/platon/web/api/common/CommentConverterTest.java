@@ -22,7 +22,6 @@ import de.vorb.platon.web.api.json.CommentJson;
 
 import org.junit.Test;
 
-import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.Base64;
 import java.util.Optional;
@@ -34,7 +33,7 @@ public class CommentConverterTest {
     private final CommentConverter commentConverter = new CommentConverter();
 
     @Test
-    public void convertsRegularPojoToEquivalentJson() throws Exception {
+    public void convertsRegularPojoToEquivalentJson() {
 
         final Comment comment = prepareComment()
                 .setStatus(CommentStatus.PUBLIC);
@@ -46,7 +45,7 @@ public class CommentConverterTest {
     }
 
     @Test
-    public void convertsMinimalPojoToEquivalentJson() throws Exception {
+    public void convertsMinimalPojoToEquivalentJson() {
 
         final Comment comment = prepareComment()
                 .setCreationDate(null)
@@ -63,7 +62,7 @@ public class CommentConverterTest {
     }
 
     @Test
-    public void convertsDeletedPojoToJsonWithoutContent() throws Exception {
+    public void convertsDeletedPojoToJsonWithoutContent() {
 
         final Comment comment = prepareComment()
                 .setStatus(CommentStatus.DELETED);
@@ -126,7 +125,7 @@ public class CommentConverterTest {
     }
 
     @Test
-    public void convertsJsonToEquivalentPojo() throws Exception {
+    public void convertsJsonToEquivalentPojo() {
 
         final CommentJson json = prepareJson().build();
 
@@ -144,7 +143,7 @@ public class CommentConverterTest {
     }
 
     @Test
-    public void convertsMinimalJsonToEquivalentPojo() throws Exception {
+    public void convertsMinimalJsonToEquivalentPojo() {
 
         final CommentJson json = prepareJson()
                 .parentId(null)
@@ -170,7 +169,7 @@ public class CommentConverterTest {
     }
 
     @Test
-    public void acceptsJsonWithMissingEmailAddress() throws Exception {
+    public void acceptsJsonWithMissingEmailAddress() {
 
         final CommentJson json = prepareJson()
                 .email(null)

@@ -25,7 +25,7 @@ public class IndexControllerTest {
     private final IndexController indexController = new IndexController();
 
     @Test
-    public void getIndex() throws Exception {
+    public void getIndex() {
         assertThat(indexController.getIndex()).isEqualTo("index");
     }
 

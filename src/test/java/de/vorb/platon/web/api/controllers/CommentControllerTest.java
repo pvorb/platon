@@ -30,16 +30,16 @@ import de.vorb.platon.web.api.json.CommentJson;
 import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.net.URI;
 import java.time.Clock;
 
-import static org.mockito.Matchers.anyLong;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(MockitoJUnitRunner.Silent.class)
 @SuppressWarnings("WeakerAccess")
 public abstract class CommentControllerTest {
 
@@ -74,7 +74,7 @@ public abstract class CommentControllerTest {
                 commentConverter, commentUriResolver, requestValidator, commentFilters, commentSanitizer);
 
         when(commentUriResolver.createRelativeCommentUriForId(anyLong()))
-                .thenAnswer(invocation -> new URI("/api/comments/" + invocation.getArgumentAt(0, long.class)));
+                .thenAnswer(invocation -> new URI("/api/comments/" + invocation.getArgument(0)));
     }
 
     protected void convertCommentToJson(Comment comment, CommentJson json) {

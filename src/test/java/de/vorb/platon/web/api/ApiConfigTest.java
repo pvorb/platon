@@ -24,7 +24,7 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import java.time.Instant;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -40,7 +40,7 @@ public class ApiConfigTest {
     }
 
     @Test
-    public void addsPoweredByReponseInterceptor() throws Exception {
+    public void addsPoweredByResponseInterceptor() {
         final InterceptorRegistry interceptorRegistry = mock(InterceptorRegistry.class);
         apiConfig.addInterceptors(interceptorRegistry);
         verify(interceptorRegistry).addInterceptor(any(PoweredByResponseInterceptor.class));

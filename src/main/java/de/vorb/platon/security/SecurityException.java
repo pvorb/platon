@@ -16,9 +16,9 @@
 
 package de.vorb.platon.security;
 
-public class SecurityException extends RuntimeException {
+class SecurityException extends RuntimeException {
 
-    public SecurityException(String message, Throwable cause) {
+    SecurityException(String message, Throwable cause) {
         super(message, cause);
     }
 

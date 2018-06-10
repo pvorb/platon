@@ -51,7 +51,7 @@ public class HmacSignatureTokenValidatorTest {
     }
 
     @Test(expected = SecurityException.class)
-    public void testInvalidKey() throws Exception {
+    public void testInvalidKey() {
 
         Mockito.when(secretKeyProvider.getSecretKey()).thenReturn(null);
 
@@ -61,7 +61,7 @@ public class HmacSignatureTokenValidatorTest {
 
     @Test
     @Repeat(10)
-    public void testGetSignatureTokenIsRepeatable() throws Exception {
+    public void testGetSignatureTokenIsRepeatable() {
 
         final String identifier = "comment/1";
         final Instant expirationTime = Instant.now();
@@ -73,13 +73,13 @@ public class HmacSignatureTokenValidatorTest {
     }
 
     @Test
-    public void expiredTokenRequestIsInvalid() throws Exception {
+    public void expiredTokenRequestIsInvalid() {
         final Instant expirationTime = CURRENT_TIME.minusMillis(1);
         assertThatRequestIsInvalid(expirationTime, expirationTime);
     }
 
     @Test
-    public void testCannotFakeExpirationDate() throws Exception {
+    public void testCannotFakeExpirationDate() {
         assertThatRequestIsInvalid(CURRENT_TIME.minusMillis(1), CURRENT_TIME);
     }
 
