@@ -16,7 +16,7 @@
 
 package de.vorb.platon.web.api.controllers;
 
-import de.vorb.platon.jooq.tables.records.CommentRecord;
+import de.vorb.platon.jooq.tables.pojos.Comment;
 import de.vorb.platon.web.api.errors.RequestException;
 import de.vorb.platon.web.api.json.CommentJson;
 
@@ -26,6 +26,8 @@ import org.springframework.http.HttpStatus;
 
 import java.util.Optional;
 
+import static de.vorb.platon.model.CommentStatus.DELETED;
+import static de.vorb.platon.model.CommentStatus.PUBLIC;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.Matchers.eq;
@@ -40,14 +42,14 @@ public class CommentControllerGetByIdTest extends CommentControllerTest {
     public void returnsPublicComment() throws Exception {
 
         final long commentId = 4711;
-        final CommentRecord publicComment =
-                new CommentRecord()
+        final Comment publicComment =
+                new Comment()
                         .setId(commentId)
                         .setText("Text")
-                        .setStatus("PUBLIC");
+                        .setStatus(PUBLIC);
 
         when(commentRepository.findById(eq(commentId))).thenReturn(Optional.of(publicComment));
-        convertCommentRecordToJson(publicComment, commentJson);
+        convertCommentToJson(publicComment, commentJson);
 
         assertThat(commentController.getCommentById(commentId)).isSameAs(commentJson);
     }
@@ -56,11 +58,11 @@ public class CommentControllerGetByIdTest extends CommentControllerTest {
     public void throwsNotFoundForDeletedComment() throws Exception {
 
         final long commentId = 1337;
-        final CommentRecord deletedComment =
-                new CommentRecord()
+        final Comment deletedComment =
+                new Comment()
                         .setId(commentId)
                         .setText("Text")
-                        .setStatus("DELETED");
+                        .setStatus(DELETED);
 
         when(commentRepository.findById(eq(commentId))).thenReturn(Optional.of(deletedComment));
 

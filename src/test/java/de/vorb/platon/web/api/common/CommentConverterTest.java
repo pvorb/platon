@@ -16,7 +16,7 @@
 
 package de.vorb.platon.web.api.common;
 
-import de.vorb.platon.jooq.tables.records.CommentRecord;
+import de.vorb.platon.jooq.tables.pojos.Comment;
 import de.vorb.platon.model.CommentStatus;
 import de.vorb.platon.web.api.json.CommentJson;
 
@@ -34,21 +34,21 @@ public class CommentConverterTest {
     private final CommentConverter commentConverter = new CommentConverter();
 
     @Test
-    public void convertsRegularRecordToEquivalentJson() throws Exception {
+    public void convertsRegularPojoToEquivalentJson() throws Exception {
 
-        final CommentRecord record = prepareRecord()
-                .setStatus(CommentStatus.PUBLIC.toString());
+        final Comment comment = prepareComment()
+                .setStatus(CommentStatus.PUBLIC);
 
-        final CommentJson json = commentConverter.convertRecordToJson(record);
+        final CommentJson json = commentConverter.convertPojoToJson(comment);
 
-        assertThatMetaFieldsMatchRecord(json, record);
-        assertThatContentFieldsMatchRecord(json, record);
+        assertThatMetaFieldsMatchPojo(json, comment);
+        assertThatContentFieldsMatchPojo(json, comment);
     }
 
     @Test
-    public void convertsMinimalRecordToEquivalentJson() throws Exception {
+    public void convertsMinimalPojoToEquivalentJson() throws Exception {
 
-        final CommentRecord record = prepareRecord()
+        final Comment comment = prepareComment()
                 .setCreationDate(null)
                 .setLastModificationDate(null)
                 .setStatus(null)
@@ -56,56 +56,53 @@ public class CommentConverterTest {
                 .setEmailHash(null)
                 .setUrl(null);
 
-        final CommentJson json = commentConverter.convertRecordToJson(record);
+        final CommentJson json = commentConverter.convertPojoToJson(comment);
 
-        assertThatMetaFieldsMatchRecord(json, record);
-        assertThatContentFieldsMatchRecord(json, record);
+        assertThatMetaFieldsMatchPojo(json, comment);
+        assertThatContentFieldsMatchPojo(json, comment);
     }
 
     @Test
-    public void convertsDeletedRecordToJsonWithoutContent() throws Exception {
+    public void convertsDeletedPojoToJsonWithoutContent() throws Exception {
 
-        final CommentRecord record = prepareRecord()
-                .setStatus(CommentStatus.DELETED.toString());
+        final Comment comment = prepareComment()
+                .setStatus(CommentStatus.DELETED);
 
-        final CommentJson json = commentConverter.convertRecordToJson(record);
+        final CommentJson json = commentConverter.convertPojoToJson(comment);
 
-        assertThatMetaFieldsMatchRecord(json, record);
+        assertThatMetaFieldsMatchPojo(json, comment);
         assertThatContentFieldsAreNull(json);
         assertThat(json.getReplies()).isEmpty();
     }
 
-    private void assertThatMetaFieldsMatchRecord(CommentJson json, CommentRecord record) {
+    private void assertThatMetaFieldsMatchPojo(CommentJson json, Comment comment) {
 
-        assertThat(json.getId()).isEqualTo(record.getId());
-        assertThat(json.getParentId()).isEqualTo(record.getParentId());
+        assertThat(json.getId()).isEqualTo(comment.getId());
+        assertThat(json.getParentId()).isEqualTo(comment.getParentId());
 
         assertThat(json.getCreationDate()).isEqualTo(
-                Optional.ofNullable(record.getCreationDate())
-                        .map(Timestamp::toInstant)
+                Optional.ofNullable(comment.getCreationDate())
                         .orElse(null));
 
         assertThat(json.getLastModificationDate()).isEqualTo(
-                Optional.ofNullable(record.getLastModificationDate())
-                        .map(Timestamp::toInstant)
+                Optional.ofNullable(comment.getLastModificationDate())
                         .orElse(null));
 
         assertThat(json.getStatus()).isEqualTo(
-                Optional.ofNullable(record.getStatus())
-                        .map(CommentStatus::valueOf)
+                Optional.ofNullable(comment.getStatus())
                         .orElse(null));
     }
 
-    private void assertThatContentFieldsMatchRecord(CommentJson json, CommentRecord record) {
-        assertThat(json.getText()).isEqualTo(record.getText());
-        assertThat(json.getAuthor()).isEqualTo(record.getAuthor());
+    private void assertThatContentFieldsMatchPojo(CommentJson json, Comment comment) {
+        assertThat(json.getText()).isEqualTo(comment.getText());
+        assertThat(json.getAuthor()).isEqualTo(comment.getAuthor());
 
         assertThat(json.getEmailHash())
-                .isEqualTo(Optional.ofNullable(record.getEmailHash())
+                .isEqualTo(Optional.ofNullable(comment.getEmailHash())
                         .map(emailHash -> Base64.getDecoder().decode(emailHash))
                         .orElse(null));
 
-        assertThat(json.getUrl()).isEqualTo(record.getUrl());
+        assertThat(json.getUrl()).isEqualTo(comment.getUrl());
         assertThat(json.getReplies()).isEmpty();
     }
 
@@ -116,12 +113,12 @@ public class CommentConverterTest {
         assertThat(json.getUrl()).isNull();
     }
 
-    private CommentRecord prepareRecord() {
-        return new CommentRecord()
+    private Comment prepareComment() {
+        return new Comment()
                 .setId(15L)
                 .setParentId(13L)
-                .setCreationDate(Timestamp.from(Instant.now().minusSeconds(53)))
-                .setLastModificationDate(Timestamp.from(Instant.now()))
+                .setCreationDate(Instant.now().minusSeconds(53))
+                .setLastModificationDate(Instant.now())
                 .setText("Some text")
                 .setAuthor("Jane Doe")
                 .setEmailHash("DBe/ZuZJBwFncB0tPNcXEQ==")
@@ -129,25 +126,25 @@ public class CommentConverterTest {
     }
 
     @Test
-    public void convertsJsonToEquivalentRecord() throws Exception {
+    public void convertsJsonToEquivalentPojo() throws Exception {
 
         final CommentJson json = prepareJson().build();
 
-        final CommentRecord record = commentConverter.convertJsonToRecord(json);
+        final Comment comment = commentConverter.convertJsonToPojo(json);
 
-        assertThat(record.getId()).isEqualTo(json.getId());
-        assertThat(record.getParentId()).isEqualTo(json.getParentId());
-        assertThat(record.getCreationDate()).isEqualTo(Timestamp.from(json.getCreationDate()));
-        assertThat(record.getLastModificationDate()).isEqualTo(Timestamp.from(json.getLastModificationDate()));
-        assertThat(record.getStatus()).isEqualTo(json.getStatus().toString());
-        assertThat(record.getText()).isEqualTo(json.getText());
-        assertThat(record.getAuthor()).isEqualTo(json.getAuthor());
-        assertThat(record.getEmailHash()).isEqualTo("18385ac57d9b171dc3fe83a5a92b68d9");
-        assertThat(record.getUrl()).isEqualTo(json.getUrl());
+        assertThat(comment.getId()).isEqualTo(json.getId());
+        assertThat(comment.getParentId()).isEqualTo(json.getParentId());
+        assertThat(comment.getCreationDate()).isEqualTo(json.getCreationDate());
+        assertThat(comment.getLastModificationDate()).isEqualTo(json.getLastModificationDate());
+        assertThat(comment.getStatus()).isEqualTo(json.getStatus());
+        assertThat(comment.getText()).isEqualTo(json.getText());
+        assertThat(comment.getAuthor()).isEqualTo(json.getAuthor());
+        assertThat(comment.getEmailHash()).isEqualTo("18385ac57d9b171dc3fe83a5a92b68d9");
+        assertThat(comment.getUrl()).isEqualTo(json.getUrl());
     }
 
     @Test
-    public void convertsMinimalJsonToEquivalentRecord() throws Exception {
+    public void convertsMinimalJsonToEquivalentPojo() throws Exception {
 
         final CommentJson json = prepareJson()
                 .parentId(null)
@@ -159,17 +156,17 @@ public class CommentConverterTest {
                 .url(null)
                 .build();
 
-        final CommentRecord record = commentConverter.convertJsonToRecord(json);
+        final Comment comment = commentConverter.convertJsonToPojo(json);
 
-        assertThat(record.getId()).isEqualTo(json.getId());
-        assertThat(record.getParentId()).isNull();
-        assertThat(record.getCreationDate()).isNull();
-        assertThat(record.getLastModificationDate()).isNull();
-        assertThat(record.getStatus()).isNull();
-        assertThat(record.getText()).isEqualTo(json.getText());
-        assertThat(record.getAuthor()).isNull();
-        assertThat(record.getEmailHash()).isNull();
-        assertThat(record.getUrl()).isNull();
+        assertThat(comment.getId()).isEqualTo(json.getId());
+        assertThat(comment.getParentId()).isNull();
+        assertThat(comment.getCreationDate()).isNull();
+        assertThat(comment.getLastModificationDate()).isNull();
+        assertThat(comment.getStatus()).isNull();
+        assertThat(comment.getText()).isEqualTo(json.getText());
+        assertThat(comment.getAuthor()).isNull();
+        assertThat(comment.getEmailHash()).isNull();
+        assertThat(comment.getUrl()).isNull();
     }
 
     @Test
@@ -179,9 +176,9 @@ public class CommentConverterTest {
                 .email(null)
                 .build();
 
-        final CommentRecord record = commentConverter.convertJsonToRecord(json);
+        final Comment comment = commentConverter.convertJsonToPojo(json);
 
-        assertThat(record.getEmailHash()).isNull();
+        assertThat(comment.getEmailHash()).isNull();
     }
 
     private CommentJson.CommentJsonBuilder prepareJson() {
@@ -196,4 +193,5 @@ public class CommentConverterTest {
                 .email("jane@example.org")
                 .url("https://example.org/~jane.html");
     }
+
 }

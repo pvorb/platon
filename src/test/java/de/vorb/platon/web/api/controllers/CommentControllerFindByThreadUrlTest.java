@@ -16,7 +16,7 @@
 
 package de.vorb.platon.web.api.controllers;
 
-import de.vorb.platon.jooq.tables.records.CommentRecord;
+import de.vorb.platon.jooq.tables.pojos.Comment;
 import de.vorb.platon.web.api.errors.RequestException;
 import de.vorb.platon.web.api.json.CommentJson;
 import de.vorb.platon.web.api.json.CommentListResultJson;
@@ -47,16 +47,16 @@ public class CommentControllerFindByThreadUrlTest extends CommentControllerTest 
     @Test
     public void returnsCommentsAsTree() throws Exception {
 
-        final CommentRecord comment = new CommentRecord().setId(4711L);
-        final CommentRecord childComment = new CommentRecord().setId(4712L).setParentId(comment.getId());
+        final Comment comment = new Comment().setId(4711L);
+        final Comment childComment = new Comment().setId(4712L).setParentId(comment.getId());
 
-        final List<CommentRecord> records = Arrays.asList(comment, childComment);
+        final List<Comment> comments = Arrays.asList(comment, childComment);
 
-        when(commentRepository.findByThreadUrl(eq(THREAD_URL))).thenReturn(records);
+        when(commentRepository.findByThreadUrl(eq(THREAD_URL))).thenReturn(comments);
         acceptAllComments();
 
-        convertCommentRecordToJson(comment, commentJson);
-        convertCommentRecordToJson(childComment, childCommentJson);
+        convertCommentToJson(comment, commentJson);
+        convertCommentToJson(childComment, childCommentJson);
 
         when(commentJson.getId()).thenReturn(comment.getId());
         when(commentJson.getReplies()).thenReturn(new ArrayList<>());
@@ -66,9 +66,9 @@ public class CommentControllerFindByThreadUrlTest extends CommentControllerTest 
 
         assertThat(resultJson.getComments()).isEqualTo(Collections.singletonList(commentJson));
         assertThat(resultJson.getComments().get(0).getReplies()).isEqualTo(Collections.singletonList(childCommentJson));
-        assertThat(resultJson.getTotalCommentCount()).isEqualTo(records.size());
+        assertThat(resultJson.getTotalCommentCount()).isEqualTo(comments.size());
 
-        records.forEach(record -> verify(commentFilters).doesCommentCount(eq(record)));
+        comments.forEach(c -> verify(commentFilters).doesCommentCount(eq(c)));
     }
 
     private void acceptAllComments() {

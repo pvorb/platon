@@ -16,7 +16,7 @@
 
 package de.vorb.platon.web.api.common;
 
-import de.vorb.platon.jooq.tables.records.CommentRecord;
+import de.vorb.platon.jooq.tables.pojos.Comment;
 
 import com.google.common.collect.ImmutableSet;
 import lombok.RequiredArgsConstructor;
@@ -44,7 +44,7 @@ public class CommentSanitizer {
 
     private final InputSanitizer inputSanitizer;
 
-    public void sanitizeComment(CommentRecord comment) {
+    public void sanitizeComment(Comment comment) {
 
         if (comment.getAuthor() != null) {
             comment.setAuthor(NO_HTML_POLICY.sanitize(comment.getAuthor()).trim());

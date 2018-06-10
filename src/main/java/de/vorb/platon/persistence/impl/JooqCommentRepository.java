@@ -16,6 +16,7 @@
 
 package de.vorb.platon.persistence.impl;
 
+import de.vorb.platon.jooq.tables.pojos.Comment;
 import de.vorb.platon.jooq.tables.records.CommentRecord;
 import de.vorb.platon.model.CommentStatus;
 import de.vorb.platon.persistence.CommentRepository;
@@ -31,7 +32,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import static de.vorb.platon.jooq.Tables.COMMENT;
-import static de.vorb.platon.jooq.Tables.THREAD;
+import static de.vorb.platon.jooq.Tables.COMMENT_THREAD;
 import static org.jooq.impl.DSL.count;
 
 @Repository
@@ -41,48 +42,49 @@ public class JooqCommentRepository implements CommentRepository {
     private final DSLContext dslContext;
 
     @Override
-    public List<CommentRecord> findByThreadUrl(String threadUrl) {
+    public List<Comment> findByThreadUrl(String threadUrl) {
         return dslContext
                 .selectFrom(COMMENT
-                        .join(THREAD).on(COMMENT.THREAD_ID.eq(THREAD.ID)))
-                .where(THREAD.URL.eq(threadUrl))
-                .fetchInto(CommentRecord.class);
+                        .join(COMMENT_THREAD).on(COMMENT.THREAD_ID.eq(COMMENT_THREAD.ID)))
+                .where(COMMENT_THREAD.URL.eq(threadUrl))
+                .fetchInto(Comment.class);
     }
 
     @Override
-    public Optional<CommentRecord> findById(long id) {
+    public Optional<Comment> findById(long id) {
         return Optional.ofNullable(
                 dslContext
                         .selectFrom(COMMENT)
                         .where(COMMENT.ID.eq(id))
-                        .fetchOne());
+                        .fetchOneInto(Comment.class));
     }
 
     @Override
-    public CommentRecord insert(CommentRecord comment) {
+    public Comment insert(Comment comment) {
         return dslContext.insertInto(COMMENT)
-                .set(comment)
+                .set(convertCommentToRecord(comment))
                 .returning()
-                .fetchOne();
+                .fetchOne()
+                .into(Comment.class);
     }
 
     @Override
     public Map<String, Integer> countByThreadUrls(Set<String> threadUrls) {
 
-        return dslContext.select(THREAD.URL, count())
+        return dslContext.select(COMMENT_THREAD.URL, count())
                 .from(COMMENT
-                        .join(THREAD).on(COMMENT.THREAD_ID.eq(THREAD.ID)))
-                .where(THREAD.URL.in(threadUrls)
-                        .and(COMMENT.STATUS.eq(CommentStatus.PUBLIC.toString())))
-                .groupBy(THREAD.URL)
-                .fetchMap(THREAD.URL, count());
+                        .join(COMMENT_THREAD).on(COMMENT.THREAD_ID.eq(COMMENT_THREAD.ID)))
+                .where(COMMENT_THREAD.URL.in(threadUrls)
+                        .and(COMMENT.STATUS.eq(CommentStatus.PUBLIC)))
+                .groupBy(COMMENT_THREAD.URL)
+                .fetchMap(COMMENT_THREAD.URL, count());
     }
 
     @Override
-    public void update(CommentRecord comment) {
+    public void update(Comment comment) {
         final int affectedRows =
                 dslContext.update(COMMENT)
-                        .set(comment)
+                        .set(convertCommentToRecord(comment))
                         .where(COMMENT.ID.eq(comment.getId()))
                         .execute();
 
@@ -95,7 +97,7 @@ public class JooqCommentRepository implements CommentRepository {
     public void setStatus(long id, CommentStatus status) {
         final int affectedRows =
                 dslContext.update(COMMENT)
-                        .set(COMMENT.STATUS, status.toString())
+                        .set(COMMENT.STATUS, status)
                         .where(COMMENT.ID.eq(id))
                         .execute();
 
@@ -103,4 +105,9 @@ public class JooqCommentRepository implements CommentRepository {
             throw new DataAccessException("Could not set the comment withStatus");
         }
     }
+
+    private CommentRecord convertCommentToRecord(Comment comment) {
+        return dslContext.newRecord(COMMENT, comment);
+    }
+
 }

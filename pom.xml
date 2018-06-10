@@ -331,6 +331,19 @@
                             <includes>.*</includes>
                             <excludes>schema_version</excludes>
                             <inputSchema>PUBLIC</inputSchema>
+
+                            <forcedTypes>
+                                <forcedType>
+                                    <userType>java.time.Instant</userType>
+                                    <converter>de.vorb.platon.persistence.conversion.InstantConverter</converter>
+                                    <types>TIMESTAMP</types>
+                                </forcedType>
+                                <forcedType>
+                                    <userType>de.vorb.platon.model.CommentStatus</userType>
+                                    <converter>de.vorb.platon.persistence.conversion.CommentStatusConverter</converter>
+                                    <expression>PUBLIC\.COMMENT\.STATUS</expression>
+                                </forcedType>
+                            </forcedTypes>
                         </database>
 
                         <target>
@@ -344,7 +357,8 @@
                             <instanceFields>true</instanceFields>
                             <generatedAnnotation>true</generatedAnnotation>
                             <records>true</records>
-                            <pojos>false</pojos>
+                            <pojos>true</pojos>
+                            <pojosEqualsAndHashCode>true</pojosEqualsAndHashCode>
                             <immutablePojos>false</immutablePojos>
                             <interfaces>false</interfaces>
                             <daos>false</daos>

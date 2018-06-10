@@ -16,7 +16,7 @@
 
 package de.vorb.platon.web.api.common;
 
-import de.vorb.platon.jooq.tables.records.CommentRecord;
+import de.vorb.platon.jooq.tables.pojos.Comment;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -38,7 +38,7 @@ public class CommentSanitizerTest {
     @Mock
     private InputSanitizer inputSanitizer;
 
-    private CommentRecord comment = new CommentRecord();
+    private Comment comment = new Comment();
 
     @Test
     public void removesHtmlInAuthorName() throws Exception {

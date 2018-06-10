@@ -18,7 +18,7 @@ package de.vorb.platon.ui;
 
 import de.vorb.platon.SpringUiIntegrationTestConfig;
 import de.vorb.platon.jooq.tables.records.CommentRecord;
-import de.vorb.platon.jooq.tables.records.ThreadRecord;
+import de.vorb.platon.jooq.tables.records.CommentThreadRecord;
 import de.vorb.platon.model.CommentStatus;
 import de.vorb.platon.ui.pages.CommentCountPage;
 
@@ -38,7 +38,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -47,7 +46,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static de.vorb.platon.jooq.Tables.COMMENT;
-import static de.vorb.platon.jooq.Tables.THREAD;
+import static de.vorb.platon.jooq.Tables.COMMENT_THREAD;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
@@ -73,54 +72,54 @@ public class CommentCountIT {
 
     @Before
     public void setUp() throws Exception {
-        ThreadRecord thread = new ThreadRecord();
-        thread.setUrl(URL_THREAD_1);
-        thread.setTitle("Thread Count 1");
-        thread = dslContext.insertInto(THREAD).set(thread).returning(THREAD.ID).fetchOne();
+        CommentThreadRecord thread = new CommentThreadRecord()
+                .setUrl(URL_THREAD_1)
+                .setTitle("Thread Count 1");
+        thread = dslContext.insertInto(COMMENT_THREAD).set(thread).returning(COMMENT_THREAD.ID).fetchOne();
         thread1Id = thread.getId();
 
-        CommentRecord comment = new CommentRecord();
-        comment.setThreadId(thread1Id);
-        comment.setCreationDate(Timestamp.from(Instant.now()));
-        comment.setLastModificationDate(comment.getCreationDate());
-        comment.setStatus(CommentStatus.PUBLIC.toString());
-        comment.setText("Comment 1");
+        CommentRecord comment = new CommentRecord()
+                .setThreadId(thread1Id)
+                .setCreationDate(Instant.now())
+                .setLastModificationDate(Instant.now())
+                .setStatus(CommentStatus.PUBLIC)
+                .setText("Comment 1");
         comment = dslContext.insertInto(COMMENT).set(comment).returning(COMMENT.ID, COMMENT.STATUS).fetchOne();
         commentsThread1.add(comment);
 
-        comment = new CommentRecord();
-        comment.setThreadId(thread1Id);
-        comment.setCreationDate(Timestamp.from(Instant.now()));
-        comment.setLastModificationDate(comment.getCreationDate());
-        comment.setStatus(CommentStatus.AWAITING_MODERATION.toString());
-        comment.setText("Comment 2");
+        comment = new CommentRecord()
+                .setThreadId(thread1Id)
+                .setCreationDate(Instant.now())
+                .setLastModificationDate(Instant.now())
+                .setStatus(CommentStatus.AWAITING_MODERATION)
+                .setText("Comment 2");
         comment = dslContext.insertInto(COMMENT).set(comment).returning(COMMENT.ID, COMMENT.STATUS).fetchOne();
         commentsThread1.add(comment);
 
-        comment = new CommentRecord();
-        comment.setThreadId(thread1Id);
-        comment.setCreationDate(Timestamp.from(Instant.now()));
-        comment.setLastModificationDate(comment.getCreationDate());
-        comment.setStatus(CommentStatus.DELETED.toString());
-        comment.setText("Comment 1");
+        comment = new CommentRecord()
+                .setThreadId(thread1Id)
+                .setCreationDate(Instant.now())
+                .setLastModificationDate(Instant.now())
+                .setStatus(CommentStatus.DELETED)
+                .setText("Comment 1");
         comment = dslContext.insertInto(COMMENT).set(comment).returning(COMMENT.ID, COMMENT.STATUS).fetchOne();
         commentsThread1.add(comment);
 
-        comment = new CommentRecord();
-        comment.setThreadId(thread1Id);
-        comment.setParentId(comment.getId());
-        comment.setCreationDate(Timestamp.from(Instant.now()));
-        comment.setLastModificationDate(comment.getCreationDate());
-        comment.setStatus(CommentStatus.PUBLIC.toString());
-        comment.setText("Comment 1");
+        comment = new CommentRecord()
+                .setThreadId(thread1Id)
+                .setParentId(comment.getId())
+                .setCreationDate(Instant.now())
+                .setLastModificationDate(Instant.now())
+                .setStatus(CommentStatus.PUBLIC)
+                .setText("Comment 1");
         comment = dslContext.insertInto(COMMENT).set(comment).returning(COMMENT.ID, COMMENT.STATUS).fetchOne();
         commentsThread1.add(comment);
     }
 
     @After
     public void tearDown() throws Exception {
-        dslContext.deleteFrom(COMMENT).where(COMMENT.THREAD_ID.eq(thread1Id)).execute();
-        dslContext.deleteFrom(THREAD).where(THREAD.ID.eq(thread1Id)).execute();
+        dslContext.deleteFrom(COMMENT).execute();
+        dslContext.deleteFrom(COMMENT_THREAD).execute();
     }
 
     @Test
@@ -140,14 +139,16 @@ public class CommentCountIT {
         commentCountsByThread.values().forEach(commentCounts -> assertThat(commentCounts).hasSize(1));
 
         final long countThread1 = commentCountsByThread.get(URL_THREAD_1).iterator().next();
-        final long expectedCountThread1 = commentsThread1.stream().filter(
-                comment -> CommentStatus.valueOf(comment.getStatus()) == CommentStatus.PUBLIC).count();
+        final long expectedCountThread1 = commentsThread1.stream()
+                .filter(comment -> comment.getStatus() == CommentStatus.PUBLIC)
+                .count();
 
         assertThat(countThread1).isEqualTo(expectedCountThread1);
 
         final long countThread2 = commentCountsByThread.get(URL_THREAD_2).iterator().next();
-        final long expectedCountThread2 = commentsThread2.stream().filter(
-                comment -> CommentStatus.valueOf(comment.getStatus()) == CommentStatus.PUBLIC).count();
+        final long expectedCountThread2 = commentsThread2.stream()
+                .filter(comment -> comment.getStatus() == CommentStatus.PUBLIC)
+                .count();
 
         assertThat(countThread2).isEqualTo(expectedCountThread2);
     }

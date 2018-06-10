@@ -16,8 +16,8 @@
 
 package de.vorb.platon.web.api.controllers;
 
-import de.vorb.platon.jooq.tables.records.CommentRecord;
-import de.vorb.platon.jooq.tables.records.ThreadRecord;
+import de.vorb.platon.jooq.tables.pojos.Comment;
+import de.vorb.platon.jooq.tables.pojos.CommentThread;
 import de.vorb.platon.model.CommentStatus;
 import de.vorb.platon.persistence.CommentRepository;
 import de.vorb.platon.persistence.ThreadRepository;
@@ -47,7 +47,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.net.URI;
-import java.sql.Timestamp;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -93,22 +92,21 @@ public class CommentController {
     @GetMapping(value = PATH_SINGLE, produces = APPLICATION_JSON_UTF8_VALUE)
     public CommentJson getCommentById(@PathVariable(PATH_VAR_COMMENT_ID) long commentId) {
 
-        final CommentRecord comment = commentRepository.findById(commentId)
-                .filter(c ->
-                        CommentStatus.valueOf(c.getStatus()) == PUBLIC)
+        final Comment comment = commentRepository.findById(commentId)
+                .filter(c -> c.getStatus() == PUBLIC)
                 .orElseThrow(() ->
                         RequestException.notFound()
                                 .message("No comment found with ID = " + commentId)
                                 .build());
 
-        return commentConverter.convertRecordToJson(comment);
+        return commentConverter.convertPojoToJson(comment);
     }
 
 
     @GetMapping(value = PATH_LIST, produces = APPLICATION_JSON_UTF8_VALUE)
     public CommentListResultJson findCommentsByThreadUrl(@RequestParam("threadUrl") String threadUrl) {
 
-        final List<CommentRecord> comments = commentRepository.findByThreadUrl(threadUrl);
+        final List<Comment> comments = commentRepository.findByThreadUrl(threadUrl);
         if (comments.isEmpty()) {
             throw RequestException.notFound()
                     .message(String.format("No thread found with url = '%s'", threadUrl))
@@ -124,14 +122,14 @@ public class CommentController {
         }
     }
 
-    private List<CommentJson> transformFlatCommentListToTree(List<CommentRecord> comments) {
+    private List<CommentJson> transformFlatCommentListToTree(List<Comment> comments) {
 
         final Map<Long, CommentJson> lookupMap = comments.stream()
-                .map(commentConverter::convertRecordToJson)
+                .map(commentConverter::convertPojoToJson)
                 .collect(Collectors.toMap(CommentJson::getId, Function.identity()));
 
         final List<CommentJson> topLevelComments = new ArrayList<>();
-        for (CommentRecord comment : comments) {
+        for (final Comment comment : comments) {
             final List<CommentJson> commentList;
             if (comment.getParentId() == null) {
                 commentList = topLevelComments;
@@ -158,7 +156,7 @@ public class CommentController {
 
         final long threadId = threadRepository.findThreadIdForUrl(threadUrl)
                 .orElseGet(() -> {
-                    final ThreadRecord thread = new ThreadRecord()
+                    final CommentThread thread = new CommentThread()
                             .setUrl(threadUrl)
                             .setTitle(threadTitle);
 
@@ -171,10 +169,10 @@ public class CommentController {
 
         commentJson.setStatus(DEFAULT_STATUS);
 
-        CommentRecord comment = commentConverter.convertJsonToRecord(commentJson);
+        Comment comment = commentConverter.convertJsonToPojo(commentJson);
 
         comment.setThreadId(threadId);
-        comment.setCreationDate(Timestamp.from(clock.instant()));
+        comment.setCreationDate(clock.instant());
         comment.setLastModificationDate(comment.getCreationDate());
 
         assertParentBelongsToSameThread(comment);
@@ -186,23 +184,23 @@ public class CommentController {
         log.info("Posted new comment to thread '{}'", threadUrl);
 
         final URI commentUri = commentUriResolver.createRelativeCommentUriForId(comment.getId());
-        final Instant expirationTime = comment.getCreationDate().toInstant().plus(24, HOURS);
+        final Instant expirationTime = comment.getCreationDate().plus(24, HOURS);
         final SignatureComponents signatureComponents =
                 signatureCreator.createSignatureComponents(commentUri.toString(), expirationTime);
 
         return ResponseEntity.created(commentUri)
                 .header(SIGNATURE_HEADER, signatureComponents.toString())
-                .body(commentConverter.convertRecordToJson(comment));
+                .body(commentConverter.convertPojoToJson(comment));
     }
 
-    private void assertParentBelongsToSameThread(CommentRecord comment) {
+    private void assertParentBelongsToSameThread(Comment comment) {
 
         final Long parentId = comment.getParentId();
         if (parentId == null) {
             return;
         }
 
-        final CommentRecord parentComment = commentRepository.findById(parentId)
+        final Comment parentComment = commentRepository.findById(parentId)
                 .orElseThrow(() ->
                         RequestException.badRequest()
                                 .message("Parent comment does not exist")
@@ -232,7 +230,7 @@ public class CommentController {
         final String commentUri = commentUriResolver.createRelativeCommentUriForId(commentId).toString();
         requestValidator.verifyValidRequest(signature, commentUri);
 
-        final CommentRecord comment = commentRepository.findById(commentId)
+        final Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() ->
                         RequestException.badRequest()
                                 .message(String.format("Comment with ID = %d does not exist", commentId))
@@ -242,7 +240,7 @@ public class CommentController {
         comment.setAuthor(comment.getAuthor());
         comment.setUrl(comment.getUrl());
 
-        comment.setLastModificationDate(Timestamp.from(clock.instant()));
+        comment.setLastModificationDate(clock.instant());
 
         commentSanitizer.sanitizeComment(comment);
 
