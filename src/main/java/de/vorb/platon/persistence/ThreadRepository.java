@@ -16,14 +16,23 @@
 
 package de.vorb.platon.persistence;
 
-import de.vorb.platon.jooq.tables.pojos.CommentThread;
+import de.vorb.platon.persistence.jooq.tables.pojos.CommentThread;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface ThreadRepository {
 
+    CommentThread getById(long id);
+
     Optional<Long> findThreadIdForUrl(String threadUrl);
 
+    Optional<CommentThread> findThreadForUrl(String threadUrl);
+
+    List<CommentThread> findThreadsForUrlPrefix(String threadUrlPrefix);
+
     CommentThread insert(CommentThread thread);
+
+    void updateThreadTitle(long id, String newTitle);
 
 }

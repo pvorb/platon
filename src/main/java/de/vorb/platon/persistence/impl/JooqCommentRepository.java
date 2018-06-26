@@ -16,10 +16,10 @@
 
 package de.vorb.platon.persistence.impl;
 
-import de.vorb.platon.jooq.tables.pojos.Comment;
-import de.vorb.platon.jooq.tables.records.CommentRecord;
 import de.vorb.platon.model.CommentStatus;
 import de.vorb.platon.persistence.CommentRepository;
+import de.vorb.platon.persistence.jooq.tables.pojos.Comment;
+import de.vorb.platon.persistence.jooq.tables.records.CommentRecord;
 
 import lombok.RequiredArgsConstructor;
 import org.jooq.DSLContext;
@@ -31,8 +31,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import static de.vorb.platon.jooq.Tables.COMMENT;
-import static de.vorb.platon.jooq.Tables.COMMENT_THREAD;
+import static de.vorb.platon.persistence.jooq.Tables.COMMENT;
+import static de.vorb.platon.persistence.jooq.Tables.COMMENT_THREAD;
 import static org.jooq.impl.DSL.count;
 
 @Repository
@@ -42,11 +42,11 @@ public class JooqCommentRepository implements CommentRepository {
     private final DSLContext dslContext;
 
     @Override
-    public List<Comment> findByThreadUrl(String threadUrl) {
-        return dslContext
-                .selectFrom(COMMENT
-                        .join(COMMENT_THREAD).on(COMMENT.THREAD_ID.eq(COMMENT_THREAD.ID)))
-                .where(COMMENT_THREAD.URL.eq(threadUrl))
+    public List<Comment> findByThreadId(long threadId) {
+        return dslContext.select(COMMENT.fields())
+                .from(COMMENT)
+                .where(COMMENT.THREAD_ID.eq(threadId))
+                .orderBy(COMMENT.ID.asc())
                 .fetchInto(Comment.class);
     }
 

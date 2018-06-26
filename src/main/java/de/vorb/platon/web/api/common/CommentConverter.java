@@ -16,7 +16,7 @@
 
 package de.vorb.platon.web.api.common;
 
-import de.vorb.platon.jooq.tables.pojos.Comment;
+import de.vorb.platon.persistence.jooq.tables.pojos.Comment;
 import de.vorb.platon.model.CommentStatus;
 import de.vorb.platon.web.api.json.CommentJson;
 

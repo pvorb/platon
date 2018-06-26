@@ -16,13 +16,13 @@
 
 package de.vorb.platon.web.api.common;
 
-import de.vorb.platon.jooq.tables.pojos.Comment;
 import de.vorb.platon.model.CommentStatus;
+import de.vorb.platon.persistence.jooq.tables.pojos.Comment;
 import de.vorb.platon.web.api.json.CommentJson;
 
 import org.junit.Test;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.Optional;
 
@@ -116,8 +116,8 @@ public class CommentConverterTest {
         return new Comment()
                 .setId(15L)
                 .setParentId(13L)
-                .setCreationDate(Instant.now().minusSeconds(53))
-                .setLastModificationDate(Instant.now())
+                .setCreationDate(LocalDateTime.now().minusSeconds(53))
+                .setLastModificationDate(LocalDateTime.now())
                 .setText("Some text")
                 .setAuthor("Jane Doe")
                 .setEmailHash("DBe/ZuZJBwFncB0tPNcXEQ==")
@@ -184,8 +184,8 @@ public class CommentConverterTest {
         return CommentJson.builder()
                 .id(15L)
                 .parentId(13L)
-                .creationDate(Instant.now().minusSeconds(53))
-                .lastModificationDate(Instant.now())
+                .creationDate(LocalDateTime.now().minusSeconds(53))
+                .lastModificationDate(LocalDateTime.now())
                 .status(CommentStatus.PUBLIC)
                 .text("Some text")
                 .author("Jane Doe")

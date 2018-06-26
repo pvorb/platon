@@ -16,7 +16,17 @@
 
 package de.vorb.platon.security;
 
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.time.Clock;
+
 @Configuration
-public class SecurityConfig {}
+public class SecurityConfig {
+
+    @Bean
+    public SignatureTokenValidator signatureTokenValidator(SecretKeyProvider secretKeyProvider, Clock clock) {
+        return new HmacSignatureTokenValidator(secretKeyProvider, clock);
+    }
+
+}

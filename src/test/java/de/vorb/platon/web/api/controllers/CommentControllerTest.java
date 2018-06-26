@@ -16,7 +16,7 @@
 
 package de.vorb.platon.web.api.controllers;
 
-import de.vorb.platon.jooq.tables.pojos.Comment;
+import de.vorb.platon.persistence.jooq.tables.pojos.Comment;
 import de.vorb.platon.persistence.CommentRepository;
 import de.vorb.platon.persistence.ThreadRepository;
 import de.vorb.platon.security.SignatureCreator;
@@ -27,15 +27,12 @@ import de.vorb.platon.web.api.common.CommentUriResolver;
 import de.vorb.platon.web.api.common.RequestValidator;
 import de.vorb.platon.web.api.json.CommentJson;
 
-import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.net.URI;
 import java.time.Clock;
 
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
@@ -68,14 +65,14 @@ public abstract class CommentControllerTest {
     @Mock
     protected CommentSanitizer commentSanitizer;
 
-    @Before
-    public void setUp() throws Exception {
-        commentController = new CommentController(clock, threadRepository, commentRepository, signatureCreator,
-                commentConverter, commentUriResolver, requestValidator, commentFilters, commentSanitizer);
-
-        when(commentUriResolver.createRelativeCommentUriForId(anyLong()))
-                .thenAnswer(invocation -> new URI("/api/comments/" + invocation.getArgument(0)));
-    }
+//    @Before
+//    public void setUp() throws Exception {
+//        commentController = new CommentController(clock, threadRepository, commentRepository, signatureCreator,
+//                commentConverter, commentUriResolver, requestValidator, commentFilters, commentSanitizer);
+//
+//        when(commentUriResolver.createRelativeCommentUriForId(anyLong()))
+//                .thenAnswer(invocation -> new URI("/api/comments/" + invocation.getArgument(0)));
+//    }
 
     protected void convertCommentToJson(Comment comment, CommentJson json) {
         when(commentConverter.convertPojoToJson(eq(comment))).thenReturn(json);

@@ -16,9 +16,9 @@
 
 package de.vorb.platon.web.api.controllers;
 
-import de.vorb.platon.jooq.tables.pojos.Comment;
 import de.vorb.platon.model.CommentStatus;
 import de.vorb.platon.persistence.CommentRepository;
+import de.vorb.platon.persistence.jooq.tables.pojos.Comment;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -31,7 +31,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.eq;
@@ -45,15 +45,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 public class CommentControllerIT {
 
-    private static final String SAMPLE_CREATION_DATE = "2017-10-06T19:45:23.751Z";
-    private static final String SAMPLE_LAST_MODIFICATION_DATE = "2017-10-06T19:48:51.179Z";
+    private static final String SAMPLE_CREATION_DATE = "2017-10-06 19:45:23.751";
+    private static final String SAMPLE_LAST_MODIFICATION_DATE = "2017-10-06 19:48:51.179";
 
     private static final Comment SAMPLE_COMMENT = new Comment()
             .setId(4711L)
             .setThreadId(25L)
             .setParentId(1336L)
-            .setCreationDate(Instant.parse(SAMPLE_CREATION_DATE))
-            .setLastModificationDate(Instant.parse(SAMPLE_LAST_MODIFICATION_DATE))
+            .setCreationDate(LocalDateTime.parse(SAMPLE_CREATION_DATE))
+            .setLastModificationDate(LocalDateTime.parse(SAMPLE_LAST_MODIFICATION_DATE))
             .setStatus(CommentStatus.PUBLIC)
             .setText("Sample text")
             .setAuthor("John Doe")

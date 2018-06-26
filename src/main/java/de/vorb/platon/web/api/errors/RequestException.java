@@ -16,18 +16,16 @@
 
 package de.vorb.platon.web.api.errors;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.base.Preconditions;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 
 public class RequestException extends RuntimeException {
 
     @Getter
     private final int status;
 
-    RequestException(int status, String message, Throwable cause) {
+    protected RequestException(int status, String message, Throwable cause) {
         super(message, cause);
 
         Preconditions.checkArgument(isHttpErrorStatus(status),
@@ -43,17 +41,8 @@ public class RequestException extends RuntimeException {
     /**
      * @throws IllegalArgumentException if {@link HttpStatus} has no constant for the specified numeric withStatus code
      */
-    @JsonIgnore
     public HttpStatus getHttpStatus() {
         return HttpStatus.valueOf(status);
-    }
-
-    public RequestExceptionJson toJson() {
-        return new RequestExceptionJson(status, getMessage(), getCause() == null ? null : getCause().getMessage());
-    }
-
-    public ResponseEntity<RequestExceptionJson> toResponseEntity() {
-        return ResponseEntity.status(status).body(toJson());
     }
 
     public static Builder withStatus(int status) {

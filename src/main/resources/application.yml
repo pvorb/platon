@@ -1,0 +1,33 @@
+spring.datasource:
+  url: jdbc:postgresql://localhost:5432/platon
+  username: postgres
+  password: postgres
+spring.jooq.sql-dialect: postgres
+
+platon.input.html_elements: >
+  h1, h2, h3, h4, h5, h6,
+  br, p, hr, div, span,
+  a, img, em, strong,
+  ol, ul, li,
+  blockquote, code, pre
+
+platon.feed-reader.import-rules: []
+  # - feed-url: https://example.org/blog.atom
+
+management:
+  endpoint:
+    prometheus:
+      enabled: true
+  server:
+    port: 9090
+  endpoints:
+    web:
+      exposure:
+        include:
+          - info
+          - health
+          - prometheus
+
+spring.freemarker.settings:
+  incompatible_improvements: 2.3.28
+  api_builtin_enabled: true

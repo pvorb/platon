@@ -36,7 +36,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.0.2.RELEASE</version>
+        <version>2.0.3.RELEASE</version>
     </parent>
 
     <properties>
@@ -51,6 +51,8 @@
         <commons-codec.version>1.10</commons-codec.version>
         <owasp-java-html.version>20180219.1</owasp-java-html.version>
         <encoder.version>1.2</encoder.version>
+        <rome.version>1.10.0</rome.version>
+        <bootstrap.version>4.1.1</bootstrap.version>
 
         <!-- Testing -->
         <openpojo.version>0.8.4</openpojo.version>
@@ -62,8 +64,9 @@
         <skipITs>false</skipITs>
 
         <!-- Database -->
-        <db.url>jdbc:h2:file:./platon</db.url>
-        <db.username>sa</db.username>
+        <db.url>jdbc:postgresql://localhost:5432/platon_jooq_codegen</db.url>
+        <db.username>postgres</db.username>
+        <db.password>postgres</db.password>
     </properties>
 
     <dependencies>
@@ -86,6 +89,11 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-freemarker</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-configuration-processor</artifactId>
+            <optional>true</optional>
+        </dependency>
 
         <dependency>
             <groupId>com.google.guava</groupId>
@@ -95,17 +103,19 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
-            <version>${commons-lang3.version}</version>
         </dependency>
         <dependency>
             <groupId>commons-codec</groupId>
             <artifactId>commons-codec</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-jsr310</artifactId>
-            <version>${jackson.version}</version>
         </dependency>
         <dependency>
             <groupId>com.googlecode.owasp-java-html-sanitizer</groupId>
@@ -123,19 +133,29 @@
             <artifactId>spring-boot-starter-jooq</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-            <version>${h2.version}</version>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
         </dependency>
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <version>${postgresql.version}</version>
         </dependency>
+
         <dependency>
-            <groupId>org.flywaydb</groupId>
-            <artifactId>flyway-core</artifactId>
-            <version>${flyway.version}</version>
+            <groupId>com.rometools</groupId>
+            <artifactId>rome</artifactId>
+            <version>${rome.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-registry-prometheus</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.webjars</groupId>
+            <artifactId>bootstrap</artifactId>
+            <version>${bootstrap.version}</version>
         </dependency>
 
         <dependency>
@@ -273,6 +293,7 @@
                 <configuration>
                     <url>${db.url}</url>
                     <user>${db.username}</user>
+                    <password>${db.password}</password>
                 </configuration>
             </plugin>
             <plugin>
@@ -291,33 +312,29 @@
 
                 <dependencies>
                     <dependency>
-                        <groupId>com.h2database</groupId>
-                        <artifactId>h2</artifactId>
-                        <version>${h2.version}</version>
+                        <groupId>org.postgresql</groupId>
+                        <artifactId>postgresql</artifactId>
+                        <version>${postgresql.version}</version>
                     </dependency>
                 </dependencies>
 
                 <configuration>
 
                     <jdbc>
-                        <driver>org.h2.Driver</driver>
+                        <driver>org.postgresql.Driver</driver>
                         <url>${db.url}</url>
                         <user>${db.username}</user>
+                        <password>${db.password}</password>
                     </jdbc>
 
                     <generator>
                         <database>
-                            <name>org.jooq.util.h2.H2Database</name>
+                            <name>org.jooq.util.postgres.PostgresDatabase</name>
+                            <inputSchema>public</inputSchema>
+                            <excludes>public\.flyway_schema_history</excludes>
                             <includes>.*</includes>
-                            <excludes>schema_version</excludes>
-                            <inputSchema>PUBLIC</inputSchema>
 
                             <forcedTypes>
-                                <forcedType>
-                                    <userType>java.time.Instant</userType>
-                                    <converter>de.vorb.platon.persistence.conversion.InstantConverter</converter>
-                                    <types>TIMESTAMP</types>
-                                </forcedType>
                                 <forcedType>
                                     <userType>de.vorb.platon.model.CommentStatus</userType>
                                     <converter>de.vorb.platon.persistence.conversion.CommentStatusConverter</converter>
@@ -327,25 +344,14 @@
                         </database>
 
                         <target>
-                            <packageName>de.vorb.platon.jooq</packageName>
-                            <directory>target/generated-sources/jooq</directory>
+                            <packageName>de.vorb.platon.persistence.jooq</packageName>
+                            <directory>${project.build.sourceDirectory}</directory>
                         </target>
 
                         <generate>
-                            <relations>true</relations>
-                            <deprecated>false</deprecated>
-                            <instanceFields>true</instanceFields>
-                            <generatedAnnotation>true</generatedAnnotation>
                             <records>true</records>
                             <pojos>true</pojos>
-                            <pojosEqualsAndHashCode>true</pojosEqualsAndHashCode>
-                            <immutablePojos>false</immutablePojos>
-                            <interfaces>false</interfaces>
-                            <daos>false</daos>
-                            <jpaAnnotations>false</jpaAnnotations>
-                            <validationAnnotations>true</validationAnnotations>
-                            <springAnnotations>false</springAnnotations>
-                            <globalObjectReferences>true</globalObjectReferences>
+                            <javaTimeTypes>true</javaTimeTypes>
                             <fluentSetters>true</fluentSetters>
                         </generate>
                     </generator>

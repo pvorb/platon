@@ -19,7 +19,6 @@ package de.vorb.platon.web.api.errors;
 import org.assertj.core.api.ThrowableAssert;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
@@ -44,39 +43,6 @@ public class RequestExceptionTest {
     @Test
     public void returnsOriginalStatus() {
         assertThat(RequestException.withStatus(400).build().getStatus()).isEqualTo(400);
-    }
-
-    @Test
-    public void convertsToJson() {
-
-        final String notFoundMessage = "Not Found";
-        final RequestException notFound =
-                RequestException.notFound()
-                        .message(notFoundMessage)
-                        .build();
-        assertThat(notFound.toJson().getStatus()).isEqualTo(notFound.getStatus());
-        assertThat(notFound.toJson().getMessage()).isEqualTo(notFoundMessage);
-        assertThat(notFound.toJson().getCause()).isNull();
-
-        final IllegalStateException cause = new IllegalStateException("Unexpected state");
-        final RequestException internalServerError =
-                RequestException.badRequest()
-                        .message("Internal Server Error")
-                        .cause(cause)
-                        .build();
-        assertThat(internalServerError.toJson().getStatus()).isEqualTo(internalServerError.getStatus());
-        assertThat(internalServerError.toJson().getMessage()).isEqualTo(internalServerError.getMessage());
-        assertThat(internalServerError.toJson().getCause()).isEqualTo(cause.getMessage());
-    }
-
-    @Test
-    public void toResponseEntity() {
-
-        final RequestException requestException = RequestException.badRequest().build();
-        final ResponseEntity<RequestExceptionJson> response = requestException.toResponseEntity();
-
-        assertThat(response.getStatusCodeValue()).isEqualTo(requestException.getStatus());
-        assertThat(response.getBody()).isEqualTo(requestException.toJson());
     }
 
     @Test

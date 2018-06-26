@@ -16,14 +16,14 @@
 
 package de.vorb.platon.persistence.impl;
 
-import de.vorb.platon.jooq.tables.records.PropertyRecord;
+import de.vorb.platon.persistence.jooq.tables.records.PropertyRecord;
 import de.vorb.platon.persistence.PropertyRepository;
 
 import lombok.RequiredArgsConstructor;
 import org.jooq.DSLContext;
 import org.springframework.stereotype.Repository;
 
-import static de.vorb.platon.jooq.tables.Property.PROPERTY;
+import static de.vorb.platon.persistence.jooq.tables.Property.PROPERTY;
 
 @Repository
 @RequiredArgsConstructor

@@ -16,16 +16,20 @@
 
 package de.vorb.platon.web.api.errors;
 
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.servlet.ModelAndView;
+
+import javax.servlet.http.HttpServletResponse;
+import java.util.Collections;
 
 @ControllerAdvice
 public class RequestExceptionHandler {
 
     @ExceptionHandler(RequestException.class)
-    public ResponseEntity<RequestExceptionJson> handleRequestException(RequestException requestException) {
-        return requestException.toResponseEntity();
+    public ModelAndView handleRequestException(RequestException requestException, HttpServletResponse response) {
+        response.setStatus(requestException.getStatus());
+        return new ModelAndView("error", Collections.singletonMap("error", requestException));
     }
 
 }

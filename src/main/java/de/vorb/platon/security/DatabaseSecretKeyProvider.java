@@ -20,6 +20,7 @@ import de.vorb.platon.persistence.PropertyRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.KeyGenerator;
@@ -29,6 +30,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 
 @Component
+@DependsOn("flywayInitializer")
 @RequiredArgsConstructor
 @Slf4j
 public class DatabaseSecretKeyProvider implements SecretKeyProvider {

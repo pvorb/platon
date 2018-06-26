@@ -16,17 +16,18 @@
 
 package de.vorb.platon.persistence.impl;
 
-import de.vorb.platon.jooq.tables.pojos.CommentThread;
-import de.vorb.platon.jooq.tables.records.CommentThreadRecord;
 import de.vorb.platon.persistence.ThreadRepository;
+import de.vorb.platon.persistence.jooq.tables.pojos.CommentThread;
+import de.vorb.platon.persistence.jooq.tables.records.CommentThreadRecord;
 
 import lombok.RequiredArgsConstructor;
 import org.jooq.DSLContext;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
-import static de.vorb.platon.jooq.Tables.COMMENT_THREAD;
+import static de.vorb.platon.persistence.jooq.Tables.COMMENT_THREAD;
 
 @Repository
 @RequiredArgsConstructor
@@ -35,11 +36,32 @@ public class JooqThreadRepository implements ThreadRepository {
     private final DSLContext dslContext;
 
     @Override
+    public CommentThread getById(long id) {
+        return dslContext.selectFrom(COMMENT_THREAD)
+                .where(COMMENT_THREAD.ID.eq(id))
+                .fetchSingleInto(CommentThread.class);
+    }
+
+    @Override
     public Optional<Long> findThreadIdForUrl(String threadUrl) {
-        return Optional.ofNullable(
-                dslContext.selectFrom(COMMENT_THREAD)
-                        .where(COMMENT_THREAD.URL.eq(threadUrl))
-                        .fetchOne(COMMENT_THREAD.ID));
+        return dslContext.selectFrom(COMMENT_THREAD)
+                .where(COMMENT_THREAD.URL.eq(threadUrl))
+                .fetchOptional(COMMENT_THREAD.ID);
+    }
+
+    @Override
+    public Optional<CommentThread> findThreadForUrl(String threadUrl) {
+        return dslContext.selectFrom(COMMENT_THREAD)
+                .where(COMMENT_THREAD.URL.eq(threadUrl))
+                .fetchOptionalInto(CommentThread.class);
+    }
+
+    @Override
+    public List<CommentThread> findThreadsForUrlPrefix(String threadUrlPrefix) {
+        return dslContext.selectFrom(COMMENT_THREAD)
+                .where(COMMENT_THREAD.URL.startsWith(threadUrlPrefix))
+                .orderBy(COMMENT_THREAD.ID.desc())
+                .fetchInto(CommentThread.class);
     }
 
     @Override
@@ -53,6 +75,13 @@ public class JooqThreadRepository implements ThreadRepository {
 
     private CommentThreadRecord convertPojoToRecord(CommentThread thread) {
         return dslContext.newRecord(COMMENT_THREAD, thread);
+    }
+
+    @Override
+    public void updateThreadTitle(long id, String newTitle) {
+        dslContext.update(COMMENT_THREAD)
+                .set(COMMENT_THREAD.TITLE, newTitle)
+                .where(COMMENT_THREAD.ID.eq(id));
     }
 
 }

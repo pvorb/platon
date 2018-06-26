@@ -17,8 +17,6 @@
 package de.vorb.platon.security;
 
 import org.apache.commons.codec.digest.HmacAlgorithms;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import javax.crypto.Mac;
 import javax.crypto.SecretKey;
@@ -31,7 +29,6 @@ import java.util.Arrays;
 import static de.vorb.platon.security.SignatureComponents.COMPONENT_SEPARATOR;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-@Service
 public class HmacSignatureTokenValidator implements SignatureTokenValidator {
 
     static final HmacAlgorithms HMAC_ALGORITHM = HmacAlgorithms.HMAC_SHA_256;
@@ -40,7 +37,6 @@ public class HmacSignatureTokenValidator implements SignatureTokenValidator {
 
     private final Mac mac;
 
-    @Autowired
     public HmacSignatureTokenValidator(SecretKeyProvider keyProvider, Clock clock) {
 
         this.clock = clock;

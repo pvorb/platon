@@ -28,7 +28,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -40,8 +40,8 @@ public class CommentJson {
     private Long id;
     private Long parentId;
 
-    private Instant creationDate;
-    private Instant lastModificationDate;
+    private LocalDateTime creationDate;
+    private LocalDateTime lastModificationDate;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     private CommentStatus status;
