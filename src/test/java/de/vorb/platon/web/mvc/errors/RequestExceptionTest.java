@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package de.vorb.platon.web.api.errors;
+package de.vorb.platon.web.mvc.errors;
 
 import org.assertj.core.api.ThrowableAssert;
 import org.junit.Test;

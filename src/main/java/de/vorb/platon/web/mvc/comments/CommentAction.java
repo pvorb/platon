@@ -1,4 +1,4 @@
-package de.vorb.platon.web.api.controllers;
+package de.vorb.platon.web.mvc.comments;
 
 public enum CommentAction {
     CREATE,

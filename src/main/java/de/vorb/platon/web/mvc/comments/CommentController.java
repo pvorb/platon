@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package de.vorb.platon.web.api.controllers;
+package de.vorb.platon.web.mvc.comments;
 
 import de.vorb.platon.model.CommentStatus;
 import de.vorb.platon.persistence.CommentRepository;
@@ -26,18 +26,15 @@ import de.vorb.platon.web.api.common.CommentFilters;
 import de.vorb.platon.web.api.common.CommentSanitizer;
 import de.vorb.platon.web.api.common.CommentUriResolver;
 import de.vorb.platon.web.api.common.RequestValidator;
-import de.vorb.platon.web.api.errors.RequestException;
+import de.vorb.platon.web.mvc.errors.RequestException;
 
 import com.google.common.collect.ImmutableMap;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -47,7 +44,6 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -56,14 +52,15 @@ import static de.vorb.platon.model.CommentStatus.PUBLIC;
 import static org.springframework.http.MediaType.TEXT_HTML_VALUE;
 
 
-@Controller
+//@Controller
 @RequiredArgsConstructor
 @Slf4j
 public class CommentController {
 
-    private static final String PATH_LIST = "/comments";
+    private static final String PATH_VAR_THREAD_ID = "threadId";
+    private static final String PATH_LIST_COMMENTS = "/{" + PATH_VAR_THREAD_ID + "}/comments";
     public static final String PATH_VAR_COMMENT_ID = "commentId";
-    public static final String PATH_SINGLE = PATH_LIST + "/{" + PATH_VAR_COMMENT_ID + "}.html";
+    public static final String PATH_SINGLE_COMMENT = PATH_LIST_COMMENTS + "/{" + PATH_VAR_COMMENT_ID + "}.html";
 
     private static final String SIGNATURE_HEADER = "X-Signature";
     private static final CommentStatus DEFAULT_STATUS = PUBLIC;
@@ -83,7 +80,7 @@ public class CommentController {
     private final CommentSanitizer commentSanitizer;
 
 
-    @GetMapping(value = PATH_SINGLE, produces = TEXT_HTML_VALUE)
+    @GetMapping(value = PATH_SINGLE_COMMENT, produces = TEXT_HTML_VALUE)
     public ModelAndView getCommentById(@PathVariable(PATH_VAR_COMMENT_ID) long commentId) {
 
         final Comment comment = commentRepository.findById(commentId)
@@ -96,8 +93,7 @@ public class CommentController {
         return new ModelAndView("comment-single", Collections.singletonMap("comment", comment));
     }
 
-
-    @GetMapping(value = PATH_LIST, produces = TEXT_HTML_VALUE)
+    @GetMapping(value = PATH_LIST_COMMENTS, produces = TEXT_HTML_VALUE)
     public ModelAndView findCommentsByThreadUrl(@RequestParam("threadUrl") String threadUrl) {
 
         final CommentThread thread = threadRepository.findThreadForUrl(threadUrl)
@@ -132,7 +128,7 @@ public class CommentController {
         return new ModelAndView("comment-form", ImmutableMap.of("threadUrl", threadUrl, "threadTitle", threadTitle));
     }
 
-//    @PostMapping(value = PATH_LIST, produces = TEXT_HTML_VALUE)
+//    @PostMapping(value = PATH_LIST_COMMENTS, produces = TEXT_HTML_VALUE)
 //    public ModelAndView postComment(
 //            @RequestBody MultiValueMap<String, String> commentData) {
 //
@@ -148,7 +144,7 @@ public class CommentController {
 //        final String threadUrl = commentData.getFirst("threadUrl");
 //        final String commentTitle = commentData.getFirst("commentTitle");
 //
-//        final Long threadId = threadRepository.findThreadIdForUrl(threadUrl)
+//        final Long threadId = threadRepository.findIdForUrl(threadUrl)
 //                .orElseGet(() -> {
 //                    final CommentThread thread = new CommentThread()
 //                            .setUrl(threadUrl)
@@ -164,7 +160,7 @@ public class CommentController {
 //        }
 //    }
 //
-//    @PostMapping(value = PATH_LIST, consumes = APPLICATION_FORM_URLENCODED_VALUE, produces = TEXT_HTML_VALUE)
+//    @PostMapping(value = PATH_LIST_COMMENTS, consumes = APPLICATION_FORM_URLENCODED_VALUE, produces = TEXT_HTML_VALUE)
 //    public ModelAndView postComment(
 //            @RequestParam("url") String threadUrl,
 //            @RequestParam("threadTitle") String threadTitle,
@@ -177,7 +173,7 @@ public class CommentController {
 //                    .build();
 //        }
 //
-//        final long threadId = threadRepository.findThreadIdForUrl(threadUrl)
+//        final long threadId = threadRepository.findIdForUrl(threadUrl)
 //                .orElseGet(() -> {
 //                    final CommentThread thread = new CommentThread()
 //                            .setUrl(threadUrl)
@@ -239,7 +235,7 @@ public class CommentController {
 //    }
 //
 //
-//    @PutMapping(value = PATH_SINGLE, consumes = APPLICATION_JSON_VALUE)
+//    @PutMapping(value = PATH_SINGLE_COMMENT, consumes = APPLICATION_JSON_VALUE)
 //    public void updateComment(
 //            @PathVariable(PATH_VAR_COMMENT_ID) Long commentId,
 //            @RequestHeader(SIGNATURE_HEADER) String signature,
@@ -279,7 +275,7 @@ public class CommentController {
 //    }
 //
 //
-//    @DeleteMapping(PATH_SINGLE)
+//    @DeleteMapping(PATH_SINGLE_COMMENT)
 //    public void deleteComment(
 //            @PathVariable(PATH_VAR_COMMENT_ID) Long commentId,
 //            @RequestHeader(SIGNATURE_HEADER) String signature) {

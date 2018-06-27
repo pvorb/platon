@@ -23,8 +23,8 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.net.URI;
 import java.util.Collections;
 
-import static de.vorb.platon.web.api.controllers.CommentController.PATH_SINGLE;
-import static de.vorb.platon.web.api.controllers.CommentController.PATH_VAR_COMMENT_ID;
+import static de.vorb.platon.web.mvc.comments.CommentController.PATH_SINGLE_COMMENT;
+import static de.vorb.platon.web.mvc.comments.CommentController.PATH_VAR_COMMENT_ID;
 
 @Component
 public class CommentUriResolver {
@@ -32,7 +32,7 @@ public class CommentUriResolver {
     @SneakyThrows
     public URI createRelativeCommentUriForId(long commentId) {
         return new URI(ServletUriComponentsBuilder.fromCurrentRequest()
-                .path(PATH_SINGLE)
+                .path(PATH_SINGLE_COMMENT)
                 .replaceQuery(null)
                 .buildAndExpand(Collections.singletonMap(PATH_VAR_COMMENT_ID, commentId))
                 .getPath());

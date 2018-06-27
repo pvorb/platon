@@ -46,6 +46,7 @@ public class Keys {
 
     public static final UniqueKey<CommentRecord> COMMENT_PKEY = UniqueKeys0.COMMENT_PKEY;
     public static final UniqueKey<CommentThreadRecord> COMMENT_THREAD_PKEY = UniqueKeys0.COMMENT_THREAD_PKEY;
+    public static final UniqueKey<CommentThreadRecord> COMMENT_THREAD_URL_KEY = UniqueKeys0.COMMENT_THREAD_URL_KEY;
     public static final UniqueKey<PropertyRecord> PROPERTY_PKEY = UniqueKeys0.PROPERTY_PKEY;
 
     // -------------------------------------------------------------------------
@@ -67,6 +68,7 @@ public class Keys {
     private static class UniqueKeys0 {
         public static final UniqueKey<CommentRecord> COMMENT_PKEY = Internal.createUniqueKey(Comment.COMMENT, "comment_pkey", Comment.COMMENT.ID);
         public static final UniqueKey<CommentThreadRecord> COMMENT_THREAD_PKEY = Internal.createUniqueKey(CommentThread.COMMENT_THREAD, "comment_thread_pkey", CommentThread.COMMENT_THREAD.ID);
+        public static final UniqueKey<CommentThreadRecord> COMMENT_THREAD_URL_KEY = Internal.createUniqueKey(CommentThread.COMMENT_THREAD, "comment_thread_url_key", CommentThread.COMMENT_THREAD.URL);
         public static final UniqueKey<PropertyRecord> PROPERTY_PKEY = Internal.createUniqueKey(Property.PROPERTY, "property_pkey", Property.PROPERTY.KEY);
     }
 

@@ -16,19 +16,6 @@
 
 package de.vorb.platon.web.api.controllers;
 
-import de.vorb.platon.web.api.errors.RequestException;
-
-import org.jooq.exception.DataAccessException;
-import org.junit.Test;
-
-import static de.vorb.platon.model.CommentStatus.DELETED;
-import static org.assertj.core.api.Assertions.assertThatCode;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.verify;
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
-
 public class CommentControllerDeleteTest extends CommentControllerTest {
 
 //    @Test

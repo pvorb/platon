@@ -16,8 +16,8 @@
 
 package de.vorb.platon.web.api.controllers;
 
-import de.vorb.platon.web.api.errors.RequestException;
 import de.vorb.platon.web.api.json.CommentJson;
+import de.vorb.platon.web.mvc.errors.RequestException;
 
 import org.junit.Test;
 import org.mockito.Mock;

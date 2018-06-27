@@ -4,15 +4,9 @@ spring.datasource:
   password: postgres
 spring.jooq.sql-dialect: postgres
 
-platon.input.html_elements: >
-  h1, h2, h3, h4, h5, h6,
-  br, p, hr, div, span,
-  a, img, em, strong,
-  ol, ul, li,
-  blockquote, code, pre
-
-platon.feed-reader.import-rules: []
-  # - feed-url: https://example.org/blog.atom
+server:
+  compression:
+    enabled: true
 
 management:
   endpoint:
@@ -31,3 +25,15 @@ management:
 spring.freemarker.settings:
   incompatible_improvements: 2.3.28
   api_builtin_enabled: true
+
+platon:
+  input:
+    html-elements: >
+      h1, h2, h3, h4, h5, h6,
+      br, p, hr, div, span,
+      a, img, em, strong,
+      ol, ul, li,
+      blockquote, code, pre
+  feed-reader:
+    import-rules: []
+    # - feed-url: https://example.org/blog.atom

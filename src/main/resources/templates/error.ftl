@@ -2,7 +2,7 @@
 <#include "snippets/base.ftl"/>
 
 <#macro page_title>
-    <title>Error ${error.status}</title>
+    <title>${status} ${error} | Platon</title>
 </#macro>
 
 <#macro page_header>
@@ -10,11 +10,8 @@
 
 <#macro page_content>
     <div class="jumbotron">
-        <h1 class="display-4">Error ${error.status}</h1>
-        <p class="lead">${error.message}</p>
-        <#if error.cause??>
-            <p>${error.cause.message}</p>
-        </#if>
+        <h1 class="display-4">${status} ${error}</h1>
+        <p class="lead">${message}</p>
         <a href="/" class="btn btn-primary">Go back to homepage</a>
     </div>
 </#macro>

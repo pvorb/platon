@@ -18,27 +18,16 @@ package de.vorb.platon.web.api.controllers;
 
 import de.vorb.platon.persistence.jooq.tables.pojos.Comment;
 import de.vorb.platon.security.SignatureComponents;
-import de.vorb.platon.web.api.errors.RequestException;
 import de.vorb.platon.web.api.json.CommentJson;
 
-import org.jooq.exception.DataAccessException;
 import org.junit.Before;
-import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Spy;
-import org.springframework.http.HttpStatus;
 
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
-import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class CommentControllerUpdateTest extends CommentControllerTest {

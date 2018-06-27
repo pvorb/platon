@@ -32,14 +32,12 @@ public class Indexes {
     // INDEX definitions
     // -------------------------------------------------------------------------
 
-    public static final Index COMMENT__CREATION_DATE__IDX = Indexes0.COMMENT__CREATION_DATE__IDX;
-    public static final Index COMMENT__ID__IDX = Indexes0.COMMENT__ID__IDX;
-    public static final Index COMMENT__STATUS__IDX = Indexes0.COMMENT__STATUS__IDX;
-    public static final Index COMMENT__THREAD_ID__IDX = Indexes0.COMMENT__THREAD_ID__IDX;
     public static final Index COMMENT_PKEY = Indexes0.COMMENT_PKEY;
-    public static final Index COMMENT_THREAD__ID__IDX = Indexes0.COMMENT_THREAD__ID__IDX;
-    public static final Index COMMENT_THREAD__URL__IDX = Indexes0.COMMENT_THREAD__URL__IDX;
+    public static final Index IDX__COMMENT__CREATION_DATE = Indexes0.IDX__COMMENT__CREATION_DATE;
+    public static final Index IDX__COMMENT__STATUS = Indexes0.IDX__COMMENT__STATUS;
+    public static final Index IDX__COMMENT__THREAD_ID = Indexes0.IDX__COMMENT__THREAD_ID;
     public static final Index COMMENT_THREAD_PKEY = Indexes0.COMMENT_THREAD_PKEY;
+    public static final Index COMMENT_THREAD_URL_KEY = Indexes0.COMMENT_THREAD_URL_KEY;
     public static final Index PROPERTY_PKEY = Indexes0.PROPERTY_PKEY;
 
     // -------------------------------------------------------------------------
@@ -47,14 +45,12 @@ public class Indexes {
     // -------------------------------------------------------------------------
 
     private static class Indexes0 {
-        public static Index COMMENT__CREATION_DATE__IDX = Internal.createIndex("comment__creation_date__idx", Comment.COMMENT, new OrderField[] { Comment.COMMENT.CREATION_DATE }, false);
-        public static Index COMMENT__ID__IDX = Internal.createIndex("comment__id__idx", Comment.COMMENT, new OrderField[] { Comment.COMMENT.ID }, false);
-        public static Index COMMENT__STATUS__IDX = Internal.createIndex("comment__status__idx", Comment.COMMENT, new OrderField[] { Comment.COMMENT.STATUS }, false);
-        public static Index COMMENT__THREAD_ID__IDX = Internal.createIndex("comment__thread_id__idx", Comment.COMMENT, new OrderField[] { Comment.COMMENT.THREAD_ID }, false);
         public static Index COMMENT_PKEY = Internal.createIndex("comment_pkey", Comment.COMMENT, new OrderField[] { Comment.COMMENT.ID }, true);
-        public static Index COMMENT_THREAD__ID__IDX = Internal.createIndex("comment_thread__id__idx", CommentThread.COMMENT_THREAD, new OrderField[] { CommentThread.COMMENT_THREAD.ID }, false);
-        public static Index COMMENT_THREAD__URL__IDX = Internal.createIndex("comment_thread__url__idx", CommentThread.COMMENT_THREAD, new OrderField[] { CommentThread.COMMENT_THREAD.URL }, false);
+        public static Index IDX__COMMENT__CREATION_DATE = Internal.createIndex("idx__comment__creation_date", Comment.COMMENT, new OrderField[] { Comment.COMMENT.CREATION_DATE }, false);
+        public static Index IDX__COMMENT__STATUS = Internal.createIndex("idx__comment__status", Comment.COMMENT, new OrderField[] { Comment.COMMENT.STATUS }, false);
+        public static Index IDX__COMMENT__THREAD_ID = Internal.createIndex("idx__comment__thread_id", Comment.COMMENT, new OrderField[] { Comment.COMMENT.THREAD_ID }, false);
         public static Index COMMENT_THREAD_PKEY = Internal.createIndex("comment_thread_pkey", CommentThread.COMMENT_THREAD, new OrderField[] { CommentThread.COMMENT_THREAD.ID }, true);
+        public static Index COMMENT_THREAD_URL_KEY = Internal.createIndex("comment_thread_url_key", CommentThread.COMMENT_THREAD, new OrderField[] { CommentThread.COMMENT_THREAD.URL }, true);
         public static Index PROPERTY_PKEY = Internal.createIndex("property_pkey", Property.PROPERTY, new OrderField[] { Property.PROPERTY.KEY }, true);
     }
 }

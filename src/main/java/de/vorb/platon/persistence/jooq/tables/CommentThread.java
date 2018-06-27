@@ -39,7 +39,7 @@ import org.jooq.impl.TableImpl;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class CommentThread extends TableImpl<CommentThreadRecord> {
 
-    private static final long serialVersionUID = 22120208;
+    private static final long serialVersionUID = -537616766;
 
     /**
      * The reference instance of <code>public.comment_thread</code>
@@ -111,7 +111,7 @@ public class CommentThread extends TableImpl<CommentThreadRecord> {
      */
     @Override
     public List<Index> getIndexes() {
-        return Arrays.<Index>asList(Indexes.COMMENT_THREAD__ID__IDX, Indexes.COMMENT_THREAD__URL__IDX, Indexes.COMMENT_THREAD_PKEY);
+        return Arrays.<Index>asList(Indexes.COMMENT_THREAD_PKEY, Indexes.COMMENT_THREAD_URL_KEY);
     }
 
     /**
@@ -135,7 +135,7 @@ public class CommentThread extends TableImpl<CommentThreadRecord> {
      */
     @Override
     public List<UniqueKey<CommentThreadRecord>> getKeys() {
-        return Arrays.<UniqueKey<CommentThreadRecord>>asList(Keys.COMMENT_THREAD_PKEY);
+        return Arrays.<UniqueKey<CommentThreadRecord>>asList(Keys.COMMENT_THREAD_PKEY, Keys.COMMENT_THREAD_URL_KEY);
     }
 
     /**

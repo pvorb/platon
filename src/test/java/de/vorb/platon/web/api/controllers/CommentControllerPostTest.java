@@ -19,31 +19,21 @@ package de.vorb.platon.web.api.controllers;
 import de.vorb.platon.persistence.jooq.tables.pojos.Comment;
 import de.vorb.platon.persistence.jooq.tables.pojos.CommentThread;
 import de.vorb.platon.security.SignatureComponents;
-import de.vorb.platon.web.api.errors.RequestException;
 import de.vorb.platon.web.api.json.CommentJson;
 
-import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 
 import java.net.URI;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 @RunWith(MockitoJUnitRunner.Silent.class)
 public class CommentControllerPostTest extends CommentControllerTest {
@@ -122,7 +112,7 @@ public class CommentControllerPostTest extends CommentControllerTest {
 
     private void prepareMocksForPostRequest() {
         when(commentJson.getId()).thenReturn(null);
-        when(threadRepository.findThreadIdForUrl(any())).thenReturn(Optional.empty());
+        when(threadRepository.findIdForUrl(any())).thenReturn(Optional.empty());
         when(threadRepository.insert(any())).thenReturn(new CommentThread().setId(1L));
         convertCommentJsonToComment(commentJson, comment);
         when(signatureCreator.createSignatureComponents(any(), any())).thenReturn(mock(SignatureComponents.class));

@@ -52,7 +52,7 @@ public class CommentConverterTest {
                 .setLastModificationDate(null)
                 .setStatus(null)
                 .setAuthor(null)
-                .setEmailHash(null)
+//                .setEmailHash(null)
                 .setUrl(null);
 
         final CommentJson json = commentConverter.convertPojoToJson(comment);
@@ -96,10 +96,10 @@ public class CommentConverterTest {
         assertThat(json.getText()).isEqualTo(comment.getText());
         assertThat(json.getAuthor()).isEqualTo(comment.getAuthor());
 
-        assertThat(json.getEmailHash())
-                .isEqualTo(Optional.ofNullable(comment.getEmailHash())
-                        .map(emailHash -> Base64.getDecoder().decode(emailHash))
-                        .orElse(null));
+//        assertThat(json.getEmailHash())
+//                .isEqualTo(Optional.ofNullable(comment.getEmailHash())
+//                        .map(emailHash -> Base64.getDecoder().decode(emailHash))
+//                        .orElse(null));
 
         assertThat(json.getUrl()).isEqualTo(comment.getUrl());
         assertThat(json.getReplies()).isEmpty();
@@ -120,7 +120,7 @@ public class CommentConverterTest {
                 .setLastModificationDate(LocalDateTime.now())
                 .setText("Some text")
                 .setAuthor("Jane Doe")
-                .setEmailHash("DBe/ZuZJBwFncB0tPNcXEQ==")
+//                .setEmailHash("DBe/ZuZJBwFncB0tPNcXEQ==")
                 .setUrl("https://example.org/~jane.html");
     }
 
@@ -138,7 +138,7 @@ public class CommentConverterTest {
         assertThat(comment.getStatus()).isEqualTo(json.getStatus());
         assertThat(comment.getText()).isEqualTo(json.getText());
         assertThat(comment.getAuthor()).isEqualTo(json.getAuthor());
-        assertThat(comment.getEmailHash()).isEqualTo("18385ac57d9b171dc3fe83a5a92b68d9");
+//        assertThat(comment.getEmailHash()).isEqualTo("18385ac57d9b171dc3fe83a5a92b68d9");
         assertThat(comment.getUrl()).isEqualTo(json.getUrl());
     }
 
@@ -164,7 +164,7 @@ public class CommentConverterTest {
         assertThat(comment.getStatus()).isNull();
         assertThat(comment.getText()).isEqualTo(json.getText());
         assertThat(comment.getAuthor()).isNull();
-        assertThat(comment.getEmailHash()).isNull();
+//        assertThat(comment.getEmailHash()).isNull();
         assertThat(comment.getUrl()).isNull();
     }
 
@@ -177,7 +177,7 @@ public class CommentConverterTest {
 
         final Comment comment = commentConverter.convertJsonToPojo(json);
 
-        assertThat(comment.getEmailHash()).isNull();
+//        assertThat(comment.getEmailHash()).isNull();
     }
 
     private CommentJson.CommentJsonBuilder prepareJson() {

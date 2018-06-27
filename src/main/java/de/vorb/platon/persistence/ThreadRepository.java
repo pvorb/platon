@@ -23,16 +23,16 @@ import java.util.Optional;
 
 public interface ThreadRepository {
 
-    CommentThread getById(long id);
+    Optional<CommentThread> findById(long id);
 
-    Optional<Long> findThreadIdForUrl(String threadUrl);
+    Optional<Long> findIdForUrl(String url);
 
-    Optional<CommentThread> findThreadForUrl(String threadUrl);
+    Optional<CommentThread> findThreadForUrl(String url);
 
-    List<CommentThread> findThreadsForUrlPrefix(String threadUrlPrefix);
+    List<CommentThread> findThreadsForUrlPrefix(String urlPrefix);
 
     CommentThread insert(CommentThread thread);
 
-    void updateThreadTitle(long id, String newTitle);
+    void updateTitle(long id, String title);
 
 }

@@ -43,7 +43,7 @@ import org.jooq.impl.TableImpl;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Comment extends TableImpl<CommentRecord> {
 
-    private static final long serialVersionUID = -394233886;
+    private static final long serialVersionUID = 690764222;
 
     /**
      * The reference instance of <code>public.comment</code>
@@ -99,11 +99,6 @@ public class Comment extends TableImpl<CommentRecord> {
     public final TableField<CommentRecord, String> AUTHOR = createField("author", org.jooq.impl.SQLDataType.VARCHAR(128), this, "");
 
     /**
-     * The column <code>public.comment.email_hash</code>.
-     */
-    public final TableField<CommentRecord, String> EMAIL_HASH = createField("email_hash", org.jooq.impl.SQLDataType.CHAR(32), this, "");
-
-    /**
      * The column <code>public.comment.url</code>.
      */
     public final TableField<CommentRecord, String> URL = createField("url", org.jooq.impl.SQLDataType.VARCHAR(256), this, "");
@@ -150,7 +145,7 @@ public class Comment extends TableImpl<CommentRecord> {
      */
     @Override
     public List<Index> getIndexes() {
-        return Arrays.<Index>asList(Indexes.COMMENT__CREATION_DATE__IDX, Indexes.COMMENT__ID__IDX, Indexes.COMMENT__STATUS__IDX, Indexes.COMMENT__THREAD_ID__IDX, Indexes.COMMENT_PKEY);
+        return Arrays.<Index>asList(Indexes.COMMENT_PKEY, Indexes.IDX__COMMENT__CREATION_DATE, Indexes.IDX__COMMENT__STATUS, Indexes.IDX__COMMENT__THREAD_ID);
     }
 
     /**

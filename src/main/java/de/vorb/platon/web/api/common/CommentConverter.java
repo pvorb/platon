@@ -16,8 +16,8 @@
 
 package de.vorb.platon.web.api.common;
 
-import de.vorb.platon.persistence.jooq.tables.pojos.Comment;
 import de.vorb.platon.model.CommentStatus;
+import de.vorb.platon.persistence.jooq.tables.pojos.Comment;
 import de.vorb.platon.web.api.json.CommentJson;
 
 import lombok.SneakyThrows;
@@ -54,9 +54,9 @@ public class CommentConverter {
             json.author(comment.getAuthor());
             json.url(comment.getUrl());
 
-            if (comment.getEmailHash() != null) {
-                json.emailHash(Base64.getDecoder().decode(comment.getEmailHash()));
-            }
+//            if (comment.getEmailHash() != null) {
+//                json.emailHash(Base64.getDecoder().decode(comment.getEmailHash()));
+//            }
         }
 
         return json.build();
@@ -71,7 +71,7 @@ public class CommentConverter {
                 .setStatus(json.getStatus())
                 .setText(json.getText())
                 .setAuthor(json.getAuthor())
-                .setEmailHash(calculateEmailHash(json.getEmail()))
+//                .setEmailHash(calculateEmailHash(json.getEmail()))
                 .setUrl(json.getUrl());
     }
 

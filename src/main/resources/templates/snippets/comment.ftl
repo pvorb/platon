@@ -1,7 +1,7 @@
 <#ftl output_format="HTML"/>
 
-<#macro page_comment comments comment>
-    <div id="comment-${comment.id}" class="comment media mb-5">
+<#macro page_comment thread comments comment>
+    <div id="comment-${comment.id}" class="comment media mb-3 p-3">
         <img class="mr-3" width="64" height="64" style="background: orangered">
         <div class="media-body">
             <header class="meta mb-3">
@@ -20,10 +20,10 @@
 
                 <#if comment.parentId??>
                     <#assign parentComment=comments?api.get(comment.parentId)/>
-                    <#assign clippedParentText=parentComment.text?replace('<[^>]+>', '', 'r')[0..*30]/>
+                    <#assign clippedParentText=parentComment.text?replace('<[^>]+>', '', 'r')[0..*80]/>
                     <div class="small">Reply to comment <a
                             href="#comment-${parentComment.id}">
-                        <#if clippedParentText?length < parentComment.text?length>
+                        <#if clippedParentText?length &lt; parentComment.text?length>
                             “${clippedParentText}…”
                         <#else>
                             “${parentComment.text}”
@@ -38,9 +38,8 @@
             </div>
 
             <footer class="mt-3">
-                <a href="/comments/${comment.id}/reply" class="mr-3">Reply</a>
-                <a href="/comments/${comment.id}/vote" class="mr-3">Vote</a>
-                <a href="/comments/${comment.id}/edit">Edit</a>
+                <a href="/threads/${thread.id}/comments/${comment.id}/reply" class="mr-3">Reply</a>
+                <a href="/threads/${thread.id}/comments/${comment.id}/edit">Edit</a>
             </footer>
         </div>
     </div>

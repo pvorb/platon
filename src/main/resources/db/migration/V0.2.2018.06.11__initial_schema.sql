@@ -14,7 +14,6 @@ CREATE TABLE comment (
   status                 VARCHAR(32)  NOT NULL,
   text                   TEXT         NOT NULL,
   author                 VARCHAR(128) NULL,
-  email_hash             CHAR(32)     NULL,
   url                    VARCHAR(256) NULL,
   FOREIGN KEY (thread_id) REFERENCES comment_thread (id),
   FOREIGN KEY (parent_id) REFERENCES comment (id)

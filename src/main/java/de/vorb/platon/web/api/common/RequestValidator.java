@@ -18,7 +18,7 @@ package de.vorb.platon.web.api.common;
 
 import de.vorb.platon.security.SignatureComponents;
 import de.vorb.platon.security.SignatureTokenValidator;
-import de.vorb.platon.web.api.errors.RequestException;
+import de.vorb.platon.web.mvc.errors.RequestException;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

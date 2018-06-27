@@ -27,7 +27,7 @@ public class HtmlInputSanitizer implements InputSanitizer {
     private final PolicyFactory htmlContentPolicy;
 
     public HtmlInputSanitizer(
-            @Value("${platon.input.html_elements}") String allowedHtmlElements) {
+            @Value("${platon.input.html-elements}") String allowedHtmlElements) {
 
         final HtmlPolicyBuilder htmlPolicyBuilder = new HtmlPolicyBuilder()
                 .allowUrlProtocols("http", "https", "mailto")

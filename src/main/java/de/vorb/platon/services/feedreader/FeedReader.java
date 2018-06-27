@@ -79,7 +79,7 @@ public class FeedReader {
                     log.debug("Inserted new thread for URL {}", threadUrl);
                 } else {
                     if (!existingThread.get().getTitle().equals(feedEntry.getTitle())) {
-                        threadRepository.updateThreadTitle(existingThread.get().getId(), feedEntry.getTitle());
+                        threadRepository.updateTitle(existingThread.get().getId(), feedEntry.getTitle());
                     }
                 }
             });

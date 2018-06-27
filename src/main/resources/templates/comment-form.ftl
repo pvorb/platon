@@ -12,10 +12,11 @@
 <body>
     <div class="container" style="max-width: 50rem">
         <h1 class="my-3">
-            Leave a comment for “<a href="${threadUrl}">${threadTitle}</a>”
+            Leave a comment for “<a href="${thread.url}">${thread.title}</a>”
         </h1>
 
-        <div id="previous-comment" class="mt-4">
+        <#if parentComment??>
+        <div id="parent-comment" class="mt-4">
             <h4>Replying to comment</h4>
             <div class="media mb-4">
                 <img class="mr-3" width="64" height="64" style="background: limegreen">
@@ -28,8 +29,9 @@
                 </div>
             </div>
         </div>
+        </#if>
 
-        <form method="post" action="/comments?threadUrl=${threadUrl}&threadTitle=${threadTitle}">
+        <form method="post">
             <div class="form-group">
                 <label class="sr-only" for="comment-form-text">Text of the comment</label>
                 <textarea id="comment-form-text" name="commentText" class="form-control" rows="8"

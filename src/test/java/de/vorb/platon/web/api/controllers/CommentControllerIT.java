@@ -57,7 +57,7 @@ public class CommentControllerIT {
             .setStatus(CommentStatus.PUBLIC)
             .setText("Sample text")
             .setAuthor("John Doe")
-            .setEmailHash("DBe/ZuZJBwFncB0tPNcXEQ==")
+//            .setEmailHash("DBe/ZuZJBwFncB0tPNcXEQ==")
             .setUrl("https://example.org");
 
     @Autowired

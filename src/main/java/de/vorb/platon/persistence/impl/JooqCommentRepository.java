@@ -51,6 +51,16 @@ public class JooqCommentRepository implements CommentRepository {
     }
 
     @Override
+    public List<Comment> findPublicByThreadId(long threadId) {
+        return dslContext.select(COMMENT.fields())
+                .from(COMMENT)
+                .where(COMMENT.THREAD_ID.eq(threadId))
+                .and(COMMENT.STATUS.eq(CommentStatus.PUBLIC))
+                .orderBy(COMMENT.ID.asc())
+                .fetchInto(Comment.class);
+    }
+
+    @Override
     public Optional<Comment> findById(long id) {
         return Optional.ofNullable(
                 dslContext

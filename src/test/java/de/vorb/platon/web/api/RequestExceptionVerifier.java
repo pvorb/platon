@@ -16,7 +16,7 @@
 
 package de.vorb.platon.web.api;
 
-import de.vorb.platon.web.api.errors.RequestException;
+import de.vorb.platon.web.mvc.errors.RequestException;
 
 import org.springframework.http.HttpStatus;
 

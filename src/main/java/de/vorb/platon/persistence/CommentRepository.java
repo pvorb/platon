@@ -16,8 +16,8 @@
 
 package de.vorb.platon.persistence;
 
-import de.vorb.platon.persistence.jooq.tables.pojos.Comment;
 import de.vorb.platon.model.CommentStatus;
+import de.vorb.platon.persistence.jooq.tables.pojos.Comment;
 
 import java.util.List;
 import java.util.Map;
@@ -27,6 +27,8 @@ import java.util.Set;
 public interface CommentRepository {
 
     List<Comment> findByThreadId(long threadId);
+
+    List<Comment> findPublicByThreadId(long threadId);
 
     Optional<Comment> findById(long id);
 

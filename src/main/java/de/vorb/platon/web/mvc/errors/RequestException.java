@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package de.vorb.platon.web.api.errors;
+package de.vorb.platon.web.mvc.errors;
 
 import com.google.common.base.Preconditions;
 import lombok.Getter;

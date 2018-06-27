@@ -16,8 +16,8 @@
 
 package de.vorb.platon.persistence.impl;
 
-import de.vorb.platon.persistence.jooq.tables.records.PropertyRecord;
 import de.vorb.platon.persistence.PropertyRepository;
+import de.vorb.platon.persistence.jooq.tables.records.PropertyRecord;
 
 import lombok.RequiredArgsConstructor;
 import org.jooq.DSLContext;

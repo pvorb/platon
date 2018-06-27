@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package de.vorb.platon.web.api.controllers;
+package de.vorb.platon.web.mvc.comments;
 
 
 import de.vorb.platon.persistence.CommentRepository;

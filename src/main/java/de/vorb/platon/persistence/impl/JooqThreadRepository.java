@@ -36,30 +36,30 @@ public class JooqThreadRepository implements ThreadRepository {
     private final DSLContext dslContext;
 
     @Override
-    public CommentThread getById(long id) {
+    public Optional<CommentThread> findById(long id) {
         return dslContext.selectFrom(COMMENT_THREAD)
                 .where(COMMENT_THREAD.ID.eq(id))
-                .fetchSingleInto(CommentThread.class);
-    }
-
-    @Override
-    public Optional<Long> findThreadIdForUrl(String threadUrl) {
-        return dslContext.selectFrom(COMMENT_THREAD)
-                .where(COMMENT_THREAD.URL.eq(threadUrl))
-                .fetchOptional(COMMENT_THREAD.ID);
-    }
-
-    @Override
-    public Optional<CommentThread> findThreadForUrl(String threadUrl) {
-        return dslContext.selectFrom(COMMENT_THREAD)
-                .where(COMMENT_THREAD.URL.eq(threadUrl))
                 .fetchOptionalInto(CommentThread.class);
     }
 
     @Override
-    public List<CommentThread> findThreadsForUrlPrefix(String threadUrlPrefix) {
+    public Optional<Long> findIdForUrl(String url) {
         return dslContext.selectFrom(COMMENT_THREAD)
-                .where(COMMENT_THREAD.URL.startsWith(threadUrlPrefix))
+                .where(COMMENT_THREAD.URL.eq(url))
+                .fetchOptional(COMMENT_THREAD.ID);
+    }
+
+    @Override
+    public Optional<CommentThread> findThreadForUrl(String url) {
+        return dslContext.selectFrom(COMMENT_THREAD)
+                .where(COMMENT_THREAD.URL.eq(url))
+                .fetchOptionalInto(CommentThread.class);
+    }
+
+    @Override
+    public List<CommentThread> findThreadsForUrlPrefix(String urlPrefix) {
+        return dslContext.selectFrom(COMMENT_THREAD)
+                .where(COMMENT_THREAD.URL.startsWith(urlPrefix))
                 .orderBy(COMMENT_THREAD.ID.desc())
                 .fetchInto(CommentThread.class);
     }
@@ -78,9 +78,9 @@ public class JooqThreadRepository implements ThreadRepository {
     }
 
     @Override
-    public void updateThreadTitle(long id, String newTitle) {
+    public void updateTitle(long id, String title) {
         dslContext.update(COMMENT_THREAD)
-                .set(COMMENT_THREAD.TITLE, newTitle)
+                .set(COMMENT_THREAD.TITLE, title)
                 .where(COMMENT_THREAD.ID.eq(id));
     }
 

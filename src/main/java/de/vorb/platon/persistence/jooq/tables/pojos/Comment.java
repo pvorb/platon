@@ -25,7 +25,7 @@ import javax.annotation.Generated;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Comment implements Serializable {
 
-    private static final long serialVersionUID = 11505420;
+    private static final long serialVersionUID = 2073570444;
 
     private Long          id;
     private Long          threadId;
@@ -35,7 +35,6 @@ public class Comment implements Serializable {
     private CommentStatus status;
     private String        text;
     private String        author;
-    private String        emailHash;
     private String        url;
 
     public Comment() {}
@@ -49,7 +48,6 @@ public class Comment implements Serializable {
         this.status = value.status;
         this.text = value.text;
         this.author = value.author;
-        this.emailHash = value.emailHash;
         this.url = value.url;
     }
 
@@ -62,7 +60,6 @@ public class Comment implements Serializable {
         CommentStatus status,
         String        text,
         String        author,
-        String        emailHash,
         String        url
     ) {
         this.id = id;
@@ -73,7 +70,6 @@ public class Comment implements Serializable {
         this.status = status;
         this.text = text;
         this.author = author;
-        this.emailHash = emailHash;
         this.url = url;
     }
 
@@ -149,15 +145,6 @@ public class Comment implements Serializable {
         return this;
     }
 
-    public String getEmailHash() {
-        return this.emailHash;
-    }
-
-    public Comment setEmailHash(String emailHash) {
-        this.emailHash = emailHash;
-        return this;
-    }
-
     public String getUrl() {
         return this.url;
     }
@@ -179,7 +166,6 @@ public class Comment implements Serializable {
         sb.append(", ").append(status);
         sb.append(", ").append(text);
         sb.append(", ").append(author);
-        sb.append(", ").append(emailHash);
         sb.append(", ").append(url);
 
         sb.append(")");

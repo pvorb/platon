@@ -30,14 +30,9 @@
             max-width: 50rem;
         }
 
-        .comment {
-            border-left: 2px solid white;
-            padding-left: 0.5rem;
-        }
-
         .comment:target {
-            border-left: 2px solid #048;
-            transition: border-left-color 800ms ease-in;
+            box-shadow: 0 0 1rem 0 #ddd;
+            transition: box-shadow .5s ease-in-out;
         }
     </style>
 
@@ -45,13 +40,17 @@
 </head>
 <body>
     <div class="container">
-        <header class="my-3">
-            <h1>
+        <header class="mt-5 mb-3">
+            <h1 style="font-size: 2rem">
                 <@page_header/>
             </h1>
         </header>
 
         <@page_content/>
+
+        <footer class="mt-5 mb-3">
+            Powered by <a href="https://github.com/pvorb/platon">Platon</a>
+        </footer>
     </div>
 </body>
 </html>
