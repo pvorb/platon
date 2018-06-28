@@ -2,7 +2,7 @@
 <#include "snippets/base.ftl"/>
 
 <#macro page_title>
-    <title>${status} ${error} | Platon</title>
+    <title>${status} ${error}</title>
 </#macro>
 
 <#macro page_header>
