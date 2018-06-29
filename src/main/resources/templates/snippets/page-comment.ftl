@@ -2,7 +2,7 @@
 
 <#macro page_comment thread comments comment in_form=false>
     <div id="comment-${comment.id}" class="comment media mb-3 p-3">
-        <img class="mr-3" width="64" height="64" style="background: orangered">
+        <img class="mr-3" width="64" height="64" src="/avatars/${comment.id}_${comment.author!""}">
         <div class="media-body">
             <header class="meta mb-3">
                 <#if comment.author?? && comment.url??>
@@ -25,10 +25,12 @@
                     <#assign clippedParentText=parentComment.text?replace('<[^>]+>', '', 'r')[0..*80]/>
                     <#if clippedParentText?length &lt; parentComment.text?length>
                     <div class="small">(In reply to comment
-                        <a href="/threads/${thread.id}/comments#comment-${parentComment.id}">“${clippedParentText}…”</a>)</div>
+                        <a href="/threads/${thread.id}/comments#comment-${parentComment.id}">“${clippedParentText}…”</a>)
+                    </div>
                     <#else>
                     <div class="small">(In reply to comment
-                        <a href="/threads/${thread.id}/comments#comment-${parentComment.id}">“${parentComment.text}”</a>)</div>
+                        <a href="/threads/${thread.id}/comments#comment-${parentComment.id}">“${parentComment.text}”</a>)
+                    </div>
                     </#if>
                 </#if>
             </header>
