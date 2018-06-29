@@ -43,7 +43,7 @@ import org.jooq.impl.TableImpl;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Comment extends TableImpl<CommentRecord> {
 
-    private static final long serialVersionUID = 690764222;
+    private static final long serialVersionUID = -804500236;
 
     /**
      * The reference instance of <code>public.comment</code>
@@ -96,12 +96,17 @@ public class Comment extends TableImpl<CommentRecord> {
     /**
      * The column <code>public.comment.author</code>.
      */
-    public final TableField<CommentRecord, String> AUTHOR = createField("author", org.jooq.impl.SQLDataType.VARCHAR(128), this, "");
+    public final TableField<CommentRecord, String> AUTHOR = createField("author", org.jooq.impl.SQLDataType.VARCHAR(128).nullable(false), this, "");
 
     /**
      * The column <code>public.comment.url</code>.
      */
     public final TableField<CommentRecord, String> URL = createField("url", org.jooq.impl.SQLDataType.VARCHAR(256), this, "");
+
+    /**
+     * The column <code>public.comment.author_hash</code>.
+     */
+    public final TableField<CommentRecord, byte[]> AUTHOR_HASH = createField("author_hash", org.jooq.impl.SQLDataType.BLOB.nullable(false), this, "");
 
     /**
      * Create a <code>public.comment</code> table reference

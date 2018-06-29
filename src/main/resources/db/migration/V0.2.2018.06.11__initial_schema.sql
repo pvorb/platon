@@ -13,8 +13,9 @@ CREATE TABLE comment (
   last_modification_date TIMESTAMP    NOT NULL,
   status                 VARCHAR(32)  NOT NULL,
   text                   TEXT         NOT NULL,
-  author                 VARCHAR(128) NULL,
+  author                 VARCHAR(128) NOT NULL,
   url                    VARCHAR(256) NULL,
+  author_hash            BYTEA        NOT NULL,
   FOREIGN KEY (thread_id) REFERENCES comment_thread (id),
   FOREIGN KEY (parent_id) REFERENCES comment (id)
 );

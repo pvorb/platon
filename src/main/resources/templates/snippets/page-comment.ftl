@@ -1,8 +1,8 @@
 <#ftl output_format="HTML"/>
 
 <#macro page_comment thread comments comment in_form=false>
-    <div id="comment-${comment.id}" class="comment media mb-3 p-3">
-        <img class="mr-3" width="64" height="64" src="/avatars/${comment.id}_${comment.author!""}">
+    <div id="comment-${comment.id!"preview"}" class="comment media mb-3 p-3">
+        <img class="mr-3" width="64" height="64" src="/avatars/${base64Url(comment.authorHash)}">
         <div class="media-body">
             <header class="meta mb-3">
                 <#if comment.author?? && comment.url??>

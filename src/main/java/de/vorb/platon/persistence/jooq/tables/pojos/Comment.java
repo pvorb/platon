@@ -25,7 +25,7 @@ import javax.annotation.Generated;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Comment implements Serializable {
 
-    private static final long serialVersionUID = 2073570444;
+    private static final long serialVersionUID = -1369366847;
 
     private Long          id;
     private Long          threadId;
@@ -36,6 +36,7 @@ public class Comment implements Serializable {
     private String        text;
     private String        author;
     private String        url;
+    private byte[]        authorHash;
 
     public Comment() {}
 
@@ -49,6 +50,7 @@ public class Comment implements Serializable {
         this.text = value.text;
         this.author = value.author;
         this.url = value.url;
+        this.authorHash = value.authorHash;
     }
 
     public Comment(
@@ -60,7 +62,8 @@ public class Comment implements Serializable {
         CommentStatus status,
         String        text,
         String        author,
-        String        url
+        String        url,
+        byte[]        authorHash
     ) {
         this.id = id;
         this.threadId = threadId;
@@ -71,6 +74,7 @@ public class Comment implements Serializable {
         this.text = text;
         this.author = author;
         this.url = url;
+        this.authorHash = authorHash;
     }
 
     public Long getId() {
@@ -154,6 +158,15 @@ public class Comment implements Serializable {
         return this;
     }
 
+    public byte[] getAuthorHash() {
+        return this.authorHash;
+    }
+
+    public Comment setAuthorHash(byte... authorHash) {
+        this.authorHash = authorHash;
+        return this;
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder("Comment (");
@@ -167,6 +180,7 @@ public class Comment implements Serializable {
         sb.append(", ").append(text);
         sb.append(", ").append(author);
         sb.append(", ").append(url);
+        sb.append(", ").append("[binary...]");
 
         sb.append(")");
         return sb.toString();

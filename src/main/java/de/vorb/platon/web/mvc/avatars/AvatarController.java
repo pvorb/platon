@@ -22,15 +22,11 @@ import java.util.Random;
 @RequiredArgsConstructor
 public class AvatarController {
 
-    private static final List<Color> BACKGROUND_COLORS = ImmutableList.of(
-            new Color(0x96858f), new Color(0x6d7993), new Color(0x9099a2), new Color(0xd5d5d5));
     private static final List<Color> COLORS = ImmutableList.of(
             new Color(0xe24e42), new Color(0xe9b000), new Color(0xeb6e80), new Color(0x008f95));
 
     @GetMapping(value = "/avatars/{hash}", produces = MediaType.IMAGE_PNG_VALUE)
-
-    public void bufferedImage(@PathVariable("hash") String hash, HttpServletResponse httpServletResponse)
-            throws IOException {
+    public void getAvatar(@PathVariable("hash") String hash, HttpServletResponse response) throws IOException {
 
         final Random random = new Random(hash.hashCode());
 
@@ -75,7 +71,7 @@ public class AvatarController {
 
         g2d.dispose();
 
-        ImageIO.write(image, "PNG", httpServletResponse.getOutputStream());
+        ImageIO.write(image, "PNG", response.getOutputStream());
     }
 
 }

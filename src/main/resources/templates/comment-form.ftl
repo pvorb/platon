@@ -14,6 +14,7 @@
     <div class="my-3">
         <a href="/threads/${thread.id}/comments">Go back to thread</a>
     </div>
+
     <#if parentComment??>
     <div id="parent-comment" class="mt-3">
         <h4>Replying to comment</h4>
@@ -21,20 +22,27 @@
     </div>
     </#if>
 
+    <#if previewComment??>
+    <div id="preview-comment" class="mt-3">
+        <h4>Preview of your comment</h4>
+        <@page_comment thread comments previewComment true/>
+    </div>
+    </#if>
+
     <form method="post">
         <div class="form-group">
             <label class="sr-only" for="comment-form-text">Text of the comment</label>
-            <textarea id="comment-form-text" name="commentText" class="form-control" rows="8"
-                      placeholder="Your comment goes here"></textarea>
+            <textarea id="comment-form-text" name="text" class="form-control" rows="6"
+                      placeholder="Your comment goes here">${(previewComment??)?then(previewComment.text, "")}</textarea>
         </div>
         <div class="form-group">
-            <label class="sr-only" for="comment-form-author">Name (optional)</label>
+            <label class="sr-only" for="comment-form-author">Name</label>
             <div class="input-group my-2">
                 <div class="input-group-prepend">
                     <div class="input-group-text">&#128100;</div>
                 </div>
-                <input id="comment-form-author" type="text" class="form-control" name="commentAuthor"
-                       placeholder="Name (optional)">
+                <input id="comment-form-author" type="text" class="form-control" name="author"
+                       placeholder="Name" value="${(previewComment??)?then(previewComment.author, "")}">
             </div>
         </div>
         <div class="form-group">
@@ -43,21 +51,22 @@
                 <div class="input-group-prepend">
                     <div class="input-group-text">&#128279;</div>
                 </div>
-                <input id="comment-form-url" type="text" class="form-control" name="commentUrl"
-                       placeholder="URL (optional)">
+                <input id="comment-form-url" type="text" class="form-control" name="url"
+                       placeholder="URL (optional)" value="${(previewComment??)?then(previewComment.url, "")}">
             </div>
         </div>
         <div class="form-group">
             <div class="form-check">
-                <input id="comment-form-remember-me" class="form-check-input" type="checkbox"
-                       name="commentRememberMe">
-                <label class="form-check-label" for="comment-form-remember-me">
-                    Use cookies to remember my details
+                <input id="comment-form-accept-cookie" class="form-check-input" type="checkbox"
+                       name="acceptCookie">
+                <label class="form-check-label" for="comment-form-accept-cookie">
+                    I accept the use of a cookie to keep the identicon next to my comments consistent.<br>
+                    (If this is not accepted, an anonymized identicon will be visible next to your comment.)
                 </label>
             </div>
         </div>
         <div class="form-group">
-            <button class="btn btn-primary" name="action" value="submit">Post comment</button>
+            <button class="btn btn-primary" name="action" value="create">Create comment</button>
             <button class="btn btn-secondary" name="action" value="preview">Preview comment</button>
         </div>
 
@@ -65,6 +74,7 @@
         <#if parentComment??>
         <input type="hidden" name="parentCommentId" value="${parentComment.id}">
         </#if>
+        <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
     </form>
 </#macro>
 

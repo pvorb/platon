@@ -4,6 +4,7 @@ import de.vorb.platon.persistence.CommentRepository;
 import de.vorb.platon.persistence.ThreadRepository;
 import de.vorb.platon.persistence.jooq.tables.pojos.Comment;
 import de.vorb.platon.persistence.jooq.tables.pojos.CommentThread;
+import de.vorb.platon.view.Base64UrlMethod;
 import de.vorb.platon.web.mvc.errors.RequestException;
 
 import com.google.common.collect.ImmutableMap;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,7 +39,10 @@ public class CommentController {
     private final CommentRepository commentRepository;
 
     @GetMapping(value = PATH_SINGLE_THREAD, produces = TEXT_HTML_VALUE)
-    public ModelAndView findCommentsByThreadUrl(@PathVariable(PATH_VAR_THREAD_ID) long threadId) {
+    public ModelAndView findCommentsByThreadUrl(@PathVariable(PATH_VAR_THREAD_ID) long threadId,
+            HttpServletRequest request) {
+
+        log.info("session.id = {}", request.getSession(true).getId());
 
         final CommentThread thread = threadRepository.findById(threadId)
                 .orElseThrow(() -> RequestException.withStatus(HttpStatus.NOT_FOUND)
@@ -49,7 +54,8 @@ public class CommentController {
                         LinkedHashMap::new));
 
         return new ModelAndView("comments-flat",
-                ImmutableMap.of("thread", thread, "commentCount", comments.size(), "comments", commentsById));
+                ImmutableMap.of("thread", thread, "commentCount", comments.size(), "comments", commentsById,
+                        "base64Url", Base64UrlMethod.INSTANCE));
     }
 
     private static <T> BinaryOperator<T> throwingMerger() {
