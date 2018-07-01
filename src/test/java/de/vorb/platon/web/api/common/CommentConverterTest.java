@@ -23,7 +23,6 @@ import de.vorb.platon.web.api.json.CommentJson;
 import org.junit.Test;
 
 import java.time.LocalDateTime;
-import java.util.Base64;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -93,7 +92,7 @@ public class CommentConverterTest {
     }
 
     private void assertThatContentFieldsMatchPojo(CommentJson json, Comment comment) {
-        assertThat(json.getText()).isEqualTo(comment.getText());
+        assertThat(json.getText()).isEqualTo(comment.getTextSource());
         assertThat(json.getAuthor()).isEqualTo(comment.getAuthor());
 
 //        assertThat(json.getEmailHash())
@@ -118,7 +117,7 @@ public class CommentConverterTest {
                 .setParentId(13L)
                 .setCreationDate(LocalDateTime.now().minusSeconds(53))
                 .setLastModificationDate(LocalDateTime.now())
-                .setText("Some text")
+                .setTextSource("Some text")
                 .setAuthor("Jane Doe")
 //                .setEmailHash("DBe/ZuZJBwFncB0tPNcXEQ==")
                 .setUrl("https://example.org/~jane.html");
@@ -136,7 +135,7 @@ public class CommentConverterTest {
         assertThat(comment.getCreationDate()).isEqualTo(json.getCreationDate());
         assertThat(comment.getLastModificationDate()).isEqualTo(json.getLastModificationDate());
         assertThat(comment.getStatus()).isEqualTo(json.getStatus());
-        assertThat(comment.getText()).isEqualTo(json.getText());
+        assertThat(comment.getTextSource()).isEqualTo(json.getText());
         assertThat(comment.getAuthor()).isEqualTo(json.getAuthor());
 //        assertThat(comment.getEmailHash()).isEqualTo("18385ac57d9b171dc3fe83a5a92b68d9");
         assertThat(comment.getUrl()).isEqualTo(json.getUrl());
@@ -162,7 +161,7 @@ public class CommentConverterTest {
         assertThat(comment.getCreationDate()).isNull();
         assertThat(comment.getLastModificationDate()).isNull();
         assertThat(comment.getStatus()).isNull();
-        assertThat(comment.getText()).isEqualTo(json.getText());
+        assertThat(comment.getTextSource()).isEqualTo(json.getText());
         assertThat(comment.getAuthor()).isNull();
 //        assertThat(comment.getEmailHash()).isNull();
         assertThat(comment.getUrl()).isNull();

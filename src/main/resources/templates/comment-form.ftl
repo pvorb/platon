@@ -1,4 +1,6 @@
 <#ftl output_format="HTML"/>
+<#import "/spring.ftl" as spring/>
+<#import "platon.ftl" as platon/>
 <#include "snippets/base.ftl"/>
 <#include "snippets/page-comment.ftl"/>
 
@@ -31,18 +33,27 @@
 
     <form method="post">
         <div class="form-group">
-            <label class="sr-only" for="comment-form-text">Text of the comment</label>
-            <textarea id="comment-form-text" name="text" class="form-control" rows="6"
-                      placeholder="Your comment goes here">${(previewComment??)?then(previewComment.text, "")}</textarea>
+            <label class="sr-only" for="text">Text of the comment</label>
+                <@platon.formValidationClass "comment" "text"/>
+            <@spring.formTextarea "comment.text" 'class="form-control ${platon.validationClass}" rows="6" placeholder="Your comment goes here"'/>
+            <div class="invalid-feedback">
+                <@spring.showErrors ", "/>
+            </div>
+            <small class="text-muted">
+                You can use <a href="http://commonmark.org/help/" target="_blank">Markdown</a> to mark up your comment.
+            </small>
         </div>
         <div class="form-group">
-            <label class="sr-only" for="comment-form-author">Name</label>
+            <label class="sr-only" for="author">Name</label>
             <div class="input-group my-2">
                 <div class="input-group-prepend">
                     <div class="input-group-text">&#128100;</div>
                 </div>
-                <input id="comment-form-author" type="text" class="form-control" name="author"
-                       placeholder="Name" value="${(previewComment??)?then(previewComment.author, "")}">
+                <@platon.formValidationClass "comment" "author"/>
+                <@spring.formInput "comment.author" 'class="form-control ${platon.validationClass}" placeholder="Name"'/>
+                <div class="invalid-feedback">
+                    <@spring.showErrors ", "/>
+                </div>
             </div>
         </div>
         <div class="form-group">
@@ -51,23 +62,25 @@
                 <div class="input-group-prepend">
                     <div class="input-group-text">&#128279;</div>
                 </div>
-                <input id="comment-form-url" type="text" class="form-control" name="url"
-                       placeholder="URL (optional)" value="${(previewComment??)?then(previewComment.url, "")}">
+                <@platon.formValidationClass "comment" "url"/>
+                <@spring.formInput "comment.url" 'class="form-control ${platon.validationClass}" placeholder="URL (optional)"'/>
+                <div class="invalid-feedback">
+                    <@spring.showErrors ", "/>
+                </div>
             </div>
         </div>
         <div class="form-group">
             <div class="form-check">
-                <input id="comment-form-accept-cookie" class="form-check-input" type="checkbox"
-                       name="acceptCookie">
-                <label class="form-check-label" for="comment-form-accept-cookie">
+                <@spring.formCheckbox "comment.acceptCookie" 'class="form-check-input"'/>
+                <label class="form-check-label" for="acceptCookie">
                     I accept the use of a cookie to keep the identicon next to my comments consistent.<br>
                     (If this is not accepted, an anonymized identicon will be visible next to your comment.)
                 </label>
             </div>
         </div>
         <div class="form-group">
-            <button class="btn btn-primary" name="action" value="create">Create comment</button>
-            <button class="btn btn-secondary" name="action" value="preview">Preview comment</button>
+            <button class="btn btn-primary" name="action" value="CREATE">Create comment</button>
+            <button class="btn btn-secondary" name="action" value="PREVIEW">Preview comment</button>
         </div>
 
         <input type="hidden" name="threadId" value="${thread.id}">

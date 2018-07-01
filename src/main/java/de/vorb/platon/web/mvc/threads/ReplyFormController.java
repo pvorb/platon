@@ -5,22 +5,24 @@ import de.vorb.platon.persistence.CommentRepository;
 import de.vorb.platon.persistence.ThreadRepository;
 import de.vorb.platon.persistence.jooq.tables.pojos.Comment;
 import de.vorb.platon.persistence.jooq.tables.pojos.CommentThread;
-import de.vorb.platon.view.Base64UrlMethod;
 import de.vorb.platon.web.mvc.comments.CommentAction;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.commonmark.node.Node;
+import org.commonmark.parser.Parser;
+import org.commonmark.renderer.html.HtmlRenderer;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
-import org.springframework.util.MultiValueMap;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -35,35 +37,54 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ReplyFormController {
 
+    private static final String VIEW_NAME = "comment-form";
+
     private final ThreadRepository threadRepository;
     private final CommentRepository commentRepository;
+    private final Clock clock;
+    private final Parser parser = Parser.builder().build();
+    private final HtmlRenderer htmlRenderer = HtmlRenderer.builder().build();
 
     @GetMapping(value = {"/threads/{threadId}/reply", "/threads/{threadId}/comments/{parentCommentId}/reply"},
             produces = MediaType.TEXT_HTML_VALUE)
-    public ModelAndView showThreadReplyForm(
+    public String showThreadReplyForm(
             @PathVariable(CommentController.PATH_VAR_THREAD_ID) long threadId,
-            @PathVariable(value = "parentCommentId", required = false) Long parentCommentId) {
+            @PathVariable(value = "parentCommentId", required = false) Long parentCommentId,
+            @ModelAttribute("comment") CommentFormData comment, Model model) {
 
-        final Map<String, Object> model = getModelForCommentForm(threadId, parentCommentId, null);
+        applyCommentFormModel(model, threadId, parentCommentId);
 
-        return new ModelAndView("comment-form", model);
+        return VIEW_NAME;
     }
 
     @PostMapping(value = {"/threads/{threadId}/reply", "/threads/{threadId}/comments/{parentCommentId}/reply"},
             consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE, produces = MediaType.TEXT_HTML_VALUE)
-    public ModelAndView postComment(HttpServletRequest request, HttpServletResponse response,
+    public String postComment(HttpServletRequest request,
             @PathVariable(CommentController.PATH_VAR_THREAD_ID) long threadId,
             @PathVariable(value = "parentCommentId", required = false) Long parentCommentId,
-            @RequestBody MultiValueMap<String, String> formValues) {
+            @Valid @ModelAttribute("comment") CommentFormData formData, BindingResult bindingResult, Model model) {
 
-        final CommentAction action = CommentAction.valueOf(formValues.getFirst("action").toUpperCase());
-        final String text = formValues.getFirst("text");
-        final String author = formValues.getFirst("author");
-        final String url = formValues.getFirst("url");
-        final boolean acceptCookie = "checked".equalsIgnoreCase(formValues.getFirst("acceptCookie"));
+        applyCommentFormModel(model, threadId, parentCommentId);
 
+        if (bindingResult.hasErrors()) {
+            return VIEW_NAME;
+        } else {
+            final Comment comment = createComment(request, threadId, parentCommentId, formData);
+
+            if (formData.getAction() == CommentAction.CREATE) {
+                final Comment storedComment = commentRepository.insert(comment);
+                return "redirect:" + CommentController.pathSingleThread(threadId) + "#comment-" + storedComment.getId();
+            } else {
+                model.addAttribute("previewComment", comment);
+                return VIEW_NAME;
+            }
+        }
+    }
+
+    private Comment createComment(HttpServletRequest request, long threadId, Long parentCommentId,
+            CommentFormData comment) {
         byte[] authorHash = null;
-        if (acceptCookie) {
+        if (comment.isAcceptCookie()) {
             final String sessionId = request.getSession(true).getId();
             try {
                 final MessageDigest sha1 = MessageDigest.getInstance("SHA-1");
@@ -73,49 +94,43 @@ public class ReplyFormController {
             }
         }
         if (authorHash == null) {
-            authorHash = new byte[1];
+            authorHash = new byte[0];
         }
 
-        final Comment previewComment = new Comment()
+        final LocalDateTime now = LocalDateTime.now(clock);
+
+        final Node parsedMarkdown = parser.parse(comment.getText());
+        final String textHtml = htmlRenderer.render(parsedMarkdown);
+
+        return new Comment()
+                .setThreadId(threadId)
                 .setParentId(parentCommentId)
-                .setCreationDate(LocalDateTime.now(Clock.systemUTC()))
-                .setLastModificationDate(LocalDateTime.now(Clock.systemUTC()))
-                .setText(text)
-                .setAuthor(author)
-                .setUrl(url)
+                .setCreationDate(now)
+                .setLastModificationDate(now)
+                .setTextSource(comment.getText())
+                .setTextHtml(textHtml)
+                .setAuthor(comment.getAuthor())
+                .setUrl(comment.getUrl())
                 .setAuthorHash(authorHash)
-                .setStatus(CommentStatus.AWAITING_MODERATION);
-
-        final Map<String, Object> model = getModelForCommentForm(threadId, parentCommentId, previewComment);
-        model.put("previewComment", previewComment);
-
-        return new ModelAndView("comment-form", model);
+                .setStatus(CommentStatus.PUBLIC);
     }
 
-    private Map<String, Object> getModelForCommentForm(long threadId, Long parentCommentId, Comment previewComment) {
+    private void applyCommentFormModel(Model model, long threadId, Long parentCommentId) {
         final CommentThread thread = threadRepository.findById(threadId).orElseThrow(RuntimeException::new);
         final Optional<Comment> parentComment =
                 Optional.ofNullable(parentCommentId).flatMap(commentRepository::findById);
 
-        final Map<String, Object> model = new HashMap<>();
-        model.put("thread", thread);
-        model.put("base64Url", Base64UrlMethod.INSTANCE);
+        model.addAttribute("thread", thread);
 
         final Map<Long, Object> comments = new HashMap<>(2);
 
         parentComment.ifPresent(parent -> {
-            model.put("parentComment", parent);
+            model.addAttribute("parentComment", parent);
             comments.put(parent.getId(), parent);
             addParentOfParent(comments, parent);
         });
 
-        if (previewComment != null) {
-            model.put("previewComment", previewComment);
-        }
-
-        model.put("comments", comments);
-
-        return model;
+        model.addAttribute("comments", comments);
     }
 
     private void addParentOfParent(Map<Long, Object> comments, Comment parentComment) {

@@ -30,7 +30,7 @@ public class PlatonApp {
     }
 
     @Bean
-    public Clock clock() {
+    public Clock systemClock() {
         return Clock.systemUTC();
     }
 

@@ -25,7 +25,7 @@ import javax.annotation.Generated;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Comment implements Serializable {
 
-    private static final long serialVersionUID = -1369366847;
+    private static final long serialVersionUID = -1470539752;
 
     private Long          id;
     private Long          threadId;
@@ -33,7 +33,8 @@ public class Comment implements Serializable {
     private LocalDateTime creationDate;
     private LocalDateTime lastModificationDate;
     private CommentStatus status;
-    private String        text;
+    private String        textSource;
+    private String        textHtml;
     private String        author;
     private String        url;
     private byte[]        authorHash;
@@ -47,7 +48,8 @@ public class Comment implements Serializable {
         this.creationDate = value.creationDate;
         this.lastModificationDate = value.lastModificationDate;
         this.status = value.status;
-        this.text = value.text;
+        this.textSource = value.textSource;
+        this.textHtml = value.textHtml;
         this.author = value.author;
         this.url = value.url;
         this.authorHash = value.authorHash;
@@ -60,7 +62,8 @@ public class Comment implements Serializable {
         LocalDateTime creationDate,
         LocalDateTime lastModificationDate,
         CommentStatus status,
-        String        text,
+        String        textSource,
+        String        textHtml,
         String        author,
         String        url,
         byte[]        authorHash
@@ -71,7 +74,8 @@ public class Comment implements Serializable {
         this.creationDate = creationDate;
         this.lastModificationDate = lastModificationDate;
         this.status = status;
-        this.text = text;
+        this.textSource = textSource;
+        this.textHtml = textHtml;
         this.author = author;
         this.url = url;
         this.authorHash = authorHash;
@@ -131,12 +135,21 @@ public class Comment implements Serializable {
         return this;
     }
 
-    public String getText() {
-        return this.text;
+    public String getTextSource() {
+        return this.textSource;
     }
 
-    public Comment setText(String text) {
-        this.text = text;
+    public Comment setTextSource(String textSource) {
+        this.textSource = textSource;
+        return this;
+    }
+
+    public String getTextHtml() {
+        return this.textHtml;
+    }
+
+    public Comment setTextHtml(String textHtml) {
+        this.textHtml = textHtml;
         return this;
     }
 
@@ -177,7 +190,8 @@ public class Comment implements Serializable {
         sb.append(", ").append(creationDate);
         sb.append(", ").append(lastModificationDate);
         sb.append(", ").append(status);
-        sb.append(", ").append(text);
+        sb.append(", ").append(textSource);
+        sb.append(", ").append(textHtml);
         sb.append(", ").append(author);
         sb.append(", ").append(url);
         sb.append(", ").append("[binary...]");

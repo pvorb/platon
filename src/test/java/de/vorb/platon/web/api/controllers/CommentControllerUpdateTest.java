@@ -79,7 +79,7 @@ public class CommentControllerUpdateTest extends CommentControllerTest {
 //
 //        verify(requestValidator).verifyValidRequest(eq(SAMPLE_SIGNATURE.toString()), eq(SAMPLE_IDENTIFIER));
 //
-//        verify(comment).setText(eq(commentJson.getText()));
+//        verify(comment).setText(eq(commentJson.getTextSource()));
 //        verify(comment).setAuthor(eq(commentJson.getAuthor()));
 //        verify(comment).setUrl(eq(commentJson.getUrl()));
 //

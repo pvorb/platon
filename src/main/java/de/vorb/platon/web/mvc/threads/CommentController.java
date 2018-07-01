@@ -4,7 +4,6 @@ import de.vorb.platon.persistence.CommentRepository;
 import de.vorb.platon.persistence.ThreadRepository;
 import de.vorb.platon.persistence.jooq.tables.pojos.Comment;
 import de.vorb.platon.persistence.jooq.tables.pojos.CommentThread;
-import de.vorb.platon.view.Base64UrlMethod;
 import de.vorb.platon.web.mvc.errors.RequestException;
 
 import com.google.common.collect.ImmutableMap;
@@ -42,8 +41,6 @@ public class CommentController {
     public ModelAndView findCommentsByThreadUrl(@PathVariable(PATH_VAR_THREAD_ID) long threadId,
             HttpServletRequest request) {
 
-        log.info("session.id = {}", request.getSession(true).getId());
-
         final CommentThread thread = threadRepository.findById(threadId)
                 .orElseThrow(() -> RequestException.withStatus(HttpStatus.NOT_FOUND)
                         .message("No thread exists for ID “" + threadId + '”').build());
@@ -54,13 +51,16 @@ public class CommentController {
                         LinkedHashMap::new));
 
         return new ModelAndView("comments-flat",
-                ImmutableMap.of("thread", thread, "commentCount", comments.size(), "comments", commentsById,
-                        "base64Url", Base64UrlMethod.INSTANCE));
+                ImmutableMap.of("thread", thread, "commentCount", comments.size(), "comments", commentsById));
     }
 
     private static <T> BinaryOperator<T> throwingMerger() {
         return (a, b) -> {
             throw new IllegalStateException("Duplicate key " + a);
         };
+    }
+
+    static String pathSingleThread(long threadId) {
+        return PATH_SINGLE_THREAD.replace('{' + PATH_VAR_THREAD_ID + '}', String.valueOf(threadId));
     }
 }

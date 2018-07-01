@@ -51,6 +51,7 @@
         <commons-codec.version>1.10</commons-codec.version>
         <owasp-java-html.version>20180219.1</owasp-java-html.version>
         <encoder.version>1.2</encoder.version>
+        <commonmark.version>0.11.0</commonmark.version>
         <rome.version>1.10.0</rome.version>
         <bootstrap.version>4.1.1</bootstrap.version>
 
@@ -130,6 +131,11 @@
             <groupId>org.owasp.encoder</groupId>
             <artifactId>encoder</artifactId>
             <version>${encoder.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.atlassian.commonmark</groupId>
+            <artifactId>commonmark</artifactId>
+            <version>${commonmark.version}</version>
         </dependency>
 
         <dependency>

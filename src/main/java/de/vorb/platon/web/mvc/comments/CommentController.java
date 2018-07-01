@@ -256,7 +256,7 @@ public class CommentController {
 //                                .message(String.format("Comment with ID = %d does not exist", commentId))
 //                                .build());
 //
-//        comment.setText(commentJson.getText());
+//        comment.setText(commentJson.getTextSource());
 //        comment.setAuthor(comment.getAuthor());
 //        comment.setUrl(comment.getUrl());
 //

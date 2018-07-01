@@ -5,14 +5,10 @@
         <img class="mr-3" width="64" height="64" src="/avatars/${base64Url(comment.authorHash)}">
         <div class="media-body">
             <header class="meta mb-3">
-                <#if comment.author?? && comment.url??>
+                <#if comment.url??>
                     by <b><a href="${comment.url}">${comment.author}</a></b>
-                <#elseif comment.author??>
-                    by <b>${comment.author}</b>
-                <#elseif comment.url??>
-                    by <a href="${comment.url}">an anonymous user</a>
                 <#else>
-                    by an anonymous user
+                    by <b>${comment.author}</b>
                 </#if>
                 on
                 <time>${comment.creationDate}</time>
@@ -22,21 +18,21 @@
 
                 <#if comment.parentId??>
                     <#assign parentComment=comments?api.get(comment.parentId)/>
-                    <#assign clippedParentText=parentComment.text?replace('<[^>]+>', '', 'r')[0..*80]/>
-                    <#if clippedParentText?length &lt; parentComment.text?length>
+                    <#assign clippedParentText=parentComment.textHtml?replace('<[^>]+>', '', 'r')[0..*80]/>
+                    <#if clippedParentText?length &lt; parentComment.textHtml?length>
                     <div class="small">(In reply to comment
                         <a href="/threads/${thread.id}/comments#comment-${parentComment.id}">“${clippedParentText}…”</a>)
                     </div>
                     <#else>
                     <div class="small">(In reply to comment
-                        <a href="/threads/${thread.id}/comments#comment-${parentComment.id}">“${parentComment.text}”</a>)
+                        <a href="/threads/${thread.id}/comments#comment-${parentComment.id}">“${clippedParentText}”</a>)
                     </div>
                     </#if>
                 </#if>
             </header>
 
             <div class="comment-content">
-                ${comment.text?no_esc}
+                ${comment.textHtml?no_esc}
             </div>
 
             <#if !in_form>

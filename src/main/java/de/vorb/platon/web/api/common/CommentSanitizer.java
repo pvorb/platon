@@ -63,9 +63,9 @@ public class CommentSanitizer {
             );
         }
 
-        final String requestText = comment.getText();
+        final String requestText = comment.getTextSource();
         final String sanitizedText = inputSanitizer.sanitize(requestText);
-        comment.setText(sanitizedText);
+        comment.setTextHtml(sanitizedText);
     }
 
     private Optional<URI> validateUrl(String urlAsString) {

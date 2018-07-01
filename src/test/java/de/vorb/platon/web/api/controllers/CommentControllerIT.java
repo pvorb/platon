@@ -55,7 +55,7 @@ public class CommentControllerIT {
             .setCreationDate(LocalDateTime.parse(SAMPLE_CREATION_DATE))
             .setLastModificationDate(LocalDateTime.parse(SAMPLE_LAST_MODIFICATION_DATE))
             .setStatus(CommentStatus.PUBLIC)
-            .setText("Sample text")
+            .setTextSource("Sample text")
             .setAuthor("John Doe")
 //            .setEmailHash("DBe/ZuZJBwFncB0tPNcXEQ==")
             .setUrl("https://example.org");
@@ -82,7 +82,7 @@ public class CommentControllerIT {
                 .andExpect(jsonPath("$.creationDate").value(SAMPLE_CREATION_DATE))
                 .andExpect(jsonPath("$.lastModificationDate").value(SAMPLE_LAST_MODIFICATION_DATE))
                 .andExpect(jsonPath("$.status").value(SAMPLE_COMMENT.getStatus().toString()))
-                .andExpect(jsonPath("$.text").value(SAMPLE_COMMENT.getText()))
+                .andExpect(jsonPath("$.text").value(SAMPLE_COMMENT.getTextSource()))
                 .andExpect(jsonPath("$.author").value(SAMPLE_COMMENT.getAuthor()))
                 .andExpect(jsonPath("$.emailHash").value("0c17bf66e649070167701d2d3cd71711"))
                 .andExpect(jsonPath("$.url").value(SAMPLE_COMMENT.getUrl()))

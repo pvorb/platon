@@ -50,7 +50,7 @@ public class CommentConverter {
 
         if (comment.getStatus() != CommentStatus.DELETED) {
 
-            json.text(comment.getText());
+            json.text(comment.getTextSource());
             json.author(comment.getAuthor());
             json.url(comment.getUrl());
 
@@ -69,7 +69,7 @@ public class CommentConverter {
                 .setCreationDate(json.getCreationDate())
                 .setLastModificationDate(json.getLastModificationDate())
                 .setStatus(json.getStatus())
-                .setText(json.getText())
+                .setTextHtml(json.getText())
                 .setAuthor(json.getAuthor())
 //                .setEmailHash(calculateEmailHash(json.getEmail()))
                 .setUrl(json.getUrl());

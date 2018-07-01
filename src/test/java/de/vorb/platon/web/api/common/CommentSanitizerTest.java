@@ -104,12 +104,12 @@ public class CommentSanitizerTest {
         final String sanitizedText = "Sanitized text";
 
         when(inputSanitizer.sanitize(eq(text))).thenReturn(sanitizedText);
-        comment.setText(text);
+        comment.setTextSource(text);
 
         commentSanitizer.sanitizeComment(comment);
 
         verify(inputSanitizer).sanitize(eq(text));
-        assertThat(comment.getText()).isEqualTo(sanitizedText);
+        assertThat(comment.getTextSource()).isEqualTo(sanitizedText);
     }
 
 }

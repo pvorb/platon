@@ -43,7 +43,7 @@ import org.jooq.impl.TableImpl;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Comment extends TableImpl<CommentRecord> {
 
-    private static final long serialVersionUID = -804500236;
+    private static final long serialVersionUID = 1931271830;
 
     /**
      * The reference instance of <code>public.comment</code>
@@ -89,9 +89,14 @@ public class Comment extends TableImpl<CommentRecord> {
     public final TableField<CommentRecord, CommentStatus> STATUS = createField("status", org.jooq.impl.SQLDataType.VARCHAR(32).nullable(false), this, "", new CommentStatusConverter());
 
     /**
-     * The column <code>public.comment.text</code>.
+     * The column <code>public.comment.text_source</code>.
      */
-    public final TableField<CommentRecord, String> TEXT = createField("text", org.jooq.impl.SQLDataType.CLOB.nullable(false), this, "");
+    public final TableField<CommentRecord, String> TEXT_SOURCE = createField("text_source", org.jooq.impl.SQLDataType.CLOB.nullable(false), this, "");
+
+    /**
+     * The column <code>public.comment.text_html</code>.
+     */
+    public final TableField<CommentRecord, String> TEXT_HTML = createField("text_html", org.jooq.impl.SQLDataType.CLOB.nullable(false), this, "");
 
     /**
      * The column <code>public.comment.author</code>.

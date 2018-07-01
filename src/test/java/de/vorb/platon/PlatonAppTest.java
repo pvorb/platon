@@ -27,7 +27,7 @@ public class PlatonAppTest {
 
     @Test
     public void configuredClockIsUtc() {
-        final Clock configuredClock = new PlatonApp().clock();
+        final Clock configuredClock = new PlatonApp().systemClock();
         final ZoneId utc = ZoneId.of("Z");
         assertThat(configuredClock.getZone()).isEqualTo(utc);
     }

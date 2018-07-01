@@ -45,7 +45,7 @@ public class CommentControllerGetByIdTest extends CommentControllerTest {
         final Comment publicComment =
                 new Comment()
                         .setId(commentId)
-                        .setText("Text")
+                        .setTextSource("Text")
                         .setStatus(PUBLIC);
 
         when(commentRepository.findById(eq(commentId))).thenReturn(Optional.of(publicComment));
@@ -61,7 +61,7 @@ public class CommentControllerGetByIdTest extends CommentControllerTest {
         final Comment deletedComment =
                 new Comment()
                         .setId(commentId)
-                        .setText("Text")
+                        .setTextSource("Text")
                         .setStatus(DELETED);
 
         when(commentRepository.findById(eq(commentId))).thenReturn(Optional.of(deletedComment));
