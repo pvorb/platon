@@ -27,13 +27,6 @@ spring.freemarker.settings:
   api_builtin_enabled: true
 
 platon:
-  input:
-    html-elements: >
-      h1, h2, h3, h4, h5, h6,
-      br, p, hr, div, span,
-      a, img, em, strong,
-      ol, ul, li,
-      blockquote, code, pre
   feed-reader:
     import-rules: []
     # - feed-url: https://example.org/blog.atom

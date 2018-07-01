@@ -3,6 +3,7 @@ package de.vorb.platon.web.mvc.threads;
 import de.vorb.platon.model.CommentStatus;
 import de.vorb.platon.persistence.CommentRepository;
 import de.vorb.platon.persistence.ThreadRepository;
+import de.vorb.platon.persistence.jooq.Tables;
 import de.vorb.platon.persistence.jooq.tables.pojos.Comment;
 import de.vorb.platon.persistence.jooq.tables.pojos.CommentThread;
 import de.vorb.platon.services.markdown.MarkdownRenderer;
@@ -40,6 +41,7 @@ public class ReplyFormController {
     private static final String VIEW_NAME = "comment-form";
 
     private static final Pattern HTML_TAG_PATTERN = Pattern.compile("<[^>]+>");
+    private static final int MAX_TEXT_REFERENCE_LENGTH = Tables.COMMENT.TEXT_REFERENCE.getDataType().length();
 
     private final ThreadRepository threadRepository;
     private final CommentRepository commentRepository;
@@ -102,7 +104,8 @@ public class ReplyFormController {
 
         final String textHtml = markdownRenderer.renderToHtml(formData.getText());
         final String textWithoutTags = HTML_TAG_PATTERN.matcher(formData.getText()).replaceAll("").trim();
-        final String textReference = StringUtils.abbreviate(textWithoutTags, "…", 80);
+        final String textReference = StringUtils.abbreviate(textWithoutTags, "…",
+                MAX_TEXT_REFERENCE_LENGTH);
 
         return new Comment()
                 .setThreadId(threadId)
