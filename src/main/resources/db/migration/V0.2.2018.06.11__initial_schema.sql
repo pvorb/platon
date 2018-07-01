@@ -14,6 +14,7 @@ CREATE TABLE comment (
   status                 VARCHAR(32)  NOT NULL,
   text_source            TEXT         NOT NULL,
   text_html              TEXT         NOT NULL,
+  text_reference         VARCHAR(80)  NOT NULL,
   author                 VARCHAR(128) NOT NULL,
   url                    VARCHAR(256) NULL,
   author_hash            BYTEA        NOT NULL,

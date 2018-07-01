@@ -25,7 +25,7 @@ import javax.annotation.Generated;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Comment implements Serializable {
 
-    private static final long serialVersionUID = -1470539752;
+    private static final long serialVersionUID = 552231698;
 
     private Long          id;
     private Long          threadId;
@@ -35,6 +35,7 @@ public class Comment implements Serializable {
     private CommentStatus status;
     private String        textSource;
     private String        textHtml;
+    private String        textReference;
     private String        author;
     private String        url;
     private byte[]        authorHash;
@@ -50,6 +51,7 @@ public class Comment implements Serializable {
         this.status = value.status;
         this.textSource = value.textSource;
         this.textHtml = value.textHtml;
+        this.textReference = value.textReference;
         this.author = value.author;
         this.url = value.url;
         this.authorHash = value.authorHash;
@@ -64,6 +66,7 @@ public class Comment implements Serializable {
         CommentStatus status,
         String        textSource,
         String        textHtml,
+        String        textReference,
         String        author,
         String        url,
         byte[]        authorHash
@@ -76,6 +79,7 @@ public class Comment implements Serializable {
         this.status = status;
         this.textSource = textSource;
         this.textHtml = textHtml;
+        this.textReference = textReference;
         this.author = author;
         this.url = url;
         this.authorHash = authorHash;
@@ -153,6 +157,15 @@ public class Comment implements Serializable {
         return this;
     }
 
+    public String getTextReference() {
+        return this.textReference;
+    }
+
+    public Comment setTextReference(String textReference) {
+        this.textReference = textReference;
+        return this;
+    }
+
     public String getAuthor() {
         return this.author;
     }
@@ -192,6 +205,7 @@ public class Comment implements Serializable {
         sb.append(", ").append(status);
         sb.append(", ").append(textSource);
         sb.append(", ").append(textHtml);
+        sb.append(", ").append(textReference);
         sb.append(", ").append(author);
         sb.append(", ").append(url);
         sb.append(", ").append("[binary...]");

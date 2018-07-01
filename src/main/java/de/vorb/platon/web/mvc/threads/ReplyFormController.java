@@ -5,13 +5,12 @@ import de.vorb.platon.persistence.CommentRepository;
 import de.vorb.platon.persistence.ThreadRepository;
 import de.vorb.platon.persistence.jooq.tables.pojos.Comment;
 import de.vorb.platon.persistence.jooq.tables.pojos.CommentThread;
+import de.vorb.platon.services.markdown.MarkdownRenderer;
 import de.vorb.platon.web.mvc.comments.CommentAction;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.commonmark.node.Node;
-import org.commonmark.parser.Parser;
-import org.commonmark.renderer.html.HtmlRenderer;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -31,6 +30,7 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 @Slf4j
 @Controller
@@ -39,11 +39,12 @@ public class ReplyFormController {
 
     private static final String VIEW_NAME = "comment-form";
 
+    private static final Pattern HTML_TAG_PATTERN = Pattern.compile("<[^>]+>");
+
     private final ThreadRepository threadRepository;
     private final CommentRepository commentRepository;
+    private final MarkdownRenderer markdownRenderer;
     private final Clock clock;
-    private final Parser parser = Parser.builder().build();
-    private final HtmlRenderer htmlRenderer = HtmlRenderer.builder().build();
 
     @GetMapping(value = {"/threads/{threadId}/reply", "/threads/{threadId}/comments/{parentCommentId}/reply"},
             produces = MediaType.TEXT_HTML_VALUE)
@@ -82,9 +83,9 @@ public class ReplyFormController {
     }
 
     private Comment createComment(HttpServletRequest request, long threadId, Long parentCommentId,
-            CommentFormData comment) {
+            CommentFormData formData) {
         byte[] authorHash = null;
-        if (comment.isAcceptCookie()) {
+        if (formData.isAcceptCookie()) {
             final String sessionId = request.getSession(true).getId();
             try {
                 final MessageDigest sha1 = MessageDigest.getInstance("SHA-1");
@@ -99,18 +100,20 @@ public class ReplyFormController {
 
         final LocalDateTime now = LocalDateTime.now(clock);
 
-        final Node parsedMarkdown = parser.parse(comment.getText());
-        final String textHtml = htmlRenderer.render(parsedMarkdown);
+        final String textHtml = markdownRenderer.renderToHtml(formData.getText());
+        final String textWithoutTags = HTML_TAG_PATTERN.matcher(formData.getText()).replaceAll("").trim();
+        final String textReference = StringUtils.abbreviate(textWithoutTags, "…", 80);
 
         return new Comment()
                 .setThreadId(threadId)
                 .setParentId(parentCommentId)
                 .setCreationDate(now)
                 .setLastModificationDate(now)
-                .setTextSource(comment.getText())
+                .setTextSource(formData.getText())
                 .setTextHtml(textHtml)
-                .setAuthor(comment.getAuthor())
-                .setUrl(comment.getUrl())
+                .setTextReference(textReference)
+                .setAuthor(formData.getAuthor())
+                .setUrl(formData.getUrl())
                 .setAuthorHash(authorHash)
                 .setStatus(CommentStatus.PUBLIC);
     }

@@ -31,7 +31,7 @@
     </div>
     </#if>
 
-    <form method="post">
+    <form method="post" action="#preview-comment">
         <div class="form-group">
             <label class="sr-only" for="text">Text of the comment</label>
                 <@platon.formValidationClass "comment" "text"/>

@@ -18,16 +18,9 @@
 
                 <#if comment.parentId??>
                     <#assign parentComment=comments?api.get(comment.parentId)/>
-                    <#assign clippedParentText=parentComment.textHtml?replace('<[^>]+>', '', 'r')[0..*80]/>
-                    <#if clippedParentText?length &lt; parentComment.textHtml?length>
                     <div class="small">(In reply to comment
-                        <a href="/threads/${thread.id}/comments#comment-${parentComment.id}">“${clippedParentText}…”</a>)
+                        <a href="/threads/${thread.id}/comments#comment-${parentComment.id}">“${parentComment.textReference}”</a>)
                     </div>
-                    <#else>
-                    <div class="small">(In reply to comment
-                        <a href="/threads/${thread.id}/comments#comment-${parentComment.id}">“${clippedParentText}”</a>)
-                    </div>
-                    </#if>
                 </#if>
             </header>
 
