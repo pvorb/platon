@@ -23,7 +23,6 @@ import de.vorb.platon.security.SignatureCreator;
 import de.vorb.platon.web.api.common.CommentConverter;
 import de.vorb.platon.web.api.common.CommentFilters;
 import de.vorb.platon.web.api.common.CommentSanitizer;
-import de.vorb.platon.web.api.common.CommentUriResolver;
 import de.vorb.platon.web.api.common.RequestValidator;
 import de.vorb.platon.web.api.json.CommentJson;
 import de.vorb.platon.web.mvc.comments.CommentController;

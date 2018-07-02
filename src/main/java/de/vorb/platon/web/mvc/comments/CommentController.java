@@ -24,7 +24,6 @@ import de.vorb.platon.persistence.jooq.tables.pojos.CommentThread;
 import de.vorb.platon.security.SignatureCreator;
 import de.vorb.platon.web.api.common.CommentFilters;
 import de.vorb.platon.web.api.common.CommentSanitizer;
-import de.vorb.platon.web.api.common.CommentUriResolver;
 import de.vorb.platon.web.api.common.RequestValidator;
 import de.vorb.platon.web.mvc.errors.RequestException;
 
@@ -32,7 +31,6 @@ import com.google.common.collect.ImmutableMap;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;

@@ -42,8 +42,6 @@ public class CommentSanitizer {
 
     private static final PolicyFactory NO_HTML_POLICY = new HtmlPolicyBuilder().toFactory();
 
-    private final InputSanitizer inputSanitizer;
-
     public void sanitizeComment(Comment comment) {
 
         if (comment.getAuthor() != null) {
@@ -62,10 +60,6 @@ public class CommentSanitizer {
                             .orElse(null)
             );
         }
-
-        final String requestText = comment.getTextSource();
-        final String sanitizedText = inputSanitizer.sanitize(requestText);
-        comment.setTextHtml(sanitizedText);
     }
 
     private Optional<URI> validateUrl(String urlAsString) {

@@ -16,8 +16,6 @@
 
 package de.vorb.platon;
 
-import de.vorb.platon.web.api.common.HtmlInputSanitizer;
-
 import org.junit.Before;
 import org.junit.Test;
 

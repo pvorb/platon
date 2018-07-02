@@ -38,6 +38,18 @@ import java.util.regex.Pattern;
 @RequiredArgsConstructor
 public class ReplyFormController {
 
+    private static final byte[] EMPTY_STRING_HASH = new byte[20];
+
+    static {
+        try {
+            final MessageDigest sha1 = MessageDigest.getInstance("SHA-1");
+            final byte[] hash = sha1.digest("".getBytes(StandardCharsets.UTF_8));
+            System.arraycopy(hash, 0, EMPTY_STRING_HASH, 0, hash.length);
+        } catch (NoSuchAlgorithmException e) {
+            log.warn("SHA-1 not supported");
+        }
+    }
+
     private static final String VIEW_NAME = "comment-form";
 
     private static final Pattern HTML_TAG_PATTERN = Pattern.compile("<[^>]+>");
@@ -97,7 +109,7 @@ public class ReplyFormController {
             }
         }
         if (authorHash == null) {
-            authorHash = new byte[0];
+            authorHash = EMPTY_STRING_HASH;
         }
 
         final LocalDateTime now = LocalDateTime.now(clock);
