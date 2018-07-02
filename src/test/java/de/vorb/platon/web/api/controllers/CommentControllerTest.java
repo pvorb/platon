@@ -56,8 +56,8 @@ public abstract class CommentControllerTest {
 
     @Mock
     protected CommentConverter commentConverter;
-    @Mock
-    protected CommentUriResolver commentUriResolver;
+//    @Mock
+//    protected CommentUriResolver commentUriResolver;
     @Mock
     protected RequestValidator requestValidator;
     @Mock

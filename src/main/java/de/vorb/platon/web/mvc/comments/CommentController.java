@@ -72,7 +72,7 @@ public class CommentController {
     private final CommentRepository commentRepository;
     private final SignatureCreator signatureCreator;
 
-    private final CommentUriResolver commentUriResolver;
+    // private final CommentUriResolver commentUriResolver;
     private final RequestValidator requestValidator;
     private final CommentFilters commentFilters;
     private final CommentSanitizer commentSanitizer;

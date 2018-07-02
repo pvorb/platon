@@ -35,8 +35,8 @@ public class CommentSanitizerTest {
     @InjectMocks
     private CommentSanitizer commentSanitizer;
 
-    @Mock
-    private InputSanitizer inputSanitizer;
+//    @Mock
+//    private InputSanitizer inputSanitizer;
 
     private final Comment comment = new Comment();
 
@@ -97,19 +97,19 @@ public class CommentSanitizerTest {
         commentSanitizer.sanitizeComment(comment);
     }
 
-    @Test
-    public void sanitizesCommentTextUsingInputSanitizer() {
-
-        final String text = "Text";
-        final String sanitizedText = "Sanitized text";
-
-        when(inputSanitizer.sanitize(eq(text))).thenReturn(sanitizedText);
-        comment.setTextSource(text);
-
-        commentSanitizer.sanitizeComment(comment);
-
-        verify(inputSanitizer).sanitize(eq(text));
-        assertThat(comment.getTextSource()).isEqualTo(sanitizedText);
-    }
+//    @Test
+//    public void sanitizesCommentTextUsingInputSanitizer() {
+//
+//        final String text = "Text";
+//        final String sanitizedText = "Sanitized text";
+//
+//        when(inputSanitizer.sanitize(eq(text))).thenReturn(sanitizedText);
+//        comment.setTextSource(text);
+//
+//        commentSanitizer.sanitizeComment(comment);
+//
+//        verify(inputSanitizer).sanitize(eq(text));
+//        assertThat(comment.getTextSource()).isEqualTo(sanitizedText);
+//    }
 
 }
