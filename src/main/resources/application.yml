@@ -27,6 +27,7 @@ spring.freemarker.settings:
   api_builtin_enabled: true
 
 platon:
+  public-self-url: https://comments.example.com/
   feed-reader:
     import-rules: []
     # - feed-url: https://example.org/blog.atom
