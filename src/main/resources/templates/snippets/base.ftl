@@ -48,7 +48,7 @@
 
         <@page_content/>
 
-        <footer class="mt-5 mb-3">
+        <footer class="my-5">
             Powered by <a href="https://github.com/pvorb/platon">Platon</a>
         </footer>
     </div>
