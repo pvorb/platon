@@ -12,8 +12,7 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 
 @XmlRootElement(name = "feed")
@@ -33,7 +32,7 @@ public class AtomFeed {
     private String id;
 
     @XmlElement(name = "link")
-    private List<AtomLink> links;
+    private List<AtomLink> links = new ArrayList<>();
 
     @XmlElement(name = "category")
     private List<AtomCategory> categories;
@@ -45,10 +44,9 @@ public class AtomFeed {
     private String subtitle;
 
     @XmlElement(name = "updated")
-    @XmlJavaTypeAdapter(InstantAdapter.class)
-    private Instant updated;
+    private AtomDateTime updated;
 
     @XmlElement(name = "entry")
-    private List<AtomEntry> entries;
+    private List<AtomEntry> entries = new ArrayList<>();
 
 }

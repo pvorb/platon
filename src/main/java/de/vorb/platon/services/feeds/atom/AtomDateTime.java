@@ -2,31 +2,29 @@ package de.vorb.platon.services.feeds.atom;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlType;
-import java.net.URI;
+import javax.xml.bind.annotation.XmlValue;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import java.time.Instant;
 
 @XmlType
 @XmlAccessorType(XmlAccessType.FIELD)
 @Data
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class AtomCategory {
+public class AtomDateTime {
 
-    @XmlAttribute(name = "term", required = true)
-    private String term;
+    @XmlValue
+    @XmlJavaTypeAdapter(InstantAdapter.class)
+    private Instant dateTime;
 
-    @XmlAttribute(name = "scheme")
-    private URI scheme;
-
-    @XmlAttribute(name = "label")
-    private String label;
+    public static AtomDateTime of(Instant dateTime) {
+        return new AtomDateTime(dateTime);
+    }
 
 }

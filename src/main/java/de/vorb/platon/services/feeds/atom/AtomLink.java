@@ -11,7 +11,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlType;
 
-@XmlType(propOrder = {"href", "rel", "type", "hreflang", "title", "length"})
+@XmlType
 @XmlAccessorType(XmlAccessType.FIELD)
 @Data
 @Builder

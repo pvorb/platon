@@ -5,15 +5,11 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.w3c.dom.Element;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAnyElement;
-import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
-import java.net.URI;
-import java.util.List;
+import javax.xml.bind.annotation.XmlValue;
 
 @XmlType
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -21,18 +17,9 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class AtomPerson {
+public class AtomIcon {
 
-    @XmlElement(name = "name", required = true)
-    private String name;
-
-    @XmlElement(name = "uri")
-    private URI uri;
-
-    @XmlElement(name = "email")
-    private String email;
-
-    @XmlAnyElement
-    private List<Element> extensionElements;
+    @XmlValue
+    private String uri;
 
 }

@@ -115,9 +115,9 @@ public class ReplyFormController {
         final LocalDateTime now = LocalDateTime.now(clock);
 
         final String textHtml = markdownRenderer.renderToHtml(formData.getText());
-        final String textWithoutTags = HTML_TAG_PATTERN.matcher(formData.getText()).replaceAll("").trim();
-        final String textReference = StringUtils.abbreviate(textWithoutTags, "…",
-                MAX_TEXT_REFERENCE_LENGTH);
+        final String textWithoutLineBreaks = formData.getText().replace("\n", "").replace("\r", "");
+        final String textWithoutMarkup = HTML_TAG_PATTERN.matcher(textWithoutLineBreaks).replaceAll("").trim();
+        final String textReference = StringUtils.abbreviate(textWithoutMarkup, "…", MAX_TEXT_REFERENCE_LENGTH);
 
         return new Comment()
                 .setThreadId(threadId)

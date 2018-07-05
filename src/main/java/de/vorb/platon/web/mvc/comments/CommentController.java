@@ -126,7 +126,7 @@ public class CommentController {
         return new ModelAndView("comment-form", ImmutableMap.of("threadUrl", threadUrl, "threadTitle", threadTitle));
     }
 
-//    @PostMapping(value = PATH_LIST_COMMENTS, produces = TEXT_HTML_VALUE)
+//    @PostMapping(uri = PATH_LIST_COMMENTS, produces = TEXT_HTML_VALUE)
 //    public ModelAndView postComment(
 //            @RequestBody MultiValueMap<String, String> commentData) {
 //
@@ -158,11 +158,11 @@ public class CommentController {
 //        }
 //    }
 //
-//    @PostMapping(value = PATH_LIST_COMMENTS, consumes = APPLICATION_FORM_URLENCODED_VALUE, produces = TEXT_HTML_VALUE)
+//    @PostMapping(uri = PATH_LIST_COMMENTS, consumes = APPLICATION_FORM_URLENCODED_VALUE, produces = TEXT_HTML_VALUE)
 //    public ModelAndView postComment(
 //            @RequestParam("url") String threadUrl,
 //            @RequestParam("threadTitle") String threadTitle,
-//            @RequestParam(value = "action", defaultValue = "CREATE") CommentAction action,
+//            @RequestParam(uri = "action", defaultValue = "CREATE") CommentAction action,
 //            @RequestBody MultiValueMap<String, String> commentData) {
 //
 //        if (commentData.getId() != null) {
@@ -233,7 +233,7 @@ public class CommentController {
 //    }
 //
 //
-//    @PutMapping(value = PATH_SINGLE_COMMENT, consumes = APPLICATION_JSON_VALUE)
+//    @PutMapping(uri = PATH_SINGLE_COMMENT, consumes = APPLICATION_JSON_VALUE)
 //    public void updateComment(
 //            @PathVariable(PATH_VAR_COMMENT_ID) Long commentId,
 //            @RequestHeader(SIGNATURE_HEADER) String signature,
