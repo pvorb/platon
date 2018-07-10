@@ -5,7 +5,7 @@
 <#include "snippets/page-comment.ftl"/>
 
 <#macro page_title>
-    <title>Comments for “${thread.title}”</title>
+    <title>Leave a comment on “${thread.title}”</title>
 </#macro>
 
 <#macro page_header>

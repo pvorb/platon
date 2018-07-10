@@ -37,6 +37,7 @@ public class ThreadRedirectController {
 
     @GetMapping(value = CommentController.PATH_LIST_THREADS + '/' + THREAD_ID_REPLACEMENT_TARGET)
     @ResponseStatus(HttpStatus.TEMPORARY_REDIRECT)
+    @Transactional(readOnly = true)
     public String redirectToComments(@PathVariable("threadId") long threadId) {
 
         CommentThread thread = threadRepository.findById(threadId).orElseThrow(IndexOutOfBoundsException::new);

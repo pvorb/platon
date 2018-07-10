@@ -11,11 +11,16 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,8 +43,10 @@ public class CommentController {
     private final CommentRepository commentRepository;
 
     @GetMapping(value = PATH_SINGLE_THREAD, produces = TEXT_HTML_VALUE)
-    public ModelAndView findCommentsByThreadUrl(@PathVariable(PATH_VAR_THREAD_ID) long threadId,
-            HttpServletRequest request) {
+    @Transactional(readOnly = true)
+    public ModelAndView findCommentsByThreadUrl(HttpServletRequest request,
+            @PathVariable(PATH_VAR_THREAD_ID) long threadId,
+            @CookieValue(value = CommentFormController.AUTHOR_ID_COOKIE, required = false) String authorId) {
 
         final CommentThread thread = threadRepository.findById(threadId)
                 .orElseThrow(() -> RequestException.withStatus(HttpStatus.NOT_FOUND)
@@ -50,8 +57,21 @@ public class CommentController {
                 .collect(Collectors.toMap(Comment::getId, Function.identity(), throwingMerger(),
                         LinkedHashMap::new));
 
+        byte[] authorHash = null;
+        final String authorOrSessionId = authorId != null ? authorId : request.getSession(true).getId();
+        try {
+            final MessageDigest sha1 = MessageDigest.getInstance("SHA-1");
+            authorHash = sha1.digest(authorOrSessionId.getBytes(StandardCharsets.UTF_8));
+        } catch (NoSuchAlgorithmException e) {
+            log.warn("SHA-1 not supported");
+        }
+        if (authorHash == null) {
+            authorHash = CommentFormController.EMPTY_STRING_HASH;
+        }
+
         return new ModelAndView("comments-flat",
-                ImmutableMap.of("thread", thread, "commentCount", comments.size(), "comments", commentsById));
+                ImmutableMap.of("thread", thread, "commentCount", comments.size(), "comments", commentsById,
+                        "authorHash", authorHash));
     }
 
     private static <T> BinaryOperator<T> throwingMerger() {

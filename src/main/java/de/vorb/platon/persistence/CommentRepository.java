@@ -19,11 +19,15 @@ package de.vorb.platon.persistence;
 import de.vorb.platon.model.CommentStatus;
 import de.vorb.platon.persistence.jooq.tables.pojos.Comment;
 
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+@Transactional(propagation = Propagation.MANDATORY)
 public interface CommentRepository {
 
     List<Comment> findByThreadId(long threadId);

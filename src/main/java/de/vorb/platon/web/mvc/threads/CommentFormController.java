@@ -14,31 +14,41 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.time.Clock;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.regex.Pattern;
 
 @Slf4j
 @Controller
 @RequiredArgsConstructor
-public class ReplyFormController {
+public class CommentFormController {
 
-    private static final byte[] EMPTY_STRING_HASH = new byte[20];
+    static final String AUTHOR_ID_COOKIE = "author_id";
+    private static final int MAX_COOKIE_AGE = (int) Duration.ofDays(10 * 365).getSeconds();
+
+    static final byte[] EMPTY_STRING_HASH = new byte[20];
 
     static {
         try {
@@ -59,10 +69,12 @@ public class ReplyFormController {
     private final CommentRepository commentRepository;
     private final MarkdownRenderer markdownRenderer;
     private final Clock clock;
+    private final SecureRandom secureRandom;
 
     @GetMapping(value = {"/threads/{threadId}/reply", "/threads/{threadId}/comments/{parentCommentId}/reply"},
             produces = MediaType.TEXT_HTML_VALUE)
-    public String showThreadReplyForm(
+    @Transactional(readOnly = true)
+    public String showReplyForm(
             @PathVariable(CommentController.PATH_VAR_THREAD_ID) long threadId,
             @PathVariable(value = "parentCommentId", required = false) Long parentCommentId,
             @ModelAttribute("comment") CommentFormData comment, Model model) {
@@ -74,39 +86,66 @@ public class ReplyFormController {
 
     @PostMapping(value = {"/threads/{threadId}/reply", "/threads/{threadId}/comments/{parentCommentId}/reply"},
             consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE, produces = MediaType.TEXT_HTML_VALUE)
-    public String postComment(HttpServletRequest request,
+    @Transactional
+    public String postNewComment(HttpServletRequest request, HttpServletResponse response,
             @PathVariable(CommentController.PATH_VAR_THREAD_ID) long threadId,
             @PathVariable(value = "parentCommentId", required = false) Long parentCommentId,
+            @CookieValue(value = AUTHOR_ID_COOKIE, required = false) String authorId,
             @Valid @ModelAttribute("comment") CommentFormData formData, BindingResult bindingResult, Model model) {
 
         applyCommentFormModel(model, threadId, parentCommentId);
 
+        if (formData.isAcceptCookie() && authorId == null) {
+            final Cookie commentAuthorCookie = new Cookie(AUTHOR_ID_COOKIE, UUID.randomUUID().toString());
+            commentAuthorCookie.setMaxAge(MAX_COOKIE_AGE);
+            response.addCookie(commentAuthorCookie);
+        }
+
         if (bindingResult.hasErrors()) {
             return VIEW_NAME;
         } else {
-            final Comment comment = createComment(request, threadId, parentCommentId, formData);
+            final Comment comment = createComment(request, threadId, parentCommentId, authorId, formData);
 
             if (formData.getAction() == CommentAction.CREATE) {
                 final Comment storedComment = commentRepository.insert(comment);
                 return "redirect:" + CommentController.pathSingleThread(threadId) + "#comment-" + storedComment.getId();
-            } else {
+            } else if (formData.getAction() == CommentAction.PREVIEW) {
                 model.addAttribute("previewComment", comment);
                 return VIEW_NAME;
+            } else {
+                throw new RuntimeException();
             }
         }
     }
 
+    @GetMapping(value = {"/threads/{threadId}/comments/{commentId}/edit"}, produces = MediaType.TEXT_HTML_VALUE)
+    @Transactional(readOnly = true)
+    public String showEditForm(
+            @PathVariable(CommentController.PATH_VAR_THREAD_ID) long threadId,
+            @PathVariable(value = "commentId") Long commentId,
+            @ModelAttribute("comment") CommentFormData comment, Model model) {
+
+        final CommentThread thread = threadRepository.findById(threadId).orElseThrow(RuntimeException::new);
+        final Comment edit = commentRepository.findById(commentId).orElseThrow(RuntimeException::new);
+
+        model.addAttribute("thread", thread);
+        comment.setText(edit.getTextSource());
+        comment.setAuthor(edit.getAuthor());
+        comment.setUrl(edit.getUrl());
+
+        return VIEW_NAME;
+    }
+
     private Comment createComment(HttpServletRequest request, long threadId, Long parentCommentId,
-            CommentFormData formData) {
+            String authorId, CommentFormData formData) {
         byte[] authorHash = null;
-        if (formData.isAcceptCookie()) {
-            final String sessionId = request.getSession(true).getId();
-            try {
-                final MessageDigest sha1 = MessageDigest.getInstance("SHA-1");
-                authorHash = sha1.digest(sessionId.getBytes(StandardCharsets.UTF_8));
-            } catch (NoSuchAlgorithmException e) {
-                log.warn("SHA-1 not supported");
-            }
+
+        final String authorOrSessionId = authorId != null ? authorId : request.getSession(true).getId();
+        try {
+            final MessageDigest sha1 = MessageDigest.getInstance("SHA-1");
+            authorHash = sha1.digest(authorOrSessionId.getBytes(StandardCharsets.UTF_8));
+        } catch (NoSuchAlgorithmException e) {
+            log.warn("SHA-1 not supported");
         }
         if (authorHash == null) {
             authorHash = EMPTY_STRING_HASH;

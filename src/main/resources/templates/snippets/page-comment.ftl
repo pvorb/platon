@@ -31,7 +31,10 @@
             <#if !in_form>
             <footer class="mt-3">
                 <a href="/threads/${thread.id}/comments/${comment.id}/reply" class="mr-3">Reply</a>
-                <a href="/threads/${thread.id}/comments/${comment.id}/edit">Edit</a>
+                <#if byteArrayEquals(authorHash, comment.authorHash)>
+                <a href="/threads/${thread.id}/comments/${comment.id}/edit" class="mr-3">Edit</a>
+                <a href="/threads/${thread.id}/comments/${comment.id}/delete" class="mr-3">Delete</a>
+                </#if>
             </footer>
             </#if>
         </div>

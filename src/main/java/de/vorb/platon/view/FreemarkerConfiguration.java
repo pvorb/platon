@@ -14,6 +14,7 @@ public class FreemarkerConfiguration {
     @PostConstruct
     private void addSharedVariables() {
         configuration.setSharedVariable("base64Url", Base64UrlMethod.INSTANCE);
+        configuration.setSharedVariable("byteArrayEquals", ByteArrayEqualsMethod.INSTANCE);
     }
 
 }

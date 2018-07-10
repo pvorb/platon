@@ -22,6 +22,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
@@ -42,6 +43,7 @@ public class DatabaseSecretKeyProvider implements SecretKeyProvider {
     private SecretKey secretKey;
 
     @Override
+    @Transactional
     public SecretKey getSecretKey() {
 
         if (secretKey == null) {

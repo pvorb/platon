@@ -16,6 +16,7 @@ import com.google.common.collect.ImmutableMap;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
@@ -40,6 +41,7 @@ public class AtomFeedController {
     private URI publicSelfUrl;
 
     @GetMapping(value = "/threads/{threadId}/feed", produces = MediaType.APPLICATION_XML_VALUE)
+    @Transactional(readOnly = true)
     public AtomFeed getAtomFeedForThread(@PathVariable("threadId") long threadId) {
 
         final CommentThread thread = threadRepository.findById(threadId).orElseThrow(RuntimeException::new);

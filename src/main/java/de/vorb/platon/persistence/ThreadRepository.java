@@ -18,9 +18,13 @@ package de.vorb.platon.persistence;
 
 import de.vorb.platon.persistence.jooq.tables.pojos.CommentThread;
 
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 import java.util.Optional;
 
+@Transactional(propagation = Propagation.MANDATORY)
 public interface ThreadRepository {
 
     Optional<CommentThread> findById(long id);
